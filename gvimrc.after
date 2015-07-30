@@ -1,0 +1,20 @@
+" =================================
+" Configure colorscheme
+" =================================
+let g:solarized_termcolors=256
+set t_Co=16
+set background=light
+colorscheme solarized
+
+" =================================
+" No scrollbars
+" =================================
+
+set guioptions-=r 
+set guioptions-=L
+set guioptions-=T
+
+" =================================
+" Disable swap files
+" =================================
+set noswapfile

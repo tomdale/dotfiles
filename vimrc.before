@@ -1,0 +1,3 @@
+call janus#disable_plugin('vimwiki')
+call janus#disable_plugin('pep8')
+call janus#disable_plugin('snipmate')

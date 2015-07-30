@@ -1,0 +1,24 @@
+fancy-ctrl-z () {
+  if [[ $#BUFFER -eq 0 ]]; then
+    BUFFER="fg"
+    zle accept-line
+  else
+    zle push-input
+    zle clear-screen
+  fi
+}
+zle -N fancy-ctrl-z
+bindkey '^Z' fancy-ctrl-z
+
+irhydra () {
+  cd ~/irhydra
+  command rm -f *.cfg *.asm
+  command "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary" --no-sandbox \
+      --js-flags="--trace-hydrogen           \
+                  --trace-phase=Z            \
+                  --trace-deopt              \
+                  --code-comments            \
+                  --hydrogen-track-positions \
+                  --redirect-code-traces"
+}
+

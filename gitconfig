@@ -1,0 +1,19 @@
+[credential]
+	helper = osxkeychain
+[user]
+	name = Tom Dale
+	email = tom@tomdale.net
+[core]
+	excludesfile = /Users/tomdale/.gitignore
+	editor = /usr/bin/vim
+[color]
+	ui = true
+[push]
+	default = simple
+[merge]
+	conflictstyle = diff3
+[difftool "Kaleidoscope"]
+	cmd = ksdiff --partial-changeset --relative-path \"$MERGED\" -- \"$LOCAL\" \"$REMOTE\"
+[mergetool "Kaleidoscope"]
+	cmd = ksdiff --merge --output \"$MERGED\" --base \"$BASE\" -- \"$LOCAL\" --snapshot \"$REMOTE\" --snapshot
+	trustexitcode = true
