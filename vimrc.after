@@ -1,11 +1,7 @@
 set noswapfile
 
-let g:solarized_termcolors=256
-set t_Co=256
-
-syntax enable
+color solarized
 set background=dark
-colorscheme solarized
 
 set wildignore+=*/tmp/*,node_modules/**,bower_components/**
 
