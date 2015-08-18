@@ -82,3 +82,10 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+alias nom="rm -rf node_modules && npm cache clear && npm install"
+alias bom="rm -rf bower_components && bower install"
+alias nombom="nom; bom"
+
+export NVM_DIR="/Users/tomdale/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
