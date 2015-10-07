@@ -3,7 +3,19 @@ set noswapfile
 color solarized
 set background=dark
 
-set wildignore+=*/tmp/*,node_modules/**,bower_components/**
+set wildignore+=*/tmp/*,bower_components/**
+unlet g:ctrlp_custom_ignore
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\.git$\|\.hg$\|\.svn$\|bower_components$\|dist$\|node_modules$\|project_files$\|test$',
+    \ 'file': '\.exe$\|\.so$\|\.dll$\|\.pyc$' }
+
+if exists('$TMUX')
+  let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+  let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+else
+  let &t_SI = "\<Esc>]50;CursorShape=0\x7"
+  let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
 
 " filetypes
 au BufNewFile,BufRead *.es6 setf javascript
