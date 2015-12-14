@@ -23,3 +23,8 @@ au BufNewFile,BufRead *.handlebars,*.hbs set filetype=handlebars.html syntax=mus
 
 let g:mustache_abbreviations = 1
 let g:syntastic_html_checkers = ['handlebars']
+
+let g:ctrlp_custom_ignore = {
+  \ 'dir':  '\v[\/]\.(git|hg|svn)|(node_modules)$',
+  \ 'file': '\.pyc$\|\.pyo$\|\.rbc$|\.rbo$\|\.class$\|\.o$\|\~$\',
+  \ }
