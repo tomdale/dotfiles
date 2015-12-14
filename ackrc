@@ -6,3 +6,4 @@
 --type-set=coffee=.coffee
 --type-set=emblem=.emblem
 --type-set=hbs=.hbs,.handlebars
+--type-add=js=.es6
