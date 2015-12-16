@@ -11,6 +11,7 @@
     ~/.vimrc.before: vimrc.before
     ~/.vimrc.after: vimrc.after
     ~/.gvimrc.after: gvimrc.after
+    ~/.janus: janus-extra/
     ~/.ackrc: ackrc
     ~/.gemrc: gemrc
     ~/.gitconfig: gitconfig
