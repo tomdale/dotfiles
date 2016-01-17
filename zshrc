@@ -87,6 +87,9 @@ alias nom="rm -rf node_modules && npm cache clear && npm install"
 alias bom="rm -rf bower_components && bower install"
 alias nombom="nom; bom"
 
+# Open in Visual Studio Code with `code <path>`
+function code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $*; }
+
 export NVM_DIR="/Users/tomdale/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
 
