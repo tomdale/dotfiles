@@ -53,7 +53,7 @@ plugins=(git autojump)
 
 # User configuration
 
-export PATH="/Users/tomdale/.nvm/versions/io.js/v2.3.1/bin:/usr/local/heroku/bin:/Applications/Postgres93.app/Contents/MacOS/bin:/usr/local/rvm/gems/ruby-2.2.2/bin:/usr/local/rvm/gems/ruby-2.2.2@global/bin:/usr/local/rvm/rubies/ruby-2.2.2/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin:/usr/local/rvm/bin:/usr/local/rvm/bin:$PATH"
+export PATH="/usr/local/heroku/bin:/Applications/Postgres93.app/Contents/MacOS/bin:/usr/local/rvm/gems/ruby-2.2.2/bin:/usr/local/rvm/gems/ruby-2.2.2@global/bin:/usr/local/rvm/rubies/ruby-2.2.2/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin:/usr/local/rvm/bin:/usr/local/rvm/bin:$PATH"
 # export MANPATH="/usr/local/man:$MANPATH"
 
 source $ZSH/oh-my-zsh.sh
@@ -87,10 +87,7 @@ alias nom="rm -rf node_modules && npm cache clear && npm install"
 alias bom="rm -rf bower_components && bower install"
 alias nombom="nom; bom"
 
-# Open in Visual Studio Code with `code <path>`
-function code () { VSCODE_CWD="$PWD" open -n -b "com.microsoft.VSCode" --args $*; }
-
-export NVM_DIR="/Users/tomdale/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm

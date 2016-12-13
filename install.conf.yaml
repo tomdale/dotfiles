@@ -1,9 +1,12 @@
 - clean: ['~']
 
+- shell:
+  - [git submodule update --init, Installing submodules]
+  - ['cd janus && rake', Run rake in ./janus]
+
 - link:
     ~/.dotfiles: ''
     ~/.oh-my-zsh: oh-my-zsh/
-    ~/.oh-my-zsh/custom/tomdale.zsh-theme: tomdale.zsh-theme
     ~/.zshrc: zshrc
     ~/.zshrc.local: zshrc.local
     ~/.tmux.conf: tmux.conf
@@ -17,6 +20,10 @@
     ~/.gitconfig: gitconfig
     ~/.gitignore: gitignore
 
+- link:
+    ~/.oh-my-zsh/custom/tomdale.zsh-theme:
+        create: true
+        path: tomdale.zsh-theme
+
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
-  - ['cd janus && rake', Run rake in ./janus]
+  - ['./enable-zsh.sh', Changing default shell to zsh]
