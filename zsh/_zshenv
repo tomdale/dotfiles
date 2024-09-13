@@ -1,0 +1,37 @@
+# This file is immediately sourced by the "real" .zshenv script after it sets
+# $ZDOTDIR to this dotfiles directory.
+
+SCRIPT_DIR="${(%):-%N}"
+SCRIPT_DIR="${SCRIPT_DIR:a:h}"
+
+export ZSH="$SCRIPT_DIR/"
+#  __________________________________________________
+# ⎧ RUST                                             ⎫
+# ====================================================
+# ├ cargo
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
+# ├ cargo -> Artifactory
+export RUSTUP_DIST_SERVER=https://artifactory.corp.linkedin.com:8083/artifactory/rustup-remote
+export RUSTUP_UPDATE_ROOT=https://artifactory.corp.linkedin.com:8083/artifactory/rustup-remote/rustup
+
+
+#  __________________________________________________
+# ⎧ JS                                               ⎫
+# ====================================================
+#   ├ yarn
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+#   ├ volta
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+
+
+#  __________________________________________________
+# ⎧ PYTHON                                           ⎫
+# ====================================================
+#   ├ pipx
+export PATH="$PATH:/Users/todale/.local/bin"
+#   ├ pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
