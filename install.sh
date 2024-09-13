@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# set -euo pipefail
+set -uo pipefail
 
 # Check if the current directory is $HOME/.dotfiles
 if [[ "$PWD" != "$HOME/.dotfiles" ]]; then
@@ -19,3 +19,5 @@ if grep -qF -- "$ZSHENV_SOURCE" ~/.zshenv 2>/dev/null; then
 else
     echo "$ZSHENV_SOURCE" >> ~/.zshenv
 fi
+
+ln -s "$PWD/git/gitconfig" "$HOME/.gitconfig"
