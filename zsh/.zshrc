@@ -1,4 +1,24 @@
 #  __________________________________________________
+# ⎧ OH-MY-ZSH                                           ⎫
+# ====================================================
+#   ├ oh-my-zsh dir
+export ZSH="$ZDOTDIR/ohmyzsh"
+#   ├ completion cache dir
+export ZSH_COMPDUMP="$ZDOTDIR/cache/.zcompdump-$HOST"
+#   ├ custom dir
+ZSH_CUSTOM="$ZDOTDIR/ohmyzsh-custom"
+#   ├ automatic updates
+zstyle ':omz:update' mode disabled  # disable automatic updates
+#   ├ theme
+ZSH_THEME="agnoster"
+#   ├ settings
+COMPLETION_WAITING_DOTS="true"
+#   ├ plugins
+plugins=(git ssh volta)
+
+source $ZSH/oh-my-zsh.sh
+
+#  __________________________________________________
 # ⎧ PYTHON                                           ⎫
 # ====================================================
 #   ├ pyenv (shell hooks)
