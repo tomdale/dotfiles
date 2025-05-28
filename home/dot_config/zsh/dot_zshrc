@@ -1,0 +1,17 @@
+
+HISTFILE="$XDG_STATE_HOME/zsh/history"
+HISTSIZE=10000
+SAVEHIST=10000
+
+export ZSH="$XDG_DATA_HOME/ohmyzsh"
+ZSH_CACHE_DIR="${XDG_CACHE_HOME}/zsh"
+ZSH_CUSTOM="$ZDOTDIR/ohmyzsh-custom"
+ZSH_THEME="agnoster"
+
+COMPLETION_WAITING_DOTS="true"
+zstyle ':omz:update' mode disabled  # disable automatic updates
+plugins=(git ssh volta)
+
+source $ZSH/oh-my-zsh.sh
+
+eval "$(direnv hook zsh)"
