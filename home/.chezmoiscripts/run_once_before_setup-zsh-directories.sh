@@ -17,8 +17,8 @@ mkdir -p "$XDG_CACHE_HOME"
 mkdir -p "$ZDOTDIR"                          # ~/.config/zsh
 mkdir -p "$XDG_STATE_HOME/zsh"              # for history file
 mkdir -p "$XDG_CACHE_HOME/zsh"              # for zsh cache
-mkdir -p "$XDG_DATA_HOME/ohmyzsh"           # for oh-my-zsh installation
-mkdir -p "$ZDOTDIR/ohmyzsh-custom/themes"   # for custom themes
-mkdir -p "$ZDOTDIR/ohmyzsh-custom/plugins"  # for custom plugins
+mkdir -p "$XDG_DATA_HOME/oh-my-zsh"           # for oh-my-zsh installation
+mkdir -p "$ZDOTDIR/custom/themes"   # for custom themes
+mkdir -p "$ZDOTDIR/custom/plugins"  # for custom plugins
 
 echo "✓ All zsh directories created successfully"

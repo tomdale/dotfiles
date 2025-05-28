@@ -13,14 +13,14 @@ SAVEHIST=10000
 # ───────────────────────────────────────────────────────────────────────────────
 # Oh My Zsh Configuration
 # ───────────────────────────────────────────────────────────────────────────────
-export ZSH="$XDG_DATA_HOME/ohmyzsh"
-ZSH_CACHE_DIR="${XDG_CACHE_HOME}/zsh"
-ZSH_CUSTOM="$ZDOTDIR/ohmyzsh-custom"
-ZSH_THEME="agnoster"
+export ZSH="$XDG_DATA_HOME/oh-my-zsh"
+ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"
+ZSH_CUSTOM="$ZDOTDIR/custom"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Oh My Zsh Settings
 # ───────────────────────────────────────────────────────────────────────────────
+ZSH_THEME="agnoster"
 COMPLETION_WAITING_DOTS="true"
 zstyle ':omz:update' mode disabled  # disable automatic updates
 
