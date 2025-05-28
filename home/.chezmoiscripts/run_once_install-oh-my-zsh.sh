@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Source zshenv to get XDG Base Directory paths
-source "$HOME/.config/zsh/.zshenv"
+source "$HOME/.zshenv"
 
 export ZSH="$XDG_DATA_HOME/ohmyzsh"
 ZSH_HISTORY_DIR="$XDG_STATE_HOME/zsh"

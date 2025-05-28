@@ -1,0 +1,7 @@
+export XDG_DATA_HOME="${XDG_DATA_HOME:-{{ .xdg.dataHome }}}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-{{ .xdg.stateHome }}}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-{{ .xdg.configHome }}}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-{{ .xdg.cacheHome }}}"
+
+# Point zsh to XDG-compliant config directory
+export ZDOTDIR="${XDG_CONFIG_HOME}/zsh" 

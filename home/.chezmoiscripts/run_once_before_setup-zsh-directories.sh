@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Source zshenv to get XDG Base Directory paths
-source "$HOME/.config/zsh/.zshenv"
+source "$HOME/.zshenv"
 
 echo "Setting up zsh directories..."
 
