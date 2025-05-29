@@ -5,13 +5,10 @@ set -euo pipefail
 # Source zshenv to get XDG Base Directory paths
 source "$HOME/.zshenv"
 
-export ZSH="$XDG_DATA_HOME/ohmyzsh"
-ZSH_HISTORY_DIR="$XDG_STATE_HOME/zsh"
-
-echo "Installing Oh My Zsh..."
+echo "Installing Oh My Zsh...!"
 
 # Check if Oh My Zsh is already installed
-if [ -d "$ZSH" ]; then
+if [ -d "$ZSH" ] && [ -f "$ZSH/oh-my-zsh.sh" ]; then
     echo "Oh My Zsh is already installed at $ZSH"
     exit 0
 fi
