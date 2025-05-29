@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "**/zsh/*": "shellscript"
+        "**/zsh/*": "shellscript",
+        "Brewfile*": "ruby"
     }
 }
