@@ -16,19 +16,14 @@
 # ║                                                                            ║
 # ╚════════════════════════════════════════════════════════════════════════════╝
 
-# Set XDG Base Directory variables to standardize config, data, state, and cache locations
+# Set XDG environment variables to standardize locations for user-specific data
 export XDG_DATA_HOME="${XDG_DATA_HOME:-{{ .xdg.dataHome }}}"
 export XDG_STATE_HOME="${XDG_STATE_HOME:-{{ .xdg.stateHome }}}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-{{ .xdg.configHome }}}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-{{ .xdg.cacheHome }}}"
+export PATH="{{ .xdg.binHome }}:$PATH"
 
-# Configure zsh to use XDG config directory
-export ZDOTDIR="$XDG_CONFIG_HOME/zsh" 
-
-# Ensure path arrays do not contain duplicates.
-typeset -gU path fpath
-
-# Set Oh My Zsh directory
+# Set Oh My Zsh directories
 export ZSH="$XDG_DATA_HOME/oh-my-zsh"
 ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"
 ZSH_CUSTOM="$ZDOTDIR/custom"
@@ -36,3 +31,8 @@ ZSH_CUSTOM="$ZDOTDIR/custom"
 # On Apple Silicon (arm64), Homebrew installs to /opt/homebrew instead of /usr/local,
 # so we need to ensure this directory is in the PATH for installed tools to be found.
 [ "$(uname -m)" = "arm64" ] && export PATH="/opt/homebrew/bin:$PATH"
+
+export VOLTA_HOME="$XDG_DATA_HOME/volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
+
+export PYTHONPYCACHEPREFIX="${XDG_CACHE_HOME}/pycache"

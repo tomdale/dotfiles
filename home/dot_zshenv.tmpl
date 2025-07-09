@@ -1,1 +1,2 @@
-. "{{ .xdg.configHome }}"/zsh/env
+export ZDOTDIR="{{ .xdg.configHome }}/zsh"
+[[ -f $ZDOTDIR/.zshenv ]] && . $ZDOTDIR/.zshenv
