@@ -1,5 +1,10 @@
 ## TODO
 
+### Shell
+- [x] Set up Starship prompt
+- [x] Configure Starship with custom settings
+- [x] Integrate with Oh My Zsh plugins
+
 ### Homebrew
 - [x] Install Homebrew (if needed)
 - [x] Install dependencies via Brewfile
