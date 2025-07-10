@@ -9,6 +9,7 @@ export EDITOR="code"
 
 export VOLTA_HOME="$XDG_DATA_HOME/volta"
 export CARGO_HOME="$XDG_DATA_HOME/cargo"
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 
 typeset -U path
 
@@ -16,11 +17,10 @@ export PATH="$HOME/.local/bin:$PATH"
 export PATH="$VOLTA_HOME/bin:$PATH"
 export PATH="$CARGO_HOME/bin:$PATH"
 
-# Configure Homebrew environment (Apple Silicon: /opt/homebrew, Intel: /usr/local)
-if command -v /opt/homebrew/bin/brew; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-elif command -v /usr/local/bin/brew; then
-    eval "$(/usr/local/bin/brew shellenv)"
+if [[ -d /opt/homebrew/bin ]]; then
+    export PATH="/opt/homebrew/bin:$PATH"
 fi
+
+eval "$(brew shellenv)"
 
 export PYTHONPYCACHEPREFIX="${XDG_CACHE_HOME}/pycache"

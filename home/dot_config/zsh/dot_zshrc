@@ -1,7 +1,3 @@
-# VS Code shell integration currently prevents .zshenv from being sourced,
-# so source it manually here.
-source "$HOME/.zshenv"
-
 # ───────────────────────────────────────────────────────────────────────────────
 # Homebrew
 # ───────────────────────────────────────────────────────────────────────────────
