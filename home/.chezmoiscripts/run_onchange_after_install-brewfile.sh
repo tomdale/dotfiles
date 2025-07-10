@@ -8,7 +8,7 @@
 echo "🍺 Brewfile changed, running brew bundle install..."
 
 # Use XDG_CONFIG_HOME at runtime, with fallback to match chezmoi's default
-BREWFILE_PATH="${XDG_CONFIG_HOME:-{{.xdg.configHome}}}/Brewfile"
+BREWFILE_PATH="${XDG_CONFIG_HOME}/Brewfile"
 
 # Run brew bundle install to install/update dependencies
 if command -v brew &> /dev/null; then

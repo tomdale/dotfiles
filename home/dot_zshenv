@@ -1,2 +1,2 @@
-export ZDOTDIR="/Users/tomdale/.config/zsh"
-[[ -f $ZDOTDIR/.zshenv ]] && . $ZDOTDIR/.zshenv
+#!/usr/bin/env zsh
+export ZDOTDIR="$HOME/.config/zsh"
