@@ -2,6 +2,8 @@
 
 set -e
 
+source "$HOME/.zshenv"
+
 # Brewfile hash: {{ include (joinPath .xdg.configHome "Brewfile") | sha256sum }}
 
 if [[ "$OSTYPE" != "darwin"* ]]; then
