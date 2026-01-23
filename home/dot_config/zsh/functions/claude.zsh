@@ -1,11 +1,22 @@
-# Claude/agent-related functions
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ claude.zsh - Claude Code & Agent Functions                                ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
-# Run claude with custom TMPDIR
+# ───────────────────────────────────────────────────────────────────────────────
+# claude - Run Claude Code with project-local temp directory
+# ───────────────────────────────────────────────────────────────────────────────
+# Wrapper that sets TMPDIR to .agent/tmp so temp files stay in the project
+# This keeps generated files organized and avoids polluting system temp
 claude() {
   TMPDIR=.agent/tmp command claude "$@"
 }
 
-# Display tasks.md from the closest .agent directory
+# ───────────────────────────────────────────────────────────────────────────────
+# tasks - Display tasks from the closest .agent directory
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: tasks
+# Finds the nearest .agent directory (walking up from current dir)
+# and displays tasks.md with syntax highlighting via bat
 tasks() {
   local agent_dir="$(find-closest-dir .agent)"
   if [[ $? -ne 0 ]]; then

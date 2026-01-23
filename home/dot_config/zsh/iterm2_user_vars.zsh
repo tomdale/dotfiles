@@ -1,18 +1,39 @@
-# iTerm2 custom user variables
-# Must be sourced before iTerm2 shell integration
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ iterm2_user_vars.zsh - iTerm2 Status Bar Variables                        ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ SOURCED: From .zshrc, before iTerm2 shell integration                     ║
+# ║ PURPOSE: Define custom variables displayed in iTerm2 status bar           ║
+# ║                                                                           ║
+# ║ This function is called by iTerm2 shell integration before each prompt.   ║
+# ║ Variables set here appear in the status bar via "Interpolated String"     ║
+# ║ components using \(user.variableName) syntax.                             ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
 function iterm2_print_user_vars() {
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Git Information
+  # ─────────────────────────────────────────────────────────────────────────────
+  # gitBranch: Current branch name (empty if not in repo)
   iterm2_set_user_var gitBranch $((git branch 2> /dev/null) | grep \* | cut -c3-)
+
+  # repoDir: Repository root directory name (for quick identification)
   iterm2_set_user_var repoDir $(basename $(git rev-parse --show-toplevel 2> /dev/null) 2> /dev/null)
 
-  # Restore sessionGoal from .agent/.last-goal if it exists
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Claude Code Integration
+  # ─────────────────────────────────────────────────────────────────────────────
+  # sessionGoal: Persisted goal from Claude Code sessions
+  # Stored in .agent/.last-goal by the iterm-status plugin
   if [[ -f ".agent/.last-goal" ]]; then
     iterm2_set_user_var sessionGoal "$(cat .agent/.last-goal)"
   else
     iterm2_set_user_var sessionGoal ""
   fi
 
-  # Determine session title
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Session Title (smart directory/project name)
+  # Priority: 1. VS Code workspace name, 2. Git repo name, 3. Path from home
+  # ─────────────────────────────────────────────────────────────────────────────
   local session_title=""
   local current_dir="$(pwd)"
 
@@ -27,7 +48,7 @@ function iterm2_print_user_vars() {
     current_dir="$(dirname "$current_dir")"
   done
 
-  # If no workspace file found, check if in git repo
+  # Fallback to git repo name or relative path
   if [[ -z "$session_title" ]]; then
     local git_root=$(git rev-parse --show-toplevel 2>/dev/null)
     if [[ -n "$git_root" ]]; then

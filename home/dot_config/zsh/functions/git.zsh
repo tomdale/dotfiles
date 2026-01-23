@@ -1,7 +1,13 @@
-# Git-related functions
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ git.zsh - Git Helper Functions                                            ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
-# Clone a GitHub repo into ~/Code and cd into it
+# ───────────────────────────────────────────────────────────────────────────────
+# clone - Clone a GitHub repo and cd into it
+# ───────────────────────────────────────────────────────────────────────────────
 # Usage: clone <repo> [directory]
+# Example: clone anthropics/claude-code
+# Clones to ~/Code/<repo-name> and changes into the directory
 clone() {
   if [[ $# -eq 0 ]]; then
     echo "Usage: clone <repo> [directory]" >&2
@@ -14,9 +20,13 @@ clone() {
   cd ~/Code && gh repo clone "$@" && cd "$target_dir"
 }
 
-# Add a pattern to gitignore
-# Usage: gitignore <pattern>        - Add to global gitignore (chezmoi-managed)
-#        gitignore --local <pattern> - Add to .gitignore in current directory
+# ───────────────────────────────────────────────────────────────────────────────
+# gitignore - Add patterns to gitignore
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: gitignore <pattern>         Add to global gitignore (chezmoi-managed)
+#        gitignore --local <pattern> Add to .gitignore in current directory
+# Example: gitignore "*.log"
+#          gitignore --local node_modules
 gitignore() {
   local pattern=""
   local local_mode=false
@@ -55,9 +65,11 @@ gitignore() {
   fi
 
   if $local_mode; then
+    # Add to local .gitignore
     echo "$pattern" >> .gitignore
     echo "Added '$pattern' to .gitignore"
   else
+    # Add to global gitignore (managed by chezmoi)
     local chezmoi_source="${XDG_DATA_HOME:-$HOME/.local/share}/chezmoi"
     local ignore_file="$chezmoi_source/home/dot_config/git/ignore"
 

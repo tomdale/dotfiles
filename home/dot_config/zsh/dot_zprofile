@@ -1,4 +1,13 @@
-# .zprofile - Login shell initialization
-# Environment variables are in env.zsh, sourced from .zshenv
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ .zprofile - Login Shell Configuration                                     ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ SOURCED: Login shells only (first terminal, SSH sessions)                 ║
+# ║ PURPOSE: One-time setup that shouldn't repeat in subshells                ║
+# ║                                                                           ║
+# ║ NOTE: Modern terminals often start non-login shells, so don't put         ║
+# ║ essential config here. Environment variables belong in .zshenv/env.zsh.   ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
+# Remove duplicate PATH entries (keeps first occurrence)
+# This is a login-time optimization since PATH grows with nested shells
 typeset -U path

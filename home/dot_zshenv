@@ -1,5 +1,16 @@
 #!/usr/bin/env zsh
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ .zshenv - Environment Configuration                                       ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ SOURCED: Always (login, interactive, scripts, subshells)                  ║
+# ║ PURPOSE: Set environment variables needed by all shell types              ║
+# ║                                                                           ║
+# ║ This is the first file zsh reads. Keep it minimal and fast since it       ║
+# ║ runs for every shell invocation including non-interactive scripts.        ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
+# Relocate zsh config to XDG-compliant location
 export ZDOTDIR="$HOME/.config/zsh"
 
-# Source environment variables and PATH
+# Source environment variables and PATH (separated for clarity)
 source "$ZDOTDIR/env.zsh"

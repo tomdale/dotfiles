@@ -1,69 +1,97 @@
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ .zshrc - Interactive Shell Configuration                                  ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ SOURCED: Interactive shells only (terminals, not scripts)                 ║
+# ║ PURPOSE: Aliases, functions, prompt, completions, key bindings            ║
+# ║                                                                           ║
+# ║ This file configures the interactive experience. Environment variables    ║
+# ║ are in env.zsh (sourced from .zshenv) to ensure they're always available. ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
+
 # ───────────────────────────────────────────────────────────────────────────────
 # Homebrew
 # ───────────────────────────────────────────────────────────────────────────────
-export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_ENV_HINTS=1  # Suppress "you can set..." suggestions
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ZSH Configuration
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Set Oh My Zsh directories
-export ZSH="$XDG_DATA_HOME/oh-my-zsh"
-ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"
-ZSH_CUSTOM="$ZDOTDIR/custom"
-# ───────────────────────────────────────────────────────────────────────────────
-# History Configuration
-# ───────────────────────────────────────────────────────────────────────────────
-HISTFILE="$XDG_STATE_HOME/zsh/history"
-HISTSIZE=10000
-setopt SHARE_HISTORY
-SAVEHIST=10000
-
-# ───────────────────────────────────────────────────────────────────────────────
 # Oh My Zsh Configuration
-# ───────────────────────────────────────────────────────────────────────────────
-DISABLE_AUTO_TITLE="true"
+# https://github.com/ohmyzsh/ohmyzsh
+# ═══════════════════════════════════════════════════════════════════════════════
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Oh My Zsh Settings
+# Directories (XDG-compliant)
 # ───────────────────────────────────────────────────────────────────────────────
-ZSH_THEME="tomdale"
-COMPLETION_WAITING_DOTS="true"
-zstyle ':omz:update' mode disabled  # disable automatic updates
+export ZSH="$XDG_DATA_HOME/oh-my-zsh"  # Installation directory
+ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"    # Completion cache, etc.
+ZSH_CUSTOM="$ZDOTDIR/custom"           # Custom plugins/themes
+
+# ───────────────────────────────────────────────────────────────────────────────
+# History
+# ───────────────────────────────────────────────────────────────────────────────
+HISTFILE="$XDG_STATE_HOME/zsh/history"  # History file location
+HISTSIZE=10000                          # Commands to keep in memory
+SAVEHIST=10000                          # Commands to save to file
+setopt SHARE_HISTORY                    # Share history across sessions
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Theme & Appearance
+# ───────────────────────────────────────────────────────────────────────────────
+ZSH_THEME="tomdale"           # Custom theme (fork of agnoster, in custom/themes/)
+COMPLETION_WAITING_DOTS="true" # Show dots while waiting for completion
+DISABLE_AUTO_TITLE="true"      # Don't let oh-my-zsh set terminal title (we use termtitle)
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Updates
+# ───────────────────────────────────────────────────────────────────────────────
+zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Plugins
+# See: https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins
 # ───────────────────────────────────────────────────────────────────────────────
 plugins=(
-  git
-  ssh
-  python
-  poetry-env
-  zoxide
+  git        # Git aliases (ga, gc, gp, etc.) and completion
+  ssh        # SSH agent management
+  python     # Python/venv helpers, auto-activate virtualenvs
+  poetry-env # Auto-activate Poetry environments
+  zoxide     # Smart cd replacement (z command)
 )
-export PYTHON_VENV_NAME=".venv"
-export PYTHON_AUTO_VRUN=true
+
+# Python plugin settings
+export PYTHON_VENV_NAME=".venv"   # Virtual environment directory name
+export PYTHON_AUTO_VRUN=true       # Auto-activate venv when entering directory
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Initialize Oh My Zsh
 # ───────────────────────────────────────────────────────────────────────────────
 source $ZSH/oh-my-zsh.sh
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# External Tools
+# ═══════════════════════════════════════════════════════════════════════════════
+
 # ───────────────────────────────────────────────────────────────────────────────
-# External Tools Integration
+# Tool Integrations
+# Each tool adds hooks to zsh for enhanced functionality
 # ───────────────────────────────────────────────────────────────────────────────
-eval "$(direnv hook zsh)"
-eval "$(termtint hook zsh)"
-eval "$(termtitle hook zsh)"
-eval "$(fnm env --use-on-cd)"
+eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
+eval "$(termtint hook zsh)"     # Terminal color scheme switching
+eval "$(termtitle hook zsh)"    # Automatic terminal title management
+eval "$(fnm env --use-on-cd)"   # Fast Node Manager with auto-switching
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Custom Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Functions and Aliases
+# Loaded from modular files in functions/ directory
 # ───────────────────────────────────────────────────────────────────────────────
 for f in "$ZDOTDIR"/functions/*.zsh; do source "$f"; done
 
 # ───────────────────────────────────────────────────────────────────────────────
 # iTerm2 Integration
+# Provides shell integration features and custom status bar variables
 # ───────────────────────────────────────────────────────────────────────────────
 [[ -f "$ZDOTDIR/iterm2_user_vars.zsh" ]] && source "$ZDOTDIR/iterm2_user_vars.zsh"
 test -e "$ZDOTDIR/.iterm2_shell_integration.zsh" && source "$ZDOTDIR/.iterm2_shell_integration.zsh" || true

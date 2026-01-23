@@ -1,30 +1,56 @@
-# Environment variables and PATH setup
-# Sourced from .zshenv for all shell types
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ env.zsh - Environment Variables & PATH                                    ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ SOURCED: From .zshenv (all shell types)                                   ║
+# ║ PURPOSE: Define environment variables, tool directories, and PATH         ║
+# ║                                                                           ║
+# ║ Variables here are available to all programs, not just interactive shells.║
+# ║ This is the right place for PATH, EDITOR, and tool home directories.      ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
+# ───────────────────────────────────────────────────────────────────────────────
 # XDG Base Directory Specification
-export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+# https://specifications.freedesktop.org/basedir-spec/latest/
+# ───────────────────────────────────────────────────────────────────────────────
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"   # User data files
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}" # Persistent state (logs, history)
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"    # User config files
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"       # Non-essential cached data
 
-# Locale
+# ───────────────────────────────────────────────────────────────────────────────
+# Locale & Editor
+# ───────────────────────────────────────────────────────────────────────────────
 export LANG="en_US.UTF-8"
+export EDITOR="cursor --wait"  # --wait keeps terminal blocked until file is closed
 
-# Editor
-export EDITOR="cursor --wait"
+# ───────────────────────────────────────────────────────────────────────────────
+# Tool Home Directories (XDG-compliant locations)
+# ───────────────────────────────────────────────────────────────────────────────
+export CARGO_HOME="$XDG_DATA_HOME/cargo"     # Rust packages
+export RUSTUP_HOME="$XDG_DATA_HOME/rustup"   # Rust toolchain manager
+export PNPM_HOME="$XDG_DATA_HOME/pnpm"       # pnpm global packages
 
-# Tool directories (XDG-compliant)
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-export PNPM_HOME="$XDG_DATA_HOME/pnpm"
+# ───────────────────────────────────────────────────────────────────────────────
+# PATH Configuration
+# Order matters: earlier entries take precedence
+# ───────────────────────────────────────────────────────────────────────────────
 
-# PATH setup
+# Homebrew (Apple Silicon path, must be first to shadow system tools)
 if [[ -d /opt/homebrew/bin ]]; then
     export PATH="/opt/homebrew/bin:$PATH"
 fi
 
+# Rust toolchain
 export PATH="$(brew --prefix rustup)/bin:$PATH"
+
+# Local user scripts (~/.local/bin)
 export PATH="$HOME/.local/bin:$PATH"
+
+# Cargo-installed binaries
 export PATH="$CARGO_HOME/bin:$PATH"
+
+# pnpm global binaries
 export PATH="$PNPM_HOME:$PATH"
+
+# Initialize Homebrew environment (sets HOMEBREW_PREFIX, etc.)
 eval "$(brew shellenv)"
