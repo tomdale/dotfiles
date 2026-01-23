@@ -1,3 +1,4 @@
-typeset -U path
+# .zprofile - Login shell initialization
+# Environment variables are in env.zsh, sourced from .zshenv
 
-source "${XDG_CONFIG_HOME:-$HOME/.config}/.env"
+typeset -U path

@@ -1,2 +1,5 @@
 #!/usr/bin/env zsh
 export ZDOTDIR="$HOME/.config/zsh"
+
+# Source environment variables and PATH
+source "$ZDOTDIR/env.zsh"

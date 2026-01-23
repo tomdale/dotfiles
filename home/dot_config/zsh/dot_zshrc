@@ -22,11 +22,12 @@ SAVEHIST=10000
 # ───────────────────────────────────────────────────────────────────────────────
 # Oh My Zsh Configuration
 # ───────────────────────────────────────────────────────────────────────────────
+DISABLE_AUTO_TITLE="true"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Oh My Zsh Settings
 # ───────────────────────────────────────────────────────────────────────────────
-ZSH_THEME="agnoster"
+ZSH_THEME="tomdale"
 COMPLETION_WAITING_DOTS="true"
 zstyle ':omz:update' mode disabled  # disable automatic updates
 
@@ -38,6 +39,7 @@ plugins=(
   ssh
   python
   poetry-env
+  zoxide
 )
 export PYTHON_VENV_NAME=".venv"
 export PYTHON_AUTO_VRUN=true
@@ -51,4 +53,17 @@ source $ZSH/oh-my-zsh.sh
 # External Tools Integration
 # ───────────────────────────────────────────────────────────────────────────────
 eval "$(direnv hook zsh)"
+eval "$(termtint hook zsh)"
+eval "$(termtitle hook zsh)"
 eval "$(fnm env --use-on-cd)"
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Functions and Aliases
+# ───────────────────────────────────────────────────────────────────────────────
+for f in "$ZDOTDIR"/functions/*.zsh; do source "$f"; done
+
+# ───────────────────────────────────────────────────────────────────────────────
+# iTerm2 Integration
+# ───────────────────────────────────────────────────────────────────────────────
+[[ -f "$ZDOTDIR/iterm2_user_vars.zsh" ]] && source "$ZDOTDIR/iterm2_user_vars.zsh"
+test -e "$ZDOTDIR/.iterm2_shell_integration.zsh" && source "$ZDOTDIR/.iterm2_shell_integration.zsh" || true
