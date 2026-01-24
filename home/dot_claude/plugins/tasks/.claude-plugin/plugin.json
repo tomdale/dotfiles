@@ -1,5 +1,0 @@
-{
-  "name": "tasks",
-  "version": "1.0.0",
-  "description": "Manage tasks using markdown checkboxes in .agent/tasks.md"
-}
