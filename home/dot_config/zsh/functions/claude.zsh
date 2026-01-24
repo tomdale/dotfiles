@@ -12,6 +12,16 @@ claude() {
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
+# commit - Quick wrapper for Claude's /commit skill
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: commit [args...]
+# Passes all arguments to the /commit skill
+# Example: commit -m "Add new feature"
+commit() {
+  claude "/commit $*"
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
 # tasks - Display tasks from the closest .agent directory
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: tasks
