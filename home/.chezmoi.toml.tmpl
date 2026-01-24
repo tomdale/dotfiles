@@ -1,0 +1,16 @@
+{{- $isWork := promptBoolOnce . "isWork" "Is this a work machine" -}}
+
+[data]
+    isWork = {{ $isWork }}
+
+[merge]
+command = "bash"
+args = [
+    "-c",
+    'cp "$1" "$2" && code --wait --new-window --merge "$3" "$1" "$2" "$4"',
+    "bash",
+    "{{ `{{ .Target }}` }}",
+    "{{ `{{ .Target }}` }}.base",
+    "{{ `{{ .Destination }}` }}",
+    "{{ `{{ .Source }}` }}",
+]

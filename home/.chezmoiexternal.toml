@@ -1,0 +1,8 @@
+# External files managed by chezmoi
+# https://www.chezmoi.io/reference/special-files-and-directories/chezmoiexternal-format/
+
+# Glow solarized dark theme
+[".config/glow/solarized-dark.json"]
+    type = "file"
+    url = "https://raw.githubusercontent.com/tomdale/glow-glamour-solarized/main/solarized-dark.json"
+    refreshPeriod = "168h"
