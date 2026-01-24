@@ -164,15 +164,67 @@ dotfiles() {
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
-# add-alias - Add a new alias to chezmoi-managed config
+# shortcut - Manage shell aliases in chezmoi-managed config
 # ───────────────────────────────────────────────────────────────────────────────
-# Usage: add-alias <name> <command>
-# Example: add-alias ll 'ls -la'
-# Adds to chezmoi source, applies, and makes available immediately
-add-alias() {
+# Usage: shortcut <command> [args...]
+#   shortcut add <name> <command>  - Add a new alias
+#   shortcut remove <name>         - Remove an alias (alias: rm)
+#   shortcut list                  - List all aliases
+shortcut() {
+  local source_dir="$(chezmoi source-path)"
+  local aliases_file="$source_dir/dot_config/zsh/functions/aliases.zsh"
+
+  if [[ ! -f "$aliases_file" ]]; then
+    echo "shortcut: aliases file not found: $aliases_file" >&2
+    return 1
+  fi
+
+  local subcmd="${1:-}"
+  shift 2>/dev/null
+
+  case "$subcmd" in
+    add)
+      _shortcut_add "$aliases_file" "$@"
+      ;;
+    remove|rm)
+      _shortcut_remove "$aliases_file" "$@"
+      ;;
+    list)
+      _shortcut_list "$aliases_file"
+      ;;
+    -h|--help|"")
+      _shortcut_help
+      ;;
+    *)
+      echo "shortcut: unknown command '$subcmd'" >&2
+      _shortcut_help >&2
+      return 2
+      ;;
+  esac
+}
+
+_shortcut_help() {
+  cat <<EOF
+Usage: shortcut <command> [args...]
+
+Commands:
+  add <name> <command>  Add a new alias
+  remove <name>         Remove an alias (alias: rm)
+  list                  List all aliases
+
+Examples:
+  shortcut add ll 'ls -la'
+  shortcut remove ll
+  shortcut list
+EOF
+}
+
+_shortcut_add() {
+  local aliases_file="$1"
+  shift
+
   if [[ $# -lt 2 ]]; then
-    echo "Usage: add-alias <name> <command>" >&2
-    echo "Example: add-alias ll 'ls -la'" >&2
+    echo "Usage: shortcut add <name> <command>" >&2
     return 2
   fi
 
@@ -180,26 +232,47 @@ add-alias() {
   shift
   local cmd="$*"
 
-  local source_dir="$(chezmoi source-path)"
-  local aliases_file="$source_dir/dot_config/zsh/functions/aliases.zsh"
-
-  if [[ ! -f "$aliases_file" ]]; then
-    echo "add-alias: aliases file not found: $aliases_file" >&2
-    return 1
-  fi
-
-  # Check if alias already exists
   if grep -q "^alias $name=" "$aliases_file"; then
-    echo "add-alias: alias '$name' already exists" >&2
+    echo "shortcut: alias '$name' already exists" >&2
     return 1
   fi
 
-  # Append the alias
   echo "alias $name='$cmd'" >> "$aliases_file"
   echo "Added alias: $name='$cmd'"
 
-  # Apply the change and make available immediately
   chezmoi apply ~/.config/zsh/functions/aliases.zsh
   source ~/.config/zsh/functions/aliases.zsh
   echo "Alias '$name' is now available"
+}
+
+_shortcut_remove() {
+  local aliases_file="$1"
+  local name="$2"
+
+  if [[ -z "$name" ]]; then
+    echo "Usage: shortcut remove <name>" >&2
+    return 2
+  fi
+
+  if ! grep -q "^alias $name=" "$aliases_file"; then
+    echo "shortcut: alias '$name' not found" >&2
+    return 1
+  fi
+
+  sed -i '' "/^alias $name=/d" "$aliases_file"
+  echo "Removed alias: $name"
+
+  chezmoi apply ~/.config/zsh/functions/aliases.zsh
+  source ~/.config/zsh/functions/aliases.zsh
+  echo "Alias '$name' has been removed"
+}
+
+_shortcut_list() {
+  local aliases_file="$1"
+
+  echo "Shortcuts in aliases.zsh:"
+  echo ""
+  grep "^alias " "$aliases_file" | sed 's/^alias /  /' | while read -r line; do
+    echo "$line"
+  done
 }
