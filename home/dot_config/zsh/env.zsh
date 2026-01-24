@@ -1,11 +1,15 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ env.zsh - Environment Variables & PATH                                    ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ SOURCED: From .zshenv (all shell types)                                   ║
-# ║ PURPOSE: Define environment variables, tool directories, and PATH         ║
+# ║ Defines environment variables, tool directories, and PATH configuration.  ║
+# ║ Sourced from .zshenv so these are available to all programs and scripts,  ║
+# ║ not just interactive shells.                                              ║
 # ║                                                                           ║
-# ║ Variables here are available to all programs, not just interactive shells.║
-# ║ This is the right place for PATH, EDITOR, and tool home directories.      ║
+# ║ This is the right place for:                                              ║
+# ║   - XDG base directories (where apps store data/config/cache)             ║
+# ║   - Tool home directories (CARGO_HOME, PNPM_HOME, etc.)                   ║
+# ║   - PATH modifications (order matters - earlier entries take precedence)  ║
+# ║   - EDITOR, LANG, and other environment variables                         ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────

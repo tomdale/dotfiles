@@ -1,11 +1,15 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ .zprofile - Login Shell Configuration                                     ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ SOURCED: Login shells only (first terminal, SSH sessions)                 ║
-# ║ PURPOSE: One-time setup that shouldn't repeat in subshells                ║
+# ║ One-time setup for login shells (first terminal window, SSH sessions).    ║
+# ║ Runs after .zshenv but before .zshrc.                                     ║
 # ║                                                                           ║
-# ║ NOTE: Modern terminals often start non-login shells, so don't put         ║
-# ║ essential config here. Environment variables belong in .zshenv/env.zsh.   ║
+# ║ This file is intentionally minimal. Modern terminals (iTerm2, Terminal)   ║
+# ║ often start non-login interactive shells, so essential config should go   ║
+# ║ in .zshenv (for environment) or .zshrc (for interactive features).        ║
+# ║                                                                           ║
+# ║ Only put things here that should run once per login session and don't     ║
+# ║ need to be available in non-login shells.                                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # Remove duplicate PATH entries (keeps first occurrence)

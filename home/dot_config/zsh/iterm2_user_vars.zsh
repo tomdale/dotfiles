@@ -1,12 +1,14 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ iterm2_user_vars.zsh - iTerm2 Status Bar Variables                        ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ SOURCED: From .zshrc, before iTerm2 shell integration                     ║
-# ║ PURPOSE: Define custom variables displayed in iTerm2 status bar           ║
+# ║ Defines custom variables for the iTerm2 status bar. The function below    ║
+# ║ is called by iTerm2's shell integration before each prompt, updating      ║
+# ║ variables that appear in status bar "Interpolated String" components.     ║
 # ║                                                                           ║
-# ║ This function is called by iTerm2 shell integration before each prompt.   ║
-# ║ Variables set here appear in the status bar via "Interpolated String"     ║
-# ║ components using \(user.variableName) syntax.                             ║
+# ║ To use these in iTerm2: Preferences → Profiles → Session → Status bar     ║
+# ║ Add an "Interpolated String" component with \(user.variableName) syntax.  ║
+# ║                                                                           ║
+# ║ Must be sourced BEFORE the iTerm2 shell integration script.               ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 function iterm2_print_user_vars() {

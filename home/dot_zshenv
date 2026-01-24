@@ -2,11 +2,12 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ .zshenv - Environment Configuration                                       ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ SOURCED: Always (login, interactive, scripts, subshells)                  ║
-# ║ PURPOSE: Set environment variables needed by all shell types              ║
+# ║ Sets environment variables needed by all shell types (login, interactive, ║
+# ║ scripts, subshells). This is the first file zsh reads on every invocation.║
 # ║                                                                           ║
-# ║ This is the first file zsh reads. Keep it minimal and fast since it       ║
-# ║ runs for every shell invocation including non-interactive scripts.        ║
+# ║ Keep this file minimal and fast. Avoid commands with side effects or      ║
+# ║ output since this runs for non-interactive scripts too. The actual        ║
+# ║ environment setup is in env.zsh for easier maintenance.                   ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # Relocate zsh config to XDG-compliant location

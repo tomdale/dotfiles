@@ -1,11 +1,14 @@
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ .zshrc - Interactive Shell Configuration                                  ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ SOURCED: Interactive shells only (terminals, not scripts)                 ║
-# ║ PURPOSE: Aliases, functions, prompt, completions, key bindings            ║
+# ║ Configures the interactive shell experience: prompt, completions, aliases,║
+# ║ functions, key bindings, and integrations with tools like oh-my-zsh.      ║
 # ║                                                                           ║
-# ║ This file configures the interactive experience. Environment variables    ║
-# ║ are in env.zsh (sourced from .zshenv) to ensure they're always available. ║
+# ║ This runs for interactive terminals but NOT for scripts. Environment      ║
+# ║ variables are in env.zsh (sourced from .zshenv) so they're available to   ║
+# ║ all programs. Put interactive-only config here.                           ║
+# ║                                                                           ║
+# ║ Load order: .zshenv → .zprofile (login) → .zshrc (interactive)            ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────
