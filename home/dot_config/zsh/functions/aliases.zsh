@@ -18,3 +18,4 @@ alias reload='source $ZDOTDIR/.zshrc'  # Reload shell config without restarting
 # ───────────────────────────────────────────────────────────────────────────────
 alias sonnet='claude --model sonnet'   # Quick access to Sonnet model
 alias opus='claude --model opus'       # Quick access to Opus model
+alias haiku='claude --model haiku'
