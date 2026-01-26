@@ -4,7 +4,8 @@
     "ANTHROPIC_BASE_URL": "https://ai-gateway.vercel.sh",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
     "CLAUDE_CODE_ENABLE_TASKS": "0",
-    "TMPDIR": ".agent/tmp"
+    "TMPDIR": ".agent/tmp",
+    "TMPPREFIX": ".agent/tmp"
   },
   "attribution": {
     "commit": "",

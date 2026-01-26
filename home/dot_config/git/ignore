@@ -3,3 +3,4 @@
 *.tsbuildinfo
 .agent/
 .termtint
+CLAUDE.local.md
