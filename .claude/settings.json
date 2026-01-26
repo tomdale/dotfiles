@@ -1,0 +1,10 @@
+{
+  "enabledPlugins": {
+    "plugin-dev@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Write(~/.config/**)"
+    ]
+  }
+}
