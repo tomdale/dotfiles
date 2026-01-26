@@ -23,6 +23,7 @@
       "WebFetch(domain:static.crates.io)",
       "WebFetch(domain:docs.rs)",
       "WebFetch(domain:productionresultssa*.blob.core.windows.net)",
+      "WebFetch(domain:vercel.com)",
       "WebFetch(domain:*vercel.com)",
       "Edit(~/.local/share/cargo/**)",
       "Edit(//tmp/claude/**)",
