@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "tomdale-claude-code-plugins",
+  "owner": {
+    "name": "Tom Dale"
+  },
+  "plugins": [
+    {
+      "name": "tasks",
+      "source": "./tasks",
+      "description": "Manage tasks using markdown checkboxes in .agent/tasks.md"
+    },
+    {
+      "name": "iterm-status",
+      "source": "./iterm-status",
+      "description": "Updates iTerm2 status with conversation summary while Claude Code is running"
+    }
+  ]
+}
