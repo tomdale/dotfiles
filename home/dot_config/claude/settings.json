@@ -14,6 +14,7 @@
   "permissions": {
     "allow": [
       "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:api.linear.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:results-receiver.actions.githubusercontent.com)",
