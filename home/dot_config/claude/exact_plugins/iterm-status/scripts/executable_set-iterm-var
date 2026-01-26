@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const varName = process.argv[2];
+const varValue = process.argv[3];
+
+if (!varName || varValue === undefined) {
+  console.error('Usage: set-iterm-var <variable> <value>');
+  console.error('Sets iTerm2 variable for the current session using ITERM_SESSION_ID via AppleScript');
+  console.error('Example: set-iterm-var badgeText "profile 1"');
+  process.exit(1);
+}
+
+const sessionId = process.env.ITERM_SESSION_ID;
+if (!sessionId) {
+  console.error('Error: Not running in iTerm2');
+  process.exit(1);
+}
+
+const uuid = sessionId.split(':')[1];
+
+execSync('osascript -', {
+  input: `
+    tell application "iTerm2"
+      repeat with w in windows
+        repeat with t in tabs of w
+          repeat with s in sessions of t
+            if unique ID of s is "${uuid}" then
+              tell s to set variable named "user.${varName}" to "${varValue.replace(/"/g, '\\"')}"
+              return
+            end if
+          end repeat
+        end repeat
+      end repeat
+    end tell
+  `,
+  stdio: ['pipe', 'pipe', 'pipe']
+});
+
+console.log(`user.${varName} = ${varValue}`);
+
+// Persist sessionGoal to .agent/.last-goal for session restoration
+if (varName === 'sessionGoal') {
+  const agentDir = path.join(process.cwd(), '.agent');
+  if (!fs.existsSync(agentDir)) {
+    fs.mkdirSync(agentDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(agentDir, '.last-goal'), varValue);
+}
