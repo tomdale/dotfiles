@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+# Find nearest .agent directory
+find_agent_dir() {
+  local dir="$PWD"
+  while [ "$dir" != "/" ]; do
+    if [ -d "$dir/.agent" ]; then
+      echo "$dir/.agent"
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+  return 1
+}
+
+# No arguments: print current backlog
+if [ $# -eq 0 ]; then
+  if agent_dir=$(find_agent_dir); then
+    backlog_file="$agent_dir/backlog.md"
+    if [ -f "$backlog_file" ]; then
+      cat "$backlog_file"
+    else
+      echo "No backlog found at $backlog_file"
+      exit 1
+    fi
+  else
+    echo "No .agent directory found"
+    exit 1
+  fi
+  exit 0
+fi
+
+# With arguments: append to backlog
+text="$*"
+
+if agent_dir=$(find_agent_dir); then
+  backlog_file="$agent_dir/backlog.md"
+else
+  mkdir -p ".agent"
+  backlog_file=".agent/backlog.md"
+fi
+
+if [ ! -f "$backlog_file" ]; then
+  echo "# Backlog" > "$backlog_file"
+  echo "" >> "$backlog_file"
+fi
+
+echo "- $text" >> "$backlog_file"
+echo "Added to $backlog_file"
