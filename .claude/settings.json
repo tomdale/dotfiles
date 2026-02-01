@@ -4,7 +4,8 @@
   },
   "permissions": {
     "allow": [
-      "Write(~/.config/**)"
+      "Write(~/.config/**)",
+      "Write(~/.config/chezmoi/chezmoistate.boltdb)"
     ]
   }
 }

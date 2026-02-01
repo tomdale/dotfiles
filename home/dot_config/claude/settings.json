@@ -5,7 +5,8 @@
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
     "CLAUDE_CODE_ENABLE_TASKS": "0",
     "TMPDIR": ".agent/tmp",
-    "TMPPREFIX": ".agent/tmp"
+    "TMPPREFIX": ".agent/tmp",
+    "CLAUDE_CODE_TMPDIR": ".agent/tmp"
   },
   "attribution": {
     "commit": "",
@@ -26,6 +27,7 @@
       "WebFetch(domain:productionresultssa*.blob.core.windows.net)",
       "WebFetch(domain:vercel.com)",
       "WebFetch(domain:*vercel.com)",
+      "Read(~/.local/config/claude/**)",
       "Edit(~/.local/share/cargo/**)",
       "Edit(//tmp/claude/**)",
       "Edit(.agent/plans/*)",
@@ -98,8 +100,8 @@
       "Bash(whereis:*)",
       "Bash(env:*)",
       "Bash(printenv:*)",
-      "Bash(set-iterm-var currentTask:*)",
-      "Bash(set-iterm-var sessionGoal:*)",
+      "Bash(SetStatus task:*)",
+      "Bash(SetStatus goal:*)",
       "mcp__next-devtools",
       "mcp__dev3000",
       "mcp__datadog",
@@ -107,8 +109,7 @@
       "mcp__Notion__notion-fetch"
     ],
     "deny": [],
-    "ask": [],
-    "defaultMode": "plan"
+    "ask": []
   },
   "model": "opus",
   "enabledPlugins": {
@@ -116,7 +117,11 @@
     "code-simplifier@claude-plugins-official": true,
     "agent-browser@agent-browser": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "iterm-status@tomdale-claude-code-plugins": true
+    "iterm-status@tomdale-claude-code-plugins": true,
+    "frontend-design@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "benchmark@tomdale-claude-code-plugins": true
   },
   "sandbox": {
     "enabled": true,
