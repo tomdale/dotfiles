@@ -1,0 +1,9 @@
+{
+  "name": "iterm2",
+  "version": "0.1.0",
+  "description": "Write, debug, and deploy iTerm2 Python scripts for terminal automation",
+  "author": {
+    "name": "Tom Dale"
+  },
+  "keywords": ["iterm2", "terminal", "automation", "python", "scripting"]
+}
