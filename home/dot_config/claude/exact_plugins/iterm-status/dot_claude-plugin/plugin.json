@@ -1,5 +1,5 @@
 {
   "name": "iterm-status",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Updates iTerm2 status bar with task status and conversation summary"
 }
