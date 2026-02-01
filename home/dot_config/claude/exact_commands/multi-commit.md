@@ -1,5 +1,7 @@
 ---
-description: Analyze uncommitted changes, group them logically, and create separate commits for each group
+description:
+  Analyze uncommitted changes, group them logically, and create separate commits
+  for each group
 ---
 
 # Multi-Commit
@@ -10,7 +12,8 @@ Analyze all uncommitted changes and create multiple well-organized commits.
 
 - Current git status: !`git status --porcelain=v1`
 - Current branch: !`git branch --show-current`
-- Recent commits (for style reference): !`git log --oneline -5`
+- Recent commits (for style reference):
+  !`git log --oneline -5 || echo "No commits found"`
 
 ## Staged changes
 
@@ -68,6 +71,7 @@ Present a clear summary of your proposed commit groupings in this format:
 ```
 
 Include:
+
 - A descriptive title for each commit
 - The conventional commit type
 - List of files in each group
@@ -77,6 +81,7 @@ Include:
 
 After presenting the groupings, ask the user to confirm or request adjustments
 using the AskUserQuestion tool. Offer options like:
+
 - Proceed with proposed groupings
 - Merge some groups together
 - Split a group further
@@ -88,9 +93,10 @@ Once the user confirms, execute each commit group sequentially by spawning the
 `code-committer` agent for each group.
 
 For each group:
+
 1. Stage ONLY the files for that group (use `git add <files>`)
-2. Spawn the `code-committer` agent with a prompt like:
-   "Commit the currently staged changes. These changes are: <description of the
+2. Spawn the `code-committer` agent with a prompt like: "Commit the currently
+   staged changes. These changes are: <description of the
    group>. Use commit type: <type>."
 3. Wait for the agent to complete before proceeding to the next group
 
@@ -108,6 +114,7 @@ ensure only the intended files are committed.
 ### Commit Order
 
 Order commits logically:
+
 1. Infrastructure/config changes first (they often enable other changes)
 2. Refactoring/preparation commits
 3. Core implementation
