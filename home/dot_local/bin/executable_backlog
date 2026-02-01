@@ -14,6 +14,24 @@ find_agent_dir() {
   return 1
 }
 
+# Check for --edit or -e flag
+if [ "$1" = "--edit" ] || [ "$1" = "-e" ]; then
+  if agent_dir=$(find_agent_dir); then
+    backlog_file="$agent_dir/backlog.md"
+  else
+    mkdir -p ".agent"
+    backlog_file=".agent/backlog.md"
+  fi
+  
+  if [ ! -f "$backlog_file" ]; then
+    echo "# Backlog" > "$backlog_file"
+    echo "" >> "$backlog_file"
+  fi
+  
+  ${EDITOR:-vi} "$backlog_file"
+  exit 0
+fi
+
 # No arguments: print current backlog
 if [ $# -eq 0 ]; then
   if agent_dir=$(find_agent_dir); then

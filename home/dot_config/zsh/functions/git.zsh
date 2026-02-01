@@ -83,3 +83,26 @@ gitignore() {
     chezmoi apply ~/.config/git/ignore
   fi
 }
+
+# ───────────────────────────────────────────────────────────────────────────────
+# init - Initialize a new git repo in ~/Code
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: init <name>
+# Example: init my-project
+# Creates ~/Code/<name>, initializes git, and changes into the directory
+init() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: init <name>" >&2
+    return 2
+  fi
+
+  local name="$1"
+  local target_dir="$HOME/Code/$name"
+
+  if [[ -e "$target_dir" ]]; then
+    echo "init: $target_dir already exists" >&2
+    return 1
+  fi
+
+  mkdir -p "$target_dir" && cd "$target_dir" && git init
+}

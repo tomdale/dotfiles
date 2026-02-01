@@ -25,7 +25,7 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"       # Non-essential ca
 # Locale & Editor
 # ───────────────────────────────────────────────────────────────────────────────
 export LANG="en_US.UTF-8"
-export EDITOR="cursor --wait"  # --wait keeps terminal blocked until file is closed
+export EDITOR="nvim"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Tool Home Directories (XDG-compliant locations)

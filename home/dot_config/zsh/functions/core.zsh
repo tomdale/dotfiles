@@ -146,6 +146,19 @@ find-closest-dir() {
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
+# with-cursor - Run a command with EDITOR set to "cursor --wait"
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: with-cursor <command> [args...]
+# Example: with-cursor git commit  # Opens commit message in Cursor
+with-cursor() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: with-cursor <command> [args...]" >&2
+    return 2
+  fi
+  EDITOR="cursor --wait" "$@"
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
 # dotfiles - Edit dotfiles with chezmoi
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: dotfiles [file]
