@@ -133,6 +133,22 @@ This is required for Claude to pick up changes. Version bumps follow semver:
 # Change: "version": "1.0.0" → "version": "1.1.0"
 ```
 
+### Plugin Marketplace (MANDATORY)
+
+**When creating a new plugin, you MUST add it to the marketplace registry.**
+
+Edit `home/dot_config/claude/exact_plugins/dot_claude-plugin/marketplace.json` and add an entry:
+
+```json
+{
+  "name": "plugin-name",
+  "source": "./plugin-name",
+  "description": "Brief description of what the plugin does"
+}
+```
+
+This allows Claude Code to discover and load plugins from the shared plugins directory.
+
 ### Homebrew Dependencies
 `home/dot_config/Brewfile.tmpl` is macOS-only (wrapped in `{{ if eq .chezmoi.os "darwin" }}`).
 The script `run_onchange_after_3-install-homebrew.sh` re-runs `brew bundle` when Brewfile changes.

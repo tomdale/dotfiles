@@ -14,6 +14,21 @@
       "name": "iterm-status",
       "source": "./iterm-status",
       "description": "Updates iTerm2 status with conversation summary while Claude Code is running"
+    },
+    {
+      "name": "benchmark",
+      "source": "./benchmark",
+      "description": "Create, run, and optimize software benchmarks with accurate, reproducible measurements and autonomous performance optimization"
+    },
+    {
+      "name": "iterm2",
+      "source": "./iterm2",
+      "description": "Write, debug, and deploy iTerm2 Python scripts for terminal automation"
+    },
+    {
+      "name": "comms",
+      "source": "./comms",
+      "description": "Communication tools for executive summaries and stakeholder updates"
     }
   ]
 }
