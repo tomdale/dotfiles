@@ -26,7 +26,7 @@ if (!sessionId) {
 const uuid = sessionId.split(':')[1];
 
 // Map type to iTerm variable name
-const varName = type === 'goal' ? 'currentGoal' : 'currentTask';
+const varName = type === 'goal' ? 'currentGoal' : 'currentActivity';
 
 // Set iTerm2 variable via AppleScript
 execSync('osascript -', {

@@ -14,11 +14,6 @@ tools:
   - Read
   - Glob
   - Grep
-hooks:
-  - event: PreToolUse
-    tools:
-      - Bash
-    command: ~/.config/claude/scripts/block-protected-branch.sh
 ---
 
 # Code Committer Agent

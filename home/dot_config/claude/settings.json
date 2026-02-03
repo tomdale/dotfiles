@@ -3,10 +3,7 @@
   "env": {
     "ANTHROPIC_BASE_URL": "https://ai-gateway.vercel.sh",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
-    "CLAUDE_CODE_ENABLE_TASKS": "0",
-    "TMPDIR": ".agent/tmp",
-    "TMPPREFIX": ".agent/tmp",
-    "CLAUDE_CODE_TMPDIR": ".agent/tmp"
+    "TMPPREFIX": "/tmp/claude/zsh"
   },
   "attribution": {
     "commit": "",
@@ -16,6 +13,7 @@
     "allow": [
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:api.linear.com)",
+      "WebFetch(domain:api.anthropic.com"),
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:results-receiver.actions.githubusercontent.com)",
@@ -26,11 +24,18 @@
       "WebFetch(domain:docs.rs)",
       "WebFetch(domain:productionresultssa*.blob.core.windows.net)",
       "WebFetch(domain:vercel.com)",
-      "WebFetch(domain:*vercel.com)",
+      "WebFetch(domain:ai-gateway.vercel.sh)",
+      "WebFetch(domain:api.vercel.com)",
+      "WebFetch(domain:mcp.notion.com)",
       "Read(~/.local/config/claude/**)",
       "Edit(~/.local/share/cargo/**)",
-      "Edit(//tmp/claude/**)",
-      "Edit(.agent/plans/*)",
+      "Edit(~/.local/share/pnpm/**)",
+      "Edit(~/.local/share/taskctl/**)",
+      "Edit(//tmp/claude*/**)",
+      "Edit(//var/folders/*/*/T/**)",
+      "Edit(//private/tmp/claude*/**)",
+      "Edit(//private/var/folders/*/*/T/**)",
+      "Edit(~/_tmp_*)",
       "Bash(gh api:*)",
       "Bash(gh pr checkout:*)",
       "Bash(gh pr checks:*)",
@@ -44,7 +49,6 @@
       "Bash(git add:*)",
       "Bash(git branch:*)",
       "Bash(git checkout:*)",
-      "Bash(git commit:*)",
       "Bash(git diff:*)",
       "Bash(git fetch:*)",
       "Bash(git log:*)",
@@ -113,15 +117,16 @@
   },
   "model": "opus",
   "enabledPlugins": {
-    "tasks@tomdale-claude-code-plugins": true,
+    "tasks@tomdale-claude-code-plugins": false,
     "code-simplifier@claude-plugins-official": true,
     "agent-browser@agent-browser": true,
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "iterm-status@tomdale-claude-code-plugins": true,
+    "iterm-status@tomdale-claude-code-plugins": false,
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
-    "benchmark@tomdale-claude-code-plugins": true
+    "benchmark@tomdale-claude-code-plugins": true,
+    "plugin-dev@claude-plugins-official": true
   },
   "sandbox": {
     "enabled": true,
@@ -132,7 +137,11 @@
         "//tmp/claude/**"
       ],
       "allowLocalBinding": true
-    }
-  },
-  "plansDirectory": ".agent/plans"
+    },
+    "excludedCommands": [
+      "pnpm install",
+      "docker",
+      "docker:*"
+    ]
+  }
 }
