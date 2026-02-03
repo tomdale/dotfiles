@@ -29,7 +29,7 @@ export HOMEBREW_NO_ENV_HINTS=1  # Suppress "you can set..." suggestions
 # ───────────────────────────────────────────────────────────────────────────────
 # Directories (XDG-compliant)
 # ───────────────────────────────────────────────────────────────────────────────
-export ZSH="$XDG_DATA_HOME/oh-my-zsh"  # Installation directory
+
 ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"    # Completion cache, etc.
 ZSH_CUSTOM="$ZDOTDIR/custom"           # Custom plugins/themes
 
@@ -40,6 +40,17 @@ HISTFILE="$XDG_STATE_HOME/zsh/history"  # History file location
 HISTSIZE=10000                          # Commands to keep in memory
 SAVEHIST=10000                          # Commands to save to file
 setopt SHARE_HISTORY                    # Share history across sessions
+setopt HIST_IGNORE_SPACE                # Don't save commands starting with space
+setopt HIST_IGNORE_DUPS                 # Don't save duplicate adjacent commands
+setopt HIST_IGNORE_ALL_DUPS             # Remove older duplicate when new one added
+setopt HIST_FIND_NO_DUPS                # Don't show duplicates when searching history
+setopt HIST_REDUCE_BLANKS               # Remove extra blanks from saved commands
+setopt HIST_VERIFY                      # Show command before executing from history (!! etc)
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Miscellaneous
+# ───────────────────────────────────────────────────────────────────────────────
+setopt INTERACTIVE_COMMENTS
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Theme & Appearance
@@ -52,6 +63,16 @@ DISABLE_AUTO_TITLE="true"      # Don't let oh-my-zsh set terminal title (we use 
 AGNOSTER_GIT_INLINE=true      # Show git root and relative path inline
 
 # ───────────────────────────────────────────────────────────────────────────────
+# Transient Prompt Configuration
+# Keep full prompt on current line, minimal prompt for previous commands
+# ───────────────────────────────────────────────────────────────────────────────
+# Full prompt (will be set from theme's PROMPT)
+TRANSIENT_PROMPT_PROMPT='%{%f%b%k%}$(build_prompt) '
+
+# Minimal transient prompt - just show status symbols if any
+TRANSIENT_PROMPT_TRANSIENT_PROMPT='%(?.%F{green}.%F{red})❯%f '
+
+# ───────────────────────────────────────────────────────────────────────────────
 # Updates
 # ───────────────────────────────────────────────────────────────────────────────
 zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
@@ -61,11 +82,12 @@ zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
 # See: https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins
 # ───────────────────────────────────────────────────────────────────────────────
 plugins=(
-  git        # Git aliases (ga, gc, gp, etc.) and completion
-  ssh        # SSH agent management
-  python     # Python/venv helpers, auto-activate virtualenvs
-  poetry-env # Auto-activate Poetry environments
-  zoxide     # Smart cd replacement (z command)
+  git              # Git aliases (ga, gc, gp, etc.) and completion
+  ssh              # SSH agent management
+  python           # Python/venv helpers, auto-activate virtualenvs
+  poetry-env       # Auto-activate Poetry environments
+  zoxide           # Smart cd replacement (z command)
+  transient-prompt # Transient prompt - cleans up old prompts
 )
 
 # Python plugin settings

@@ -102,6 +102,41 @@ esac
 # Show the git branch status in the prompt rather than the generic branch symbol
 : ${AGNOSTER_GIT_BRANCH_STATUS:=true}
 
+## Symbol Configuration
+# Override these in your ~/.zshrc to customize symbols
+
+# Git symbols
+() {
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+  : ${AGNOSTER_GIT_BRANCH_SYMBOL:=$'\ue0a0'}      # Default branch symbol: 
+  : ${AGNOSTER_GIT_AHEAD_SYMBOL:=$'\u21b1'}       # Ahead of remote: ↱
+  : ${AGNOSTER_GIT_BEHIND_SYMBOL:=$'\u21b0'}      # Behind remote: ↰
+  : ${AGNOSTER_GIT_DIVERGED_SYMBOL:=$'\u21c5'}    # Diverged from remote: ⇅
+  : ${AGNOSTER_GIT_TAG_SYMBOL:='◈'}               # Detached at tag
+  : ${AGNOSTER_GIT_COMMIT_SYMBOL:='➦'}            # Detached at commit
+  : ${AGNOSTER_GIT_STAGED_SYMBOL:='✚'}            # Staged changes
+  : ${AGNOSTER_GIT_UNSTAGED_SYMBOL:='±'}          # Unstaged changes
+  : ${AGNOSTER_GIT_BISECT_SYMBOL:='<B>'}          # Bisecting
+  : ${AGNOSTER_GIT_MERGE_SYMBOL:='>M<'}           # Merging
+  : ${AGNOSTER_GIT_REBASE_SYMBOL:='>R>'}          # Rebasing
+}
+
+# Status symbols
+: ${AGNOSTER_STATUS_ERROR_SYMBOL:='✘'}            # Non-zero exit code
+: ${AGNOSTER_STATUS_ROOT_SYMBOL:='⚡'}            # Running as root
+: ${AGNOSTER_STATUS_JOB_SYMBOL:='⚙'}             # Background jobs
+
+# Other VCS symbols
+: ${AGNOSTER_BZR_MODIFIED_SYMBOL:='✚'}           # Bazaar modified
+() {
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+  : ${AGNOSTER_HG_SYMBOL:='☿'}                     # Mercurial symbol
+  : ${AGNOSTER_HG_MODIFIED_SYMBOL:='±'}           # Mercurial modified
+}
+
+# Virtualenv symbols
+: ${AGNOSTER_CONDA_SYMBOL:='🐍'}                  # Conda environment
+
 
 # Special Powerline characters
 
@@ -183,19 +218,15 @@ prompt_git() {
   if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" = 1 ]]; then
     return
   fi
-  local PL_BRANCH_CHAR
-  () {
-    local LC_ALL="" LC_CTYPE="en_US.UTF-8"
-    PL_BRANCH_CHAR=$'\ue0a0'         # 
-  }
+  local PL_BRANCH_CHAR=$AGNOSTER_GIT_BRANCH_SYMBOL
   local ref dirty mode repo_path
 
    if [[ "$(command git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]]; then
     repo_path=$(command git rev-parse --git-dir 2>/dev/null)
     dirty=$(parse_git_dirty)
     ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
-    ref="◈ $(command git describe --exact-match --tags HEAD 2> /dev/null)" || \
-    ref="➦ $(command git rev-parse --short HEAD 2> /dev/null)"
+    ref="$AGNOSTER_GIT_TAG_SYMBOL $(command git describe --exact-match --tags HEAD 2> /dev/null)" || \
+    ref="$AGNOSTER_GIT_COMMIT_SYMBOL $(command git rev-parse --short HEAD 2> /dev/null)"
     if [[ -n $dirty ]]; then
       prompt_segment "$AGNOSTER_GIT_DIRTY_BG" "$AGNOSTER_GIT_DIRTY_FG"
     else
@@ -207,20 +238,20 @@ prompt_git() {
       ahead=$(command git log --oneline @{upstream}.. 2>/dev/null)
       behind=$(command git log --oneline ..@{upstream} 2>/dev/null)
       if [[ -n "$ahead" ]] && [[ -n "$behind" ]]; then
-        PL_BRANCH_CHAR=$'\u21c5'
+        PL_BRANCH_CHAR=$AGNOSTER_GIT_DIVERGED_SYMBOL
       elif [[ -n "$ahead" ]]; then
-        PL_BRANCH_CHAR=$'\u21b1'
+        PL_BRANCH_CHAR=$AGNOSTER_GIT_AHEAD_SYMBOL
       elif [[ -n "$behind" ]]; then
-        PL_BRANCH_CHAR=$'\u21b0'
+        PL_BRANCH_CHAR=$AGNOSTER_GIT_BEHIND_SYMBOL
       fi
     fi
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-      mode=" <B>"
+      mode=" $AGNOSTER_GIT_BISECT_SYMBOL"
     elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
-      mode=" >M<"
+      mode=" $AGNOSTER_GIT_MERGE_SYMBOL"
     elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
-      mode=" >R>"
+      mode=" $AGNOSTER_GIT_REBASE_SYMBOL"
     fi
 
     setopt promptsubst
@@ -229,8 +260,8 @@ prompt_git() {
     zstyle ':vcs_info:*' enable git
     zstyle ':vcs_info:*' get-revision true
     zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr '✚'
-    zstyle ':vcs_info:*' unstagedstr '±'
+    zstyle ':vcs_info:*' stagedstr "$AGNOSTER_GIT_STAGED_SYMBOL"
+    zstyle ':vcs_info:*' unstagedstr "$AGNOSTER_GIT_UNSTAGED_SYMBOL"
     zstyle ':vcs_info:*' formats ' %u%c'
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
@@ -255,7 +286,7 @@ prompt_bzr() {
     status_all=$(echo -n "$bzr_status" | head -n1 | wc -m)
     revision=${$(command bzr log -r-1 --log-format line | cut -d: -f1):gs/%/%%}
     if [[ $status_mod -gt 0 ]] ; then
-      prompt_segment "$AGNOSTER_BZR_DIRTY_BG" "$AGNOSTER_BZR_DIRTY_FG" "bzr@$revision ✚"
+      prompt_segment "$AGNOSTER_BZR_DIRTY_BG" "$AGNOSTER_BZR_DIRTY_FG" "bzr@$revision $AGNOSTER_BZR_MODIFIED_SYMBOL"
     else
       if [[ $status_all -gt 0 ]] ; then
         prompt_segment "$AGNOSTER_BZR_DIRTY_BG" "$AGNOSTER_BZR_DIRTY_FG" "bzr@$revision"
@@ -274,30 +305,30 @@ prompt_hg() {
       if [[ $(command hg prompt "{status|unknown}") = "?" ]]; then
         # if files are not added
         prompt_segment "$AGNOSTER_HG_NEWFILE_BG" "$AGNOSTER_HG_NEWFILE_FG"
-        st='±'
+        st=$AGNOSTER_HG_MODIFIED_SYMBOL
       elif [[ -n $(command hg prompt "{status|modified}") ]]; then
         # if any modification
         prompt_segment "$AGNOSTER_HG_CHANGED_BG" "$AGNOSTER_HG_CHANGED_FG"
-        st='±'
+        st=$AGNOSTER_HG_MODIFIED_SYMBOL
       else
         # if working copy is clean
         prompt_segment "$AGNOSTER_HG_CLEAN_BG" "$AGNOSTER_HG_CLEAN_FG"
       fi
-      echo -n ${$(command hg prompt "☿ {rev}@{branch}"):gs/%/%%} $st
+      echo -n ${$(command hg prompt "$AGNOSTER_HG_SYMBOL {rev}@{branch}"):gs/%/%%} $st
     else
       st=""
       rev=$(command hg id -n 2>/dev/null | sed 's/[^-0-9]//g')
       branch=$(command hg id -b 2>/dev/null)
       if command hg st | command grep -q "^\?"; then
         prompt_segment "$AGNOSTER_HG_NEWFILE_BG" "$AGNOSTER_HG_NEWFILE_FG"
-        st='±'
+        st=$AGNOSTER_HG_MODIFIED_SYMBOL
       elif command hg st | command grep -q "^[MA]"; then
         prompt_segment "$AGNOSTER_HG_CHANGED_BG" "$AGNOSTER_HG_CHANGED_FG"
-        st='±'
+        st=$AGNOSTER_HG_MODIFIED_SYMBOL
       else
         prompt_segment "$AGNOSTER_HG_CLEAN_BG" "$AGNOSTER_HG_CLEAN_FG"
       fi
-      echo -n "☿ ${rev:gs/%/%%}@${branch:gs/%/%%}" $st
+      echo -n "$AGNOSTER_HG_SYMBOL ${rev:gs/%/%%}@${branch:gs/%/%%}" $st
     fi
   fi
 }
@@ -315,7 +346,7 @@ prompt_dir() {
 # Virtualenv: current working virtualenv
 prompt_virtualenv() {
   if [ -n "$CONDA_DEFAULT_ENV" ]; then
-    prompt_segment magenta $CURRENT_FG "🐍 $CONDA_DEFAULT_ENV"
+    prompt_segment magenta $CURRENT_FG "$AGNOSTER_CONDA_SYMBOL $CONDA_DEFAULT_ENV"
   fi
   if [[ -n "$VIRTUAL_ENV" && -n "$VIRTUAL_ENV_DISABLE_PROMPT" ]]; then
     prompt_segment "$AGNOSTER_VENV_BG" "$AGNOSTER_VENV_FG" "(${VIRTUAL_ENV:t:gs/%/%%})"
@@ -332,10 +363,10 @@ prompt_status() {
   if [[ $AGNOSTER_STATUS_RETVAL_NUMERIC == 'true' ]]; then
     [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_RETVAL_FG}%}$RETVAL"
   else
-    [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_RETVAL_FG}%}✘"
+    [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_RETVAL_FG}%}$AGNOSTER_STATUS_ERROR_SYMBOL"
   fi
-  [[ $UID -eq 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_ROOT_FG}%}⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}⚙"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_ROOT_FG}%}$AGNOSTER_STATUS_ROOT_SYMBOL"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}$AGNOSTER_STATUS_JOB_SYMBOL"
 
   [[ -n "$symbols" ]] && prompt_segment "$AGNOSTER_STATUS_BG" "$AGNOSTER_STATUS_FG" "$symbols"
 }

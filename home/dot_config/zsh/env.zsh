@@ -28,11 +28,12 @@ export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Tool Home Directories (XDG-compliant locations)
+# Tool Directories
 # ───────────────────────────────────────────────────────────────────────────────
 export CARGO_HOME="$XDG_DATA_HOME/cargo"     # Rust packages
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"   # Rust toolchain manager
 export PNPM_HOME="$XDG_DATA_HOME/pnpm"       # pnpm global packages
+export ZSH="$XDG_DATA_HOME/oh-my-zsh"        # Installation directory
 
 # ───────────────────────────────────────────────────────────────────────────────
 # PATH Configuration
@@ -44,9 +45,6 @@ if [[ -d /opt/homebrew/bin ]]; then
     export PATH="/opt/homebrew/bin:$PATH"
 fi
 
-# Rust toolchain
-export PATH="$(brew --prefix rustup)/bin:$PATH"
-
 # Local user scripts (~/.local/bin)
 export PATH="$HOME/.local/bin:$PATH"
 
@@ -56,5 +54,10 @@ export PATH="$CARGO_HOME/bin:$PATH"
 # pnpm global binaries
 export PATH="$PNPM_HOME:$PATH"
 
-# Initialize Homebrew environment (sets HOMEBREW_PREFIX, etc.)
-eval "$(brew shellenv)"
+# Homebrew-specific setup (macOS only)
+if command -v brew &>/dev/null; then
+    # Initialize Homebrew environment (sets HOMEBREW_PREFIX, etc.)
+    eval "$(brew shellenv)"
+    # Rust toolchain (installed via Homebrew)
+    export PATH="$(brew --prefix rustup)/bin:$PATH"
+fi

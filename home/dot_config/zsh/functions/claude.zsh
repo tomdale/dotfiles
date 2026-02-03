@@ -3,15 +3,6 @@
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────
-# claude - Run Claude Code with project-local temp directory
-# ───────────────────────────────────────────────────────────────────────────────
-# Wrapper that sets TMPDIR to .agent/tmp so temp files stay in the project
-# This keeps generated files organized and avoids polluting system temp
-claude() {
-  TMPDIR=.agent/tmp command claude "$@"
-}
-
-# ───────────────────────────────────────────────────────────────────────────────
 # commit - Quick wrapper for Claude's /commit skill
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: commit [args...]
