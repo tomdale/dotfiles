@@ -6,3 +6,11 @@
     type = "file"
     url = "https://raw.githubusercontent.com/tomdale/glow-glamour-solarized/main/solarized-dark.json"
     refreshPeriod = "168h"
+
+# zsh-transient-prompt - oh-my-zsh custom plugin
+[".config/zsh/custom/plugins/transient-prompt"]
+    type = "archive"
+    url = "https://github.com/olets/zsh-transient-prompt/archive/refs/heads/main.tar.gz"
+    exact = true
+    stripComponents = 1
+    refreshPeriod = "168h"
