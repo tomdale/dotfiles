@@ -31,6 +31,36 @@ killport() {
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
+# which-original - Find the path of the original command (bypassing aliases)
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: which-original <command>
+# Example: which-original tmux  # Returns /usr/local/bin/tmux even if tmux is aliased
+# Shows all definitions: alias, function, builtin, and executable path
+which-original() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: which-original <command>" >&2
+    return 2
+  fi
+
+  local cmd="$1"
+  
+  # Show all definitions (alias, function, builtin, file)
+  echo "All definitions of '$cmd':"
+  type -a "$cmd" 2>/dev/null || {
+    echo "  Command '$cmd' not found" >&2
+    return 1
+  }
+  
+  echo ""
+  echo "Original executable path:"
+  # Use \command to bypass alias expansion, or whence -p for zsh-specific path lookup
+  \command -v "$cmd" 2>/dev/null || whence -p "$cmd" 2>/dev/null || {
+    echo "  No executable found for '$cmd'" >&2
+    return 1
+  }
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
 # slink - Create symbolic links with named arguments
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: slink --from <source> --to <target>
