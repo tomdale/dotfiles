@@ -21,6 +21,11 @@ source "$ZDOTDIR/env.zsh"
 # ───────────────────────────────────────────────────────────────────────────────
 export HOMEBREW_NO_ENV_HINTS=1  # Suppress "you can set..." suggestions
 
+# ───────────────────────────────────────────────────────────────────────────────
+# Interactive Tool Configuration
+# ───────────────────────────────────────────────────────────────────────────────
+export LESS="-R --no-init --quit-if-one-screen"  # Keep output on screen, auto-exit if one screen
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Oh My Zsh Configuration
 # https://github.com/ohmyzsh/ohmyzsh
@@ -81,12 +86,20 @@ zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
 # Plugins
 # See: https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins
 # ───────────────────────────────────────────────────────────────────────────────
+
+# Fasd settings (must be set before plugin loads)
+export _FASD_FUZZY=5  # Allow up to 5 chars between matched chars (e.g., "ws" matches "workspaces")
+export _FASD_VIMINFO="$HOME/.local/state/nvim/shada/main.shada"  # Use neovim's recent files
+if [[ "$OSTYPE" == darwin* ]]; then
+  export _FASD_BACKENDS="native"  # Spotlight backend is significantly slower
+fi
+
 plugins=(
   git              # Git aliases (ga, gc, gp, etc.) and completion
   ssh              # SSH agent management
   python           # Python/venv helpers, auto-activate virtualenvs
   poetry-env       # Auto-activate Poetry environments
-  zoxide           # Smart cd replacement (z command)
+  fasd             # Frecency-based file/directory navigation (z, f, d commands)
   transient-prompt # Transient prompt - cleans up old prompts
 )
 
@@ -110,7 +123,7 @@ source $ZSH/oh-my-zsh.sh
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
-eval "$(fnm env --use-on-cd)"   # Fast Node Manager with auto-switching
+eval "$(proto activate zsh --no-shim)"  # Proto toolchain manager with auto-switching
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration
