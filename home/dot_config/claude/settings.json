@@ -13,10 +13,13 @@
     "allow": [
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:api.linear.com)",
-      "WebFetch(domain:api.anthropic.com"),
+      "WebFetch(domain:api.anthropic.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:results-receiver.actions.githubusercontent.com)",
+      "WebFetch(domain:release-assets.githubusercontent.com)",
+      "WebFetch(domain:objects.githubusercontent.com)",
+      "WebFetch(domain:codeload.github.com)",
       "WebFetch(domain:registry.npmjs.org)",
       "WebFetch(domain:registry.yarnpkg.com)",
       "WebFetch(domain:crates.io)",
@@ -27,15 +30,16 @@
       "WebFetch(domain:ai-gateway.vercel.sh)",
       "WebFetch(domain:api.vercel.com)",
       "WebFetch(domain:mcp.notion.com)",
-      "Read(~/.local/config/claude/**)",
+      "WebFetch(domain:*.neon.tech)",
+      "WebFetch(domain:telemetry.vercel.com)",
+      "Read(~/.config/claude/**)",
+      "Edit(~/.cache/**)",
       "Edit(~/.local/share/cargo/**)",
       "Edit(~/.local/share/pnpm/**)",
+      "Edit(~/.local/share/proto/**)",
       "Edit(~/.local/share/taskctl/**)",
       "Edit(//tmp/claude*/**)",
       "Edit(//var/folders/*/*/T/**)",
-      "Edit(//private/tmp/claude*/**)",
-      "Edit(//private/var/folders/*/*/T/**)",
-      "Edit(~/_tmp_*)",
       "Bash(gh api:*)",
       "Bash(gh pr checkout:*)",
       "Bash(gh pr checks:*)",
@@ -91,6 +95,7 @@
       "Bash(chmod:*)",
       "Bash(curl:*)",
       "Bash(ls:*)",
+      "Bash(echo:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(tree:*)",
@@ -110,12 +115,18 @@
       "mcp__dev3000",
       "mcp__datadog",
       "mcp__Notion__notion-search",
-      "mcp__Notion__notion-fetch"
+      "mcp__Notion__notion-fetch",
+      "Edit(~/.agent-browser/**)",
+      "Edit(~/.agent-browser-state.json)",
+      "Edit(~/.agent-browser-profile/**)",
+      "Edit(~/.agent-browser-profiles/**)",
+      "Edit(//tmp/agent-browser*)",
+      "Bash(agent-browser:*)",
+      "Bash(d3k:*)"
     ],
     "deny": [],
     "ask": []
   },
-  "model": "opus",
   "enabledPlugins": {
     "tasks@tomdale-claude-code-plugins": false,
     "code-simplifier@claude-plugins-official": true,
@@ -131,17 +142,29 @@
   "sandbox": {
     "enabled": true,
     "network": {
+      "allowedDomains": [
+        "github.com",
+        "api.github.com",
+        "raw.githubusercontent.com",
+        "codeload.github.com",
+        "objects.githubusercontent.com",
+        "release-assets.githubusercontent.com",
+        "results-receiver.actions.githubusercontent.com"
+      ],
       "allowUnixSockets": [
         ".agent/sockets/*",
         ".agent/sockets/agent.sock",
-        "//tmp/claude/**"
+        "//tmp/claude/**",
+        "//tmp/claude/tmux.sock",
+        "//Users/tomdale/.agent-browser/*.sock"
       ],
       "allowLocalBinding": true
     },
     "excludedCommands": [
-      "pnpm install",
-      "docker",
-      "docker:*"
+      "pnpm install:*",
+      "docker:*",
+      "d3k:*"
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }

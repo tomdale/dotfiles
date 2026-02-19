@@ -1,8 +1,27 @@
 {
+  "additionalDirectories": [
+    "/Users/tomdale/Code/dotfile-inspo"
+  ],
   "permissions": {
     "allow": [
-      "Write(~/.config/**)",
-      "Write(~/.config/chezmoi/chezmoistate.boltdb)"
+      "Edit(~/.config/**)",
+      "Edit(~/.local/share/**)",
+      "Edit(~/Library/Caches/Homebrew/**)",
+      "Edit(/opt/homebrew/**)",
+      "Skill(create-skill)",
+      "WebSearch",
+      "WebFetch(domain:iterm2.com)",
+      "WebFetch(domain:www.lazyvim.org)",
+      "WebFetch(domain:formulae.brew.sh)",
+      "WebFetch(domain:release-assets.githubusercontent.com)",
+      "WebFetch(domain:*.influxdata.com)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": [
+      "brew install:*"
     ]
   },
   "enabledPlugins": {}
