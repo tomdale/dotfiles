@@ -2,8 +2,12 @@
 
 set -euo pipefail
 
-# Source zshenv to get XDG Base Directory paths
-source "$HOME/.zshenv"
+# Source shared environment variables (deployed by chezmoi before scripts run)
+# shellcheck source=/dev/null
+source "$HOME/.config/zsh/env.sh"
+
+# ZDOTDIR is set in .zshenv, define here for this script
+ZDOTDIR="$XDG_CONFIG_HOME/zsh"
 
 echo "Setting up zsh directories..."
 

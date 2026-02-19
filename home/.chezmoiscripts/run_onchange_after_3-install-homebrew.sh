@@ -2,9 +2,11 @@
 
 set -e
 
-source "$HOME/.zshenv"
+# Source shared environment variables (deployed by chezmoi before scripts run)
+# shellcheck source=/dev/null
+source "$HOME/.config/zsh/env.sh"
 
-# Brewfile hash: {{ include (joinPath .xdg.configHome "Brewfile") | sha256sum }}
+# Brewfile hash: {{ include "dot_config/Brewfile.tmpl" | sha256sum }}
 
 if [[ "$OSTYPE" != "darwin"* ]]; then
     echo "Homebrew installation skipped: not on macOS"

@@ -13,27 +13,16 @@
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────
-# XDG Base Directory Specification
-# https://specifications.freedesktop.org/basedir-spec/latest/
+# Portable Environment Variables
+# Shared with chezmoi scripts - see env.sh for definitions
 # ───────────────────────────────────────────────────────────────────────────────
-export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"   # User data files
-export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}" # Persistent state (logs, history)
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"    # User config files
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"       # Non-essential cached data
+source "${ZDOTDIR:-$HOME/.config/zsh}/env.sh"
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Locale & Editor
 # ───────────────────────────────────────────────────────────────────────────────
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Tool Directories
-# ───────────────────────────────────────────────────────────────────────────────
-export CARGO_HOME="$XDG_DATA_HOME/cargo"     # Rust packages
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"   # Rust toolchain manager
-export PNPM_HOME="$XDG_DATA_HOME/pnpm"       # pnpm global packages
-export ZSH="$XDG_DATA_HOME/oh-my-zsh"        # Installation directory
 
 # ───────────────────────────────────────────────────────────────────────────────
 # PATH Configuration
@@ -53,6 +42,15 @@ export PATH="$CARGO_HOME/bin:$PATH"
 
 # pnpm global binaries
 export PATH="$PNPM_HOME:$PATH"
+
+# Proto toolchain manager
+# Interactive shells get dynamic version switching via chpwd hook in .zshrc.
+# Non-interactive shells (scripts, sandboxed commands) need the tool
+# directories added to PATH here since .zshrc never runs for them.
+export PATH="$PROTO_HOME/bin:$PATH"
+if [[ ! -o interactive ]] && command -v proto &>/dev/null; then
+    eval "$(proto activate zsh --no-shim --export)"
+fi
 
 # Homebrew-specific setup (macOS only)
 if command -v brew &>/dev/null; then

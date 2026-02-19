@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-# Source zshenv to get XDG Base Directory paths
-source "$HOME/.zshenv"
+# Source shared environment variables (deployed by chezmoi before scripts run)
+# shellcheck source=/dev/null
+source "$HOME/.config/zsh/env.sh"
 
 echo "Installing Oh My Zsh...!"
 
