@@ -1,19 +1,14 @@
 #!/usr/bin/env zsh
 # ╔═══════════════════════════════════════════════════════════════════════════╗
-# ║ ~/.zshenv - Bootstrap ZDOTDIR                                            ║
+# ║ $ZDOTDIR/.zshenv - Environment Configuration (subshell entry point)      ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
-# ║ This file only runs when ZDOTDIR is unset — i.e. the very first shell   ║
-# ║ in a session (new terminal tab, SSH login). It sets ZDOTDIR so that all  ║
-# ║ subsequent zsh files (.zshrc, .zprofile) are loaded from ~/.config/zsh.  ║
+# ║ When ZDOTDIR is inherited from a parent shell (subshells, non-interactive ║
+# ║ shells spawned by tools like Claude Code), zsh looks for .zshenv HERE    ║
+# ║ instead of in ~/. Without this file, subshells skip env.zsh entirely    ║
+# ║ and inherit a stale PATH from the parent — wrong tool versions, missing  ║
+# ║ globals, etc.                                                            ║
 # ║                                                                           ║
-# ║ Subshells inherit ZDOTDIR from their parent, so zsh looks for .zshenv   ║
-# ║ in $ZDOTDIR instead of ~. That's why $ZDOTDIR/.zshenv also exists —     ║
-# ║ it handles the subshell/non-interactive case. See the architecture note  ║
-# ║ in env.zsh for the full startup flow.                                    ║
+# ║ See the architecture note in env.zsh for the full startup flow.          ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
-# Relocate zsh config to XDG-compliant location
-export ZDOTDIR="$HOME/.config/zsh"
-
-# Source environment variables and PATH (separated for clarity)
 source "$ZDOTDIR/env.zsh"

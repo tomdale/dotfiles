@@ -12,14 +12,15 @@
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Environment Config and PATH
+# Proto Toolchain Manager
+# Runs first so oh-my-zsh and all tools below inherit the fully activated PATH.
+# This is the interactive-shell counterpart to the --export call in env.zsh.
+# Uses full activation (not --export) to register a chpwd hook that re-resolves
+# tool versions when you cd between projects. See env.zsh for the full
+# architecture note explaining how proto activation is split across files.
 # ───────────────────────────────────────────────────────────────────────────────
-source "$ZDOTDIR/env.zsh"
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Homebrew
-# ───────────────────────────────────────────────────────────────────────────────
-export HOMEBREW_NO_ENV_HINTS=1  # Suppress "you can set..." suggestions
+eval "$(proto activate zsh --config-mode all)"
+typeset -U path
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Interactive Tool Configuration
@@ -112,7 +113,6 @@ source $ZSH/oh-my-zsh.sh
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
-eval "$(proto activate zsh)"  # Proto toolchain manager with auto-switching
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration

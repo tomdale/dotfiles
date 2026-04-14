@@ -34,14 +34,6 @@ if command -v apt-get &>/dev/null; then
 fi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# fnm (Fast Node Manager)
-# ─────────────────────────────────────────────────────────────────────────────
-if ! command -v fnm &>/dev/null; then
-    echo "Installing fnm..."
-    curl -fsSL https://fnm.vercel.app/install | bash -s -- --skip-shell
-fi
-
-# ─────────────────────────────────────────────────────────────────────────────
 # Rust toolchain
 # ─────────────────────────────────────────────────────────────────────────────
 if ! command -v cargo &>/dev/null; then
