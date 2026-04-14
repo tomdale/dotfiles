@@ -3,6 +3,7 @@
   "env": {
     "ANTHROPIC_BASE_URL": "https://ai-gateway.vercel.sh",
     "CLAUDE_CODE_DISABLE_TERMINAL_TITLE": "1",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "TMPPREFIX": "/tmp/claude/zsh"
   },
   "attribution": {
@@ -11,10 +12,11 @@
   },
   "permissions": {
     "allow": [
-      "WebFetch(domain:api.github.com)",
       "WebFetch(domain:api.linear.com)",
       "WebFetch(domain:api.anthropic.com)",
       "WebFetch(domain:github.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:cli.github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:results-receiver.actions.githubusercontent.com)",
       "WebFetch(domain:release-assets.githubusercontent.com)",
@@ -34,11 +36,14 @@
       "WebFetch(domain:telemetry.vercel.com)",
       "Read(~/.config/claude/**)",
       "Edit(~/.cache/**)",
+      "Edit(~/.portless/**)",
       "Edit(~/.local/share/cargo/**)",
       "Edit(~/.local/share/pnpm/**)",
       "Edit(~/.local/share/proto/**)",
       "Edit(~/.local/share/taskctl/**)",
       "Edit(//tmp/claude*/**)",
+      "Edit(//private/tmp/claude*/**)",
+      "Edit(//private/tmp/tmux-501)",
       "Edit(//var/folders/*/*/T/**)",
       "Bash(gh api:*)",
       "Bash(gh pr checkout:*)",
@@ -108,6 +113,7 @@
       "Bash(which:*)",
       "Bash(whereis:*)",
       "Bash(env:*)",
+      "Bash(sleep:*)",
       "Bash(printenv:*)",
       "Bash(SetStatus task:*)",
       "Bash(SetStatus goal:*)",
@@ -122,11 +128,58 @@
       "Edit(~/.agent-browser-profiles/**)",
       "Edit(//tmp/agent-browser*)",
       "Bash(agent-browser:*)",
-      "Bash(d3k:*)"
+      "Bash(d3k:*)",
+      "WebSearch",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(vercel teams:*)",
+      "Bash(vercel project:*)",
+      "Skill(linear)",
+      "WebFetch(domain:api.linear.app)",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__click",
+      "mcp__github__search_repositories",
+      "mcp__github__search_code",
+      "mcp__github__get_file_contents",
+      "mcp__github__search_pull_requests",
+      "Bash(gh search issues:*)",
+      "WebFetch(domain:docs.vercel.com)",
+      "Skill(vercel-sandbox)",
+      "mcp__things__get_inbox",
+      "mcp__things__get_today",
+      "mcp__things__get_upcoming",
+      "mcp__things__get_anytime",
+      "mcp__things__get_someday",
+      "mcp__things__get_projects",
+      "mcp__things__get_areas",
+      "mcp__things__get_tags",
+      "mcp__github__pull_request_read",
+      "mcp__things__update_todo",
+      "mcp__things__update_project",
+      "mcp__notion__notion-search",
+      "mcp__notion__notion-fetch",
+      "mcp__things__add_todo",
+      "mcp__things__search_todos",
+      "mcp__things__search_items",
+      "mcp__things__get_todos",
+      "mcp__things__add_project",
+      "mcp__notion__notion-query-meeting-notes",
+      "mcp__notion__notion-query-data-sources",
+      "mcp__notion__notion-get-teams",
+      "mcp__notion__notion-update-page",
+      "mcp__notion__notion-move-pages",
+      "mcp__notion__notion-create-pages",
+      "Skill(notion)",
+      "Bash(gh repo:*)",
+      "Bash(gh issue:*)",
+      "Skill(agent-browser)",
+      "WebFetch(domain:arxiv.org)",
+      "Bash(agent-browser eval:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "defaultMode": "auto"
   },
+  "model": "opus[1m]",
   "enabledPlugins": {
     "tasks@tomdale-claude-code-plugins": false,
     "code-simplifier@claude-plugins-official": true,
@@ -137,7 +190,16 @@
     "code-review@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": true,
     "benchmark@tomdale-claude-code-plugins": true,
-    "plugin-dev@claude-plugins-official": true
+    "plugin-dev@claude-plugins-official": true,
+    "vercel-plugin@vercel-vercel-plugin": true
+  },
+  "extraKnownMarketplaces": {
+    "vercel-vercel-plugin": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/tomdale/.cache/plugins/github.com-vercel-vercel-plugin"
+      }
+    }
   },
   "sandbox": {
     "enabled": true,
@@ -156,15 +218,20 @@
         ".agent/sockets/agent.sock",
         "//tmp/claude/**",
         "//tmp/claude/tmux.sock",
-        "//Users/tomdale/.agent-browser/*.sock"
+        "//Users/tomdale/.agent-browser/*.sock",
+        "/private/tmp/tmux-501/default"
       ],
       "allowLocalBinding": true
     },
     "excludedCommands": [
+      "agent-browser:*",
+      "gh:*",
       "pnpm install:*",
       "docker:*",
       "d3k:*"
     ]
   },
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
+  "effortLevel": "high"
 }

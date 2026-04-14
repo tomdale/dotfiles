@@ -4,7 +4,9 @@
   ],
   "permissions": {
     "allow": [
+      "Edit(~/.claude/skills/**)",
       "Edit(~/.config/**)",
+      "Edit(~/.codex/**)",
       "Edit(~/.local/share/**)",
       "Edit(~/Library/Caches/Homebrew/**)",
       "Edit(/opt/homebrew/**)",
