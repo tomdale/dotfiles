@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "tomdale_status": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/tomdale/.local/share/agents/plugins/tomdale/mcp/status-server.js"
+      ],
+      "cwd": "/Users/tomdale/.local/share/agents/plugins/tomdale",
+      "env_vars": [
+        "ITERM_SESSION_ID"
+      ],
+      "tools": {
+        "set_status": {
+          "approval_mode": "approve"
+        }
+      }
+    }
+  }
+}

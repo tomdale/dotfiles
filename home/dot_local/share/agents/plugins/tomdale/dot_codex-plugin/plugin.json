@@ -1,6 +1,6 @@
 {
   "name": "tomdale",
-  "version": "0.2.0",
+  "version": "0.3.8",
   "description": "Tom Dale's personal Codex skills and agent utilities.",
   "author": {
     "name": "Tom Dale",
@@ -15,6 +15,7 @@
     "workflow"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "tomdale",
     "shortDescription": "Personal Codex skills and utilities",
