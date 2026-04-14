@@ -24,12 +24,18 @@ function iterm2_print_user_vars() {
   # ─────────────────────────────────────────────────────────────────────────────
   # Claude Code Integration
   # ─────────────────────────────────────────────────────────────────────────────
-  # sessionGoal: Persisted goal from Claude Code sessions
-  # Stored in .agent/.last-goal by the iterm-status plugin
+  # sessionGoal/sessionTask: Persisted goal + task from agent sessions
+  # Stored in .agent/.last-goal and .agent/.last-task by SetStatus
   if [[ -f ".agent/.last-goal" ]]; then
     iterm2_set_user_var sessionGoal "$(cat .agent/.last-goal)"
   else
     iterm2_set_user_var sessionGoal ""
+  fi
+
+  if [[ -f ".agent/.last-task" ]]; then
+    iterm2_set_user_var sessionTask "$(cat .agent/.last-task)"
+  else
+    iterm2_set_user_var sessionTask ""
   fi
 
   # ─────────────────────────────────────────────────────────────────────────────
