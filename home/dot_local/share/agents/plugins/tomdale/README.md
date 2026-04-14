@@ -4,11 +4,14 @@ Personal Codex plugin content managed by chezmoi.
 
 This source tree maps to `~/.local/share/agents/plugins/tomdale` on the target
 machine. Keep plugin metadata in `dot_codex-plugin/plugin.json`, add reusable
-skills under `skills/`, and put shared helper scripts in `scripts/`.
+skills under `skills/`, put shared helper scripts in `scripts/`, and add local
+MCP servers in `.mcp.json` plus companion code under `mcp/`.
 
 ## Layout
 
 - `dot_codex-plugin/plugin.json`: Codex plugin manifest
+- `.mcp.json`: plugin-local MCP server configuration
+- `mcp/`: local MCP server implementations
 - `skills/`: personal skills, one directory per skill with a `SKILL.md`
 - `scripts/`: shared helper scripts used by multiple skills
 
@@ -21,6 +24,14 @@ skills under `skills/`, and put shared helper scripts in `scripts/`.
 - `tasks` and `write-task`: manage a portable markdown task queue
 - `iterm2-python-api`: write and debug iTerm2 Python scripts
 - `exec-summarizer`: compress technical output for executive readers
+- `minify-prompt`: rewrite instruction-heavy files for lower token cost without
+  losing meaning
+- `refactoring`: redesign TypeScript code toward a greenfield-quality module
+  layout, with aggressive decomposition of monolithic files
+
+## Bundled MCP
+
+- `tomdale_status`: iTerm2 status updates for the current Codex session
 
 ## Notes
 

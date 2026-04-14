@@ -7,6 +7,8 @@ This plugin currently bundles:
 - `fix-pr-checks`
 - `interactive-shell`
 - `iterm2-python-api`
+- `minify-prompt`
+- `refactoring`
 - `tasks`
 - `tui-development`
 - `write-task`
