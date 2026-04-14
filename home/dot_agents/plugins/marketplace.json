@@ -1,0 +1,20 @@
+{
+  "name": "tomdale-codex-plugins",
+  "interface": {
+    "displayName": "tomdale"
+  },
+  "plugins": [
+    {
+      "name": "tomdale",
+      "source": {
+        "source": "local",
+        "path": "./.local/share/agents/plugins/tomdale"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

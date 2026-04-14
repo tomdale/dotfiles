@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const type = process.argv[2];
+const value = process.argv[3] ?? '';
+
+if (!type || !['goal', 'task'].includes(type)) {
+  console.error('Usage: SetStatus <goal|task> <value>');
+  console.error('Sets iTerm2 status variables and persists state');
+  console.error('');
+  console.error('Examples:');
+  console.error('  SetStatus goal "Fixing checkout bug #1234"');
+  console.error('  SetStatus task "Reading checkout session handler"');
+  process.exit(1);
+}
+
+const sessionId = process.env.ITERM_SESSION_ID;
+if (!sessionId) {
+  console.error('Error: Not running in iTerm2');
+  process.exit(1);
+}
+
+const [, uuid] = sessionId.split(':');
+if (!uuid) {
+  console.error('Error: Could not parse iTerm2 session ID');
+  process.exit(1);
+}
+
+const varName = type === 'goal' ? 'currentGoal' : 'currentActivity';
+const escapedValue = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+execSync('osascript -', {
+  input: `
+    tell application "iTerm2"
+      repeat with w in windows
+        repeat with t in tabs of w
+          repeat with s in sessions of t
+            if unique ID of s is "${uuid}" then
+              tell s to set variable named "user.${varName}" to "${escapedValue}"
+              return
+            end if
+          end repeat
+        end repeat
+      end repeat
+    end tell
+  `,
+  stdio: ['pipe', 'pipe', 'pipe'],
+});
+
+const agentDir = path.join(process.cwd(), '.agent');
+fs.mkdirSync(agentDir, { recursive: true });
+
+const statePath = path.join(agentDir, '.state');
+let state = { goal: '', task: '' };
+
+if (fs.existsSync(statePath)) {
+  try {
+    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+  } catch {
+    state = { goal: '', task: '' };
+  }
+}
+
+state[type] = value;
+
+fs.writeFileSync(statePath, JSON.stringify(state, null, 2) + '\n');
+fs.writeFileSync(path.join(agentDir, '.last-goal'), `${state.goal}\n`);
+fs.writeFileSync(path.join(agentDir, '.last-task'), `${state.task}\n`);
+
+const historyPath = path.join(agentDir, '.state-history');
+const timestamp = new Date().toISOString();
+fs.appendFileSync(historyPath, `${timestamp} [${type}] ${value}\n`);
