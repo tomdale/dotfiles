@@ -12,6 +12,3 @@
 # ║ need to be available in non-login shells.                                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
-# Remove duplicate PATH entries (keeps first occurrence)
-# This is a login-time optimization since PATH grows with nested shells
-typeset -U path

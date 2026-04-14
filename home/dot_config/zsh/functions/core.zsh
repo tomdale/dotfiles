@@ -3,6 +3,49 @@
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
 # ───────────────────────────────────────────────────────────────────────────────
+# findport - Print detailed info about process listening on a port
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: findport <port>
+# Example: findport 3000
+findport() {
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: findport <port>" >&2
+    return 2
+  fi
+
+  local port="$1"
+  local pids
+
+  # -sTCP:LISTEN filters to processes listening (not outbound connections)
+  pids=$(lsof -tiTCP:"$port" -sTCP:LISTEN 2>/dev/null)
+  if [[ -z "$pids" ]]; then
+    echo "Port $port: no process listening"
+    return 1
+  fi
+
+  echo "Port $port: listening processes"
+  echo "────────────────────────────────────────────────────────────────────────────"
+  lsof -iTCP:"$port" -sTCP:LISTEN 2>/dev/null
+  echo ""
+  echo "Process details:"
+  echo "────────────────────────────────────────────────────────────────────────────"
+  for pid in ${(u)pids}; do
+    echo "PID $pid:"
+    local exe
+    exe=$(lsof -p "$pid" -Fn 2>/dev/null | awk '/^ftxt$/ {getline; gsub(/^n/,""); print; exit}')
+    [[ -n "$exe" ]] && echo "  Path: $exe"
+    local cwd
+    cwd=$(lsof -p "$pid" -Fn 2>/dev/null | awk '/^fcwd$/ {getline; gsub(/^n/,""); print; exit}')
+    [[ -n "$cwd" ]] && echo "  Cwd:  $cwd"
+    local cmd
+    cmd=$(ps -ww -p "$pid" -o args= 2>/dev/null || ps -p "$pid" -o args= 2>/dev/null)
+    [[ -n "$cmd" ]] && echo "  Command: $cmd"
+    ps -p "$pid" -o pid,ppid,user,%cpu,%mem,etime,command 2>/dev/null || ps -p "$pid" 2>/dev/null
+    echo ""
+  done
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
 # killport - Kill processes on specified ports
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: killport <port> [port...]
@@ -317,5 +360,33 @@ _shortcut_list() {
   echo ""
   grep "^alias " "$aliases_file" | sed 's/^alias /  /' | while read -r line; do
     echo "$line"
+  done
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
+# tmux-repeat - Send a key to tmux multiple times with delay
+# ───────────────────────────────────────────────────────────────────────────────
+# Usage: tmux-repeat <target> <key> [count] [delay]
+# Example: tmux-repeat wf Down 5 0.1  # Send Down key 5 times to session 'wf' with 0.1s delay
+#          tmux-repeat wf Up 3        # Send Up key 3 times (default delay 0.1s)
+#          tmux-repeat wf Enter       # Send Enter key once (default count 1, delay 0.1s)
+tmux-repeat() {
+  if [[ $# -lt 2 ]]; then
+    echo "Usage: tmux-repeat <target> <key> [count] [delay]" >&2
+    echo "  target: tmux session/window/pane target (e.g., 'wf', '0', '0.1')" >&2
+    echo "  key:    key to send (e.g., 'Down', 'Up', 'Enter', 'C-c')" >&2
+    echo "  count:  number of times to send (default: 1)" >&2
+    echo "  delay:  delay between sends in seconds (default: 0.1)" >&2
+    return 2
+  fi
+
+  local target="$1"
+  local key="$2"
+  local count="${3:-1}"
+  local delay="${4:-0.1}"
+
+  for i in $(seq "$count"); do
+    tmux send-keys -t "$target" "$key"
+    sleep "$delay"
   done
 }

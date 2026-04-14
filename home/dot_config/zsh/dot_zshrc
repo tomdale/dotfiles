@@ -68,16 +68,6 @@ DISABLE_AUTO_TITLE="true"      # Don't let oh-my-zsh set terminal title (we use 
 AGNOSTER_GIT_INLINE=true      # Show git root and relative path inline
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Transient Prompt Configuration
-# Keep full prompt on current line, minimal prompt for previous commands
-# ───────────────────────────────────────────────────────────────────────────────
-# Full prompt (will be set from theme's PROMPT)
-TRANSIENT_PROMPT_PROMPT='%{%f%b%k%}$(build_prompt) '
-
-# Minimal transient prompt - just show status symbols if any
-TRANSIENT_PROMPT_TRANSIENT_PROMPT='%(?.%F{green}.%F{red})❯%f '
-
-# ───────────────────────────────────────────────────────────────────────────────
 # Updates
 # ───────────────────────────────────────────────────────────────────────────────
 zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
@@ -100,7 +90,6 @@ plugins=(
   python           # Python/venv helpers, auto-activate virtualenvs
   poetry-env       # Auto-activate Poetry environments
   fasd             # Frecency-based file/directory navigation (z, f, d commands)
-  transient-prompt # Transient prompt - cleans up old prompts
 )
 
 # Python plugin settings
@@ -123,7 +112,7 @@ source $ZSH/oh-my-zsh.sh
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
-eval "$(proto activate zsh --no-shim)"  # Proto toolchain manager with auto-switching
+eval "$(proto activate zsh)"  # Proto toolchain manager with auto-switching
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration

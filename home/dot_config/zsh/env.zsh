@@ -25,9 +25,19 @@ export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 
 # ───────────────────────────────────────────────────────────────────────────────
+# Resource Limits
+# ───────────────────────────────────────────────────────────────────────────────
+# Raise open file descriptor limit (default 256 is often too low for dev servers,
+# Node.js, etc.). Caps at system hard limit if 65536 isn't allowed.
+ulimit -n 65536 2>/dev/null || true
+
+# ───────────────────────────────────────────────────────────────────────────────
 # PATH Configuration
 # Order matters: earlier entries take precedence
 # ───────────────────────────────────────────────────────────────────────────────
+# Prevent duplicate PATH entries. typeset -U is a zsh array attribute and is
+# not inherited by child shells, so it must be set in every shell's env setup.
+typeset -U path
 
 # Homebrew (Apple Silicon path, must be first to shadow system tools)
 if [[ -d /opt/homebrew/bin ]]; then
