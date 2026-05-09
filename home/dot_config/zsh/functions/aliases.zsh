@@ -8,6 +8,7 @@
 alias tt=termtint              # Terminal color scheme switcher
 alias cat=bat                  # Syntax-highlighted cat replacement
 alias gnpm=/opt/homebrew/bin/npm  # Homebrew npm
+alias glow='glow --pager'      # Always paginate glow output
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Shell Management
