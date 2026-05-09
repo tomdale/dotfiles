@@ -5,6 +5,12 @@ To make sure you understand the changes:
 - Read through the relevant parts of the implementation *prior* to the change, to ensure you have a well-formed and holistic understanding of the existing system.
 - Read through the diff and understand the changes _IN FULL_ before beginning to write the narrative.
 
+Audience and baseline:
+- Anchor the narrative against the PR base branch, usually `main`, `master`, or the detected merge base. Describe the world as the intended reviewer will see it: base branch plus this PR.
+- Never write a PR description relative to an earlier draft, abandoned approach, force-pushed commit, review iteration, or any other ephemeral work unless the user explicitly asks for a progress report.
+- Do not say that the PR "now" does something, "replaces" a previous iteration, "no longer" uses an approach, or "moves from" one temporary design to another unless that contrast is meaningful against the base branch.
+- Before including any contrast or historical reference, ask: is the thing being referred to likely to be relevant to the intended audience reading this, who was not following every twist and turn of active development? If not, omit it or move it to a private note instead of the PR narrative.
+
 When writing the narrative:
 - Always set context first.
 - Begin with a summary:
@@ -36,4 +42,3 @@ When writing the narrative:
 - Use Markdown, appropriate for pasting into a GitHub PR description or comment.
 - Include a title
 </format>
-

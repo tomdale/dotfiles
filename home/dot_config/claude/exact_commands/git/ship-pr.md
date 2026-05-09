@@ -107,6 +107,13 @@ IMPORTANT: The `<git-status>` section above already contains the output of `git 
        - If there are multiple commits:
          - Title: A concise summary of the overall change (not just the last commit).
          - Body: A cohesive description of the PR's purpose, optionally with a bullet list of the key changes. Do NOT just list commit messages verbatim—synthesize them into a clear narrative.
+       - Anchor the title and body against `$BASE_BRANCH`, not against an earlier draft, abandoned approach, force-pushed commit, review iteration, or any other ephemeral work.
+       - Before including any contrast such as "now", "no longer", "replaces", or "moves from", ask whether the referenced prior state is likely to be relevant to the intended audience, who was not following every twist and turn of active development. If not, omit that contrast.
+     - After `gh pr create --web` succeeds, treat the browser handoff as complete:
+       - Do NOT check whether the PR exists yet.
+       - Do NOT poll for a PR URL.
+       - Do NOT fall back to creating the PR without `--web`.
+       - The user may submit the browser form asynchronously, so the absence of an immediate PR is expected.
 </task>
 
 <output>
@@ -114,9 +121,12 @@ At the end, print Markdown formatted output with the following structure:
 
 ```
 ## <pr-title>
-<opened-pr-url>
+<opened-pr-url-or-browser-handoff-note>
 [`<branch-name>` → `<base-branch>`]
 
 <pr-body>
 ```
+
+If `gh pr create --web` opened a new PR form, state that the browser form is
+open and that no PR URL exists until the user submits it.
 </output>

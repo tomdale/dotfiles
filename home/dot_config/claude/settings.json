@@ -190,7 +190,8 @@
     "feature-dev@claude-plugins-official": true,
     "benchmark@tomdale-claude-code-plugins": true,
     "plugin-dev@claude-plugins-official": true,
-    "vercel-plugin@vercel-vercel-plugin": true
+    "vercel-plugin@vercel-vercel-plugin": true,
+    "vercel@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {

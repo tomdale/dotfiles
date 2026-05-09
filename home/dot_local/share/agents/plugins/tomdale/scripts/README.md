@@ -14,6 +14,7 @@ Keep skill-specific helpers next to the skill unless they are reused elsewhere.
 
 ## Current Scripts
 
+- `branch-context.sh`: summarize branch/base context before shipping a PR
 - `task_add.js`: append a new task to `.agent/tasks.md`
 - `task_get.js`: print the first pending task
 - `task_complete.js`: mark the first pending task complete or blocked

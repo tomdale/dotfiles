@@ -2,13 +2,17 @@
 
 This plugin currently bundles:
 
+- `abstraction-boundaries`
 - `benchmarking`
+- `cruft`
 - `exec-summarizer`
 - `fix-pr-checks`
 - `interactive-shell`
 - `iterm2-python-api`
 - `minify-prompt`
+- `narrative`
 - `refactoring`
+- `ship-pr`
 - `tasks`
 - `tui-development`
 - `write-task`
