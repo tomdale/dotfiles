@@ -178,7 +178,7 @@ home/
 │   ├── claude/                 # Claude Code config (skills, commands, agents)
 │   └── zsh/                    # Shell configuration
 ├── dot_claude/                 # Symlinks to dot_config/claude for ~/.claude
-└── dot_gitconfig.tmpl          # Git config with work/personal email switching
+└── private_dot_gitconfig.tmpl  # Private Git config with work/personal email switching
 ```
 
 ## Zsh Startup Files
@@ -210,7 +210,7 @@ config belongs.
 - Aliases and functions
 - Prompt/theme configuration
 - Completion settings
-- Tool hooks that only matter interactively (`direnv`, `fnm`)
+- Tool hooks that only matter interactively (`direnv`, `proto`)
 
 **Put in `.zprofile`** (rarely needed):
 
@@ -344,7 +344,7 @@ changes.
 
 ```bash
 chezmoi execute-template '{{ .isWork }}'
-chezmoi execute-template < home/dot_gitconfig.tmpl
+chezmoi execute-template < home/private_dot_gitconfig.tmpl
 ```
 
 ## When to Run `chezmoi apply`

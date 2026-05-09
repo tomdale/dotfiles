@@ -1,0 +1,5 @@
+{{- $isWork := get . "isWork" | default false -}}
+{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+{{- if and $isWork $npmTokenOpRef -}}
+//registry.npmjs.org/:_authToken={{ onepasswordRead $npmTokenOpRef }}
+{{- end -}}

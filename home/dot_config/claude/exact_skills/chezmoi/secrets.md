@@ -128,7 +128,7 @@ Host work-server
 ## Example: Git Config with Keychain
 
 ```text
-# dot_gitconfig.tmpl
+# private_dot_gitconfig.tmpl
 [user]
     name = Your Name
     email = your@email.com

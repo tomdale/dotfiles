@@ -1,7 +1,12 @@
 {{- $isWork := promptBoolOnce . "isWork" "Is this a work machine" -}}
+{{- $npmTokenOpRef := "" -}}
+{{- if $isWork -}}
+{{- $npmTokenOpRef = promptStringOnce . "npmTokenOpRef" "1Password secret reference for npm token (blank to skip)" "" -}}
+{{- end -}}
 
 [data]
     isWork = {{ $isWork }}
+    npmTokenOpRef = {{ $npmTokenOpRef | quote }}
 
 [merge]
 command = "bash"
