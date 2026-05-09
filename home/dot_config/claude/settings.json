@@ -178,7 +178,7 @@
     "ask": [],
     "defaultMode": "auto"
   },
-  "model": "opus[1m]",
+  "model": "claude-opus-4-6",
   "enabledPlugins": {
     "tasks@tomdale-claude-code-plugins": false,
     "code-simplifier@claude-plugins-official": true,
@@ -231,7 +231,9 @@
       "d3k:*"
     ]
   },
+  "effortLevel": "medium",
   "skipDangerousModePermissionPrompt": true,
   "skipAutoPermissionPrompt": true,
-  "effortLevel": "high"
+  "terminalProgressBarEnabled": false,
+  "teammateMode": "tmux"
 }
