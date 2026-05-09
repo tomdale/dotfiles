@@ -27,38 +27,20 @@
 # │ Both entry points converge here. What happens next depends on shell     │
 # │ type:                                                                   │
 # │                                                                         │
-# │ NON-INTERACTIVE (zsh -c, Claude Code, scripts, cron):                   │
+# │ NON-INTERACTIVE (zsh -c, Codex CLI tool calls, scripts, cron):          │
 # │   .zshenv → env.zsh                                                    │
 # │     1. Set env vars (XDG, LANG, EDITOR, tool homes)                    │
 # │     2. Build PATH (homebrew, cargo, ~/.local/bin)                      │
-# │     3. Strip inherited proto sentinels from parent's PATH              │
-# │     4. proto activate --export: resolve tools for cwd, set PATH        │
+# │     3. Prepend proto shims/bin for runtime version detection           │
+# │     4. If login, .zprofile repeats step 3 after macOS path_helper      │
 # │     5. Done. (.zshrc never runs)                                       │
 # │                                                                         │
 # │ INTERACTIVE (new terminal tab, nested `zsh`):                           │
 # │   .zshenv → env.zsh                                                    │
 # │     1-3. Same as above                                                 │
-# │     4. Proto activation SKIPPED (interactive guard)                    │
 # │   .zshrc                                                               │
 # │     5. proto activate: resolve tools for cwd + register chpwd hook     │
 # │     6. oh-my-zsh, direnv, termtint, termtitle, functions, iTerm2      │
-# │                                                                         │
-# │ Why skip proto in env.zsh for interactive shells?                       │
-# │   - .zshrc runs proto activate anyway (needed for the chpwd hook)      │
-# │   - On login shells, macOS /etc/zprofile runs path_helper between      │
-# │     .zshenv and .zshrc, which reorders PATH — so .zshenv activation   │
-# │     would get clobbered and redone in .zshrc anyway.                   │
-# │   - Skipping avoids ~50ms of wasted work.                              │
-# │                                                                         │
-# │ Proto activation details:                                               │
-# │   - --config-mode all: includes global ~/.proto/.prototools so that    │
-# │     globally pinned tools (node, pnpm, python) are always activated.   │
-# │   - --export: outputs PATH/env exports without registering a chpwd     │
-# │     hook (appropriate for non-interactive shells that don't cd).       │
-# │   - Sentinel stripping: proto wraps its PATH entries between           │
-# │     activate-start and activate-stop directories. Subshells inherit    │
-# │     these from the parent but need to re-resolve for their own cwd.   │
-# │     We strip the sentinel region before re-activating.                 │
 # │                                                                         │
 # └─────────────────────────────────────────────────────────────────────────┘
 
@@ -73,6 +55,11 @@ source "${ZDOTDIR:-$HOME/.config/zsh}/env.sh"
 # ───────────────────────────────────────────────────────────────────────────────
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
+
+# GPG pinentry needs the active terminal in interactive shells.
+if [[ -o interactive && -t 0 ]]; then
+    export GPG_TTY="$(tty)"
+fi
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Resource Limits
@@ -102,30 +89,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # Cargo-installed binaries (termtint, termtitle, etc.)
 export PATH="$CARGO_HOME/bin:$PATH"
 
-# Proto toolchain manager
-# proto activate --export resolves pinned tool versions for the current
-# directory and prepends their real binary dirs + global package dirs to PATH
-# (e.g. node/24.0.0/bin, node/globals/bin, pnpm global bin dir). This runs
-# for ALL shells so non-interactive contexts (Claude Code, scripts, cron) get
-# the same environment as interactive terminals.
-# The chpwd hook in .zshrc re-runs activation on directory changes.
-#
-# --config-mode all includes the global ~/.proto/.prototools so that globally
-# pinned tools (node, pnpm, python) are always activated — even when the cwd
-# has no local .prototools. Without this, pnpm globals and cargo bins would
-# only appear on PATH in directories with their own .prototools.
-#
-# Subshells inherit the parent's PATH, which may contain activation state from
-# a different directory (sentinel dirs activate-start/activate-stop and
-# tool-specific paths). Strip these so proto re-activates for *this* shell's cwd.
-if [[ "$PATH" == *"$PROTO_HOME/activate-start"* ]]; then
-    # Remove everything between activate-start and activate-stop sentinels,
-    # plus the sentinels themselves, then remove the stale activation tracking var.
-    PATH="${PATH%%$PROTO_HOME/activate-start:*}${PATH#*$PROTO_HOME/activate-stop:}"
-    unset _PROTO_ACTIVATED_PATH
-fi
+# Proto shims perform runtime version detection for every invocation. Full
+# shell activation lives in .zshrc, where it can install the interactive chpwd hook.
 export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
-if [[ ! -o interactive ]] && command -v proto &>/dev/null; then
-    eval "$(proto activate zsh --export --config-mode all)"
-    typeset -U path
-fi

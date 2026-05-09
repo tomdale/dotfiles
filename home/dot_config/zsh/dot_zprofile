@@ -12,3 +12,7 @@
 # ║ need to be available in non-login shells.                                 ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
+# macOS path_helper runs between .zshenv and .zprofile for login shells and can
+# move system paths ahead of proto. Re-prepend proto's native shim/bin paths.
+export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
+typeset -U path
