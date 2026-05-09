@@ -131,6 +131,13 @@ async function main() {
     import("@modelcontextprotocol/sdk/server/stdio.js"),
     import("zod"),
   ]);
+  const setStatusAnnotations = {
+    title: "Set Status",
+    readOnlyHint: false,
+    destructiveHint: false,
+    idempotentHint: true,
+    openWorldHint: false,
+  };
 
   const server = new McpServer({
     name: "tomdale-status-mcp",
@@ -140,17 +147,22 @@ async function main() {
 
   server.tool(
     "set_status",
-    "Set the current iTerm2 goal and/or task for the active terminal session.",
+    "Set the current iTerm2 goal and/or task for the active terminal session. Keep both terse and glanceable.",
     {
       goal: z
         .string()
         .optional()
-        .describe("Stable high-level objective for the current session. Empty string clears it."),
+        .describe(
+          "Stable session objective. Use a short phrase, ideally 2-6 words. Prefer terse noun phrases like 'Fix checkout bug' or 'Refactor status prompts'. Empty string clears it."
+        ),
       task: z
         .string()
         .optional()
-        .describe("Current step in progress. Empty string clears it."),
+        .describe(
+          "Current step in progress. Keep it brief and concrete, ideally 2-6 words. Prefer 'Read status tool', 'Edit prompt text', or 'Run tests'; avoid full sentences and filler. Empty string clears it."
+        ),
     },
+    setStatusAnnotations,
     async (argumentsObject) => {
       const result = applyStatus(argumentsObject);
       return textResult(result, !result.ok);

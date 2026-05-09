@@ -10,8 +10,7 @@ MCP servers in `.mcp.json` plus companion code under `mcp/`.
 ## Layout
 
 - `dot_codex-plugin/plugin.json`: Codex plugin manifest
-- `.mcp.json`: plugin-local MCP server configuration
-- `mcp/`: local MCP server implementations
+- `.mcp.json`: MCP server configuration (points to shared servers in `~/.local/share/mcp/`)
 - `skills/`: personal skills, one directory per skill with a `SKILL.md`
 - `scripts/`: shared helper scripts used by multiple skills
 
@@ -28,10 +27,12 @@ MCP servers in `.mcp.json` plus companion code under `mcp/`.
   losing meaning
 - `refactoring`: redesign TypeScript code toward a greenfield-quality module
   layout, with aggressive decomposition of monolithic files
+- `ship-pr`: stage, commit, push, and open a GitHub pull request, using the
+  `narrative` skill to draft the PR description
 
-## Bundled MCP
+## MCP Servers
 
-- `tomdale_status`: iTerm2 status updates for the current Codex session
+- `iterm_status`: shared iTerm2 status server (lives in `~/.local/share/mcp/`; used by both Claude and Codex)
 
 ## Notes
 

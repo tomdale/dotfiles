@@ -1,12 +1,12 @@
 {
   "mcpServers": {
-    "tomdale_status": {
+    "iterm_status": {
       "type": "stdio",
       "command": "node",
       "args": [
-        "/Users/tomdale/.local/share/agents/plugins/tomdale/mcp/status-server.js"
+        "{{ .chezmoi.homeDir }}/.local/share/mcp/status-server.js"
       ],
-      "cwd": "/Users/tomdale/.local/share/agents/plugins/tomdale",
+      "cwd": "{{ .chezmoi.homeDir }}/.local/share/mcp",
       "env_vars": [
         "ITERM_SESSION_ID"
       ],
