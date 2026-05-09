@@ -6,3 +6,7 @@
 .termtint
 CLAUDE.local.md
 .swc/
+.wtp.yml
+.playwright-mcp
+*.tsbuildinfo
+**/*.tsbuildinfo

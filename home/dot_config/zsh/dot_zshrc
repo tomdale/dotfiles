@@ -113,6 +113,8 @@ source $ZSH/oh-my-zsh.sh
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
+eval "$(wtp shell-init zsh)"    # wtp completion and shell navigation hook
+eval "$(wf init zsh)"           # Workspace shell hook for auto-cd/cleanup behavior
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration
