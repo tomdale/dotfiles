@@ -8,6 +8,25 @@
 # Usage: clone <repo> [directory]
 # Example: clone anthropics/claude-code
 # Clones to ~/Code/<repo-name> and changes into the directory
+_clone_normalize_github_url() {
+  local url="$1"
+
+  url="${url%.git}"
+  url="${url%/}"
+  url="${url#ssh://git@github.com/}"
+  url="${url#git@github.com:}"
+  url="${url#https://github.com/}"
+  url="${url#http://github.com/}"
+  url="${url#https://www.github.com/}"
+  url="${url#http://www.github.com/}"
+
+  if [[ "$url" == github.com/* ]]; then
+    url="${url#github.com/}"
+  fi
+
+  printf 'https://github.com/%s\n' "$url"
+}
+
 clone() {
   if [[ $# -eq 0 ]]; then
     echo "Usage: clone <repo> [directory]" >&2
@@ -15,7 +34,32 @@ clone() {
   fi
 
   local repo="$1"
+  local resolved_url
   local target_dir="${2:-$(basename "$repo" .git)}"
+  local target_path="$HOME/Code/$target_dir"
+  local existing_origin
+  local normalized_existing_origin
+
+  resolved_url="$(gh repo view "$repo" --json url --jq .url 2>/dev/null)" || {
+    echo "clone: failed to resolve GitHub repo: $repo" >&2
+    return 1
+  }
+
+  if [[ -e "$target_path" ]]; then
+    if [[ -d "$target_path" ]] && git -C "$target_path" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+      existing_origin="$(git -C "$target_path" remote get-url origin 2>/dev/null)" || existing_origin=""
+      normalized_existing_origin="$(_clone_normalize_github_url "$existing_origin")"
+
+      if [[ "$normalized_existing_origin" == "$resolved_url" ]]; then
+        cd "$target_path" && git fetch origin main:main
+        return $?
+      fi
+    fi
+
+    echo "clone: name conflict at $target_path" >&2
+    echo "clone: existing directory does not match $resolved_url" >&2
+    return 1
+  fi
 
   cd ~/Code && gh repo clone "$@" && cd "$target_dir"
 }
