@@ -86,6 +86,9 @@ fi
 # Local user scripts (~/.local/bin)
 export PATH="$HOME/.local/bin:$PATH"
 
+# pnpm global binaries (pnpm 11+ uses $PNPM_HOME/bin, not $PNPM_HOME)
+export PATH="$PNPM_HOME/bin:$PATH"
+
 # Cargo-installed binaries (termtint, termtitle, etc.)
 export PATH="$CARGO_HOME/bin:$PATH"
 
