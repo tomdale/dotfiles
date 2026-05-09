@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/ClearStatus"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/clear-status.sh"
           }
         ]
       }

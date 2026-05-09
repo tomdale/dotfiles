@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "iterm_status": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "{{ .chezmoi.homeDir }}/.local/share/mcp/status-server.js"
+      ],
+      "cwd": "{{ .chezmoi.homeDir }}/.local/share/mcp"
+    }
+  }
+}
