@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Feedback"
+  short_description: "Draft and post approved PR review feedback"
+  default_prompt: "Use $pr-feedback to draft PR review comments for this PR one at a time."
