@@ -15,11 +15,13 @@ do not continue, stage, commit, or push until the material has been removed from
 tracked files or replaced with a documented local-only mechanism.
 
 When modifying any local Codex/agent plugin managed by this repo, update the
-plugin source under `home/`, run `chezmoi apply` for the affected plugin path,
-and restart Codex so the next session loads the applied plugin. Local plugins
-are installed into Codex's cache under
-`~/.codex/plugins/cache/<marketplace-name>/<plugin-name>/local/`; do not bump the
-plugin manifest version just to refresh a local plugin.
+plugin source under `home/`, bump the plugin manifest version after edits are
+done so CLIs pick up the changed plugin, run `chezmoi apply` for the affected
+plugin path, and restart Codex so the next session loads the applied plugin.
+Local plugins are installed into Codex's cache under
+`~/.codex/plugins/cache/<marketplace-name>/<plugin-name>/<version>/`; the
+manifest version is what tells Codex and related CLIs that a new plugin cache
+entry should be installed.
 
 If a local plugin change still is not picked up after applying and restarting
 Codex, bust the installed cache for that plugin. For example, after changing the
