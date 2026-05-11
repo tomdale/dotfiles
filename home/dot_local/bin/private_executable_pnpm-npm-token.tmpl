@@ -1,5 +1,12 @@
+#!/bin/sh
+set -eu
+
 {{- $isWork := get . "isWork" | default false -}}
 {{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
 {{- if and $isWork $npmTokenOpRef }}
-//registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
+printf 'Bearer '
+op read {{ $npmTokenOpRef | quote }}
+{{- else }}
+echo "npm token 1Password reference is not configured" >&2
+exit 1
 {{- end }}

@@ -1,5 +1,5 @@
 {{- $isWork := get . "isWork" | default false -}}
 {{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
 {{- if and $isWork $npmTokenOpRef }}
-//registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
+npmrcAuthFile: {{ joinPath .chezmoi.homeDir ".config/pnpm/auth.ini" }}
 {{- end }}
