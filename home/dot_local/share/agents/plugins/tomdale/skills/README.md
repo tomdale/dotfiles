@@ -5,6 +5,7 @@ This plugin currently bundles:
 - `abstraction-boundaries`
 - `benchmarking`
 - `cruft`
+- `documentation-comments`
 - `exec-summarizer`
 - `fix-pr-checks`
 - `interactive-shell`
