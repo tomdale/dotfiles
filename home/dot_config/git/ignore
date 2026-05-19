@@ -10,3 +10,4 @@ CLAUDE.local.md
 .playwright-mcp
 *.tsbuildinfo
 **/*.tsbuildinfo
+.codex
