@@ -19,8 +19,8 @@ First step: resolve the bundled helper script at
 `../../scripts/branch-context.sh` relative to this skill directory, then call
 the resolved absolute path in a single tool invocation, from the target repo or
 with the repo path as its argument. Use its output as the default inspection
-context before any manual git inspection and before staging, commit, push, or
-PR work. It resolves the base branch and runs the git commands most useful for
+context before any manual git inspection and before staging, commit, push, or PR
+work. It resolves the base branch and runs the git commands most useful for
 understanding branch changes.
 
 Linear ticket rules: when a Linear ticket ID is available or relevant, include
@@ -36,8 +36,16 @@ available.
 
 Decision rules: stop only when the working tree is clean, the index is clean,
 and there are no commits ahead of the base branch. If commits are ahead of base
-but there are no uncommitted changes, skip to push-and-PR work. If .changeset/
-exists, require at least one new changeset entry before committing.
+but there are no uncommitted changes, skip to push-and-PR work.
+
+Changeset rules: do not infer that a changeset is required solely because a
+`.changeset/` directory exists in the repository. Before generating or requiring
+a changeset, confirm that the changed package or workspace participates in
+Changesets, for example through repository docs, changeset config, existing
+changesets for that package, or package metadata. In monorepos where Changesets
+are used only for unrelated packages, do not create or require a changeset for
+paths outside that scope. If package participation cannot be confirmed from the
+repo context, ask the user instead of generating a changeset.
 
 Branch rules: if on a detached HEAD, main, master, or the base branch, create a
 feature branch before committing. If already on a feature branch, keep it only
@@ -55,14 +63,16 @@ changed and why; do not narrate implementation trivia or invent intent
 unsupported by the diff. Include the Linear ticket ID according to the Linear
 ticket rules when one is available or relevant.
 
-PR rules: push the current branch with upstream tracking. If a PR already exists
-for the branch, open it with gh pr view --web; otherwise create it with gh pr
-create --web. Always pass explicit --base and --head values. Never create the PR
-without --web. If calling the command with --web fails, stop and report the
-problem. Do not attempt to create the PR directly. After gh pr create --web
-succeeds, treat the browser handoff as complete: do not check whether the PR
-exists yet, do not poll for a PR URL, and do not fall back to manual non-web PR
-creation, because the user may submit the browser form asynchronously. Before
+PR rules: push the current branch with upstream tracking. For all gh pr
+commands, run elevated (unsandboxed) or the command will fail. If a PR already
+exists for the branch, open it with gh pr view --web; otherwise create it with
+gh pr create --web. First save the PR description to a temporary file, then pass
+the path via --body-file. Always pass explicit --base and --head values. Never
+create the PR without --web. If calling the command with --web fails, stop and
+report the problem. Do not attempt to create the PR directly. After gh pr create
+--web succeeds, treat the browser handoff as complete: do not check whether the
+PR exists yet, do not poll for a PR URL, and do not fall back to manual non-web
+PR creation, because the user may submit the browser form asynchronously. Before
 writing any PR description text, explicitly invoke $tomdale:narrative to
 generate narrative PR copy from the branch diff and commit history. The PR title
 and body must describe the final branch relative to the base branch, not
@@ -72,17 +82,17 @@ contrast such as "now", "no longer", "replaces", or "moves from", ask whether
 the referenced prior state is likely to be relevant to the intended audience,
 who was not following every twist and turn of active development. If not, omit
 that contrast. Use the narrative output as the basis for the PR body, then apply
-a light Markdown pass for PR readability: keep the prose narrative, but add
-only modest structure such as a title, short section headings, or a brief
-summary list when it improves scanning. Do not turn it into a heavy template,
-checklist dump, or exhaustive taxonomy. Include the Linear ticket ID according
-to the Linear ticket rules when one is available or relevant. Derive a concise
-PR title that reflects the overall change rather than merely the last commit.
+a light Markdown pass for PR readability: keep the prose narrative, but add only
+modest structure such as a title, short section headings, or a brief summary
+list when it improves scanning. Do not turn it into a heavy template, checklist
+dump, or exhaustive taxonomy. Include the Linear ticket ID according to the
+Linear ticket rules when one is available or relevant. Derive a concise PR title
+that reflects the overall change rather than merely the last commit.
 
-Core commands: `<resolved-absolute-path>/branch-context.sh [repo-path]`, gh
-auth status, gh repo view --json nameWithOwner, gh pr view --json
-number,state,title,headRefName,url, gh pr view --web, gh pr create --web
---base <base-branch> --head <branch-name>, git push -u origin <branch-name>.
+Core commands: `<resolved-absolute-path>/branch-context.sh [repo-path]`, gh auth
+status, gh repo view --json nameWithOwner, gh pr view --json
+number,state,title,headRefName,url, gh pr view --web, gh pr create --web --base
+<base-branch> --head <branch-name>, git push -u origin <branch-name>.
 
 After opening an existing PR, report PR title, PR URL, branch and base branch,
 and final PR body. After launching the new PR form with gh pr create --web,

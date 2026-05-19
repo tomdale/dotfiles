@@ -1,19 +1,13 @@
 {
   "name": "tomdale",
-  "version": "0.3.9",
+  "version": "0.3.13",
   "description": "Tom Dale's personal Codex skills and agent utilities.",
   "author": {
     "name": "Tom Dale",
     "url": "https://github.com/tomdale"
   },
   "license": "UNLICENSED",
-  "keywords": [
-    "codex",
-    "personal",
-    "skills",
-    "utilities",
-    "workflow"
-  ],
+  "keywords": ["codex", "personal", "skills", "utilities", "workflow"],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
@@ -22,11 +16,7 @@
     "longDescription": "Personal Codex plugin for Tom Dale. Stores custom skills, reusable agent utilities, and lightweight workflow helpers managed in chezmoi.",
     "developerName": "tomdale",
     "category": "Productivity",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
+    "capabilities": ["Interactive", "Read", "Write"],
     "defaultPrompt": [
       "Use one of Tom's local skills for this task",
       "Find the right utility in Tom's personal plugin",

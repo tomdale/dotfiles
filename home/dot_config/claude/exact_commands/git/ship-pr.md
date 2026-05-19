@@ -60,9 +60,11 @@ IMPORTANT: The `<git-status>` section above already contains the output of `git 
      - AND there are no commits ahead of `$BASE_BRANCH`
    - If there are commits ahead of base but no uncommitted changes, skip to step 6 (push and open PR).
 
-2. **Check for changeset entry** (only if `$HAS_CHANGESET` is `true`).
-  - Ensure there is at least one new changeset file staged for commit.
-  - If not, explain that a changeset is required and stop.
+2. **Check whether a changeset is actually required** (only if `$HAS_CHANGESET` is `true`).
+  - Do not treat the presence of `.changeset/` by itself as proof that this PR needs a changeset.
+  - Require a new staged changeset only after confirming the changed package or workspace participates in Changesets, for example through repository docs, changeset config, existing changesets for that package, or package metadata.
+  - In monorepos where Changesets are used only for unrelated packages, do not create or require a changeset for paths outside that scope.
+  - If package participation cannot be confirmed from the repo context, ask the user instead of generating a changeset.
 
 3. **Create a new branch only if appropriate.**
    - Determine `$BASE_BRANCH` as `$2` or `main`.
