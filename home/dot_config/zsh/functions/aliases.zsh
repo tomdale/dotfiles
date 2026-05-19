@@ -10,6 +10,10 @@ alias cat=bat                  # Syntax-highlighted cat replacement
 alias gnpm=/opt/homebrew/bin/npm  # Homebrew npm
 alias glow='glow --pager'      # Always paginate glow output
 
+mdcopy() {
+  prettier --prose-wrap never "$@" | pbcopy
+}
+
 # ───────────────────────────────────────────────────────────────────────────────
 # Shell Management
 # ───────────────────────────────────────────────────────────────────────────────
