@@ -22,6 +22,10 @@
 eval "$(proto activate zsh --config-mode all)"
 typeset -U path
 
+# Keep managed local shims ahead of proto's pnpm-global path.
+export PATH="$HOME/.local/bin:$PATH"
+typeset -U path
+
 # ───────────────────────────────────────────────────────────────────────────────
 # Interactive Tool Configuration
 # ───────────────────────────────────────────────────────────────────────────────
@@ -107,7 +111,7 @@ eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
 eval "$(wtp shell-init zsh)"    # wtp completion and shell navigation hook
-eval "$(wf init zsh)"           # Workspace shell hook for auto-cd/cleanup behavior
+eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration
