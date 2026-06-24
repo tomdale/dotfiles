@@ -78,19 +78,11 @@ zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
 # See: https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins
 # ───────────────────────────────────────────────────────────────────────────────
 
-# Fasd settings (must be set before plugin loads)
-export _FASD_FUZZY=5  # Allow up to 5 chars between matched chars (e.g., "ws" matches "workspaces")
-export _FASD_VIMINFO="$HOME/.local/state/nvim/shada/main.shada"  # Use neovim's recent files
-if [[ "$OSTYPE" == darwin* ]]; then
-  export _FASD_BACKENDS="native"  # Spotlight backend is significantly slower
-fi
-
 plugins=(
   git              # Git aliases (ga, gc, gp, etc.) and completion
   ssh              # SSH agent management
   python           # Python/venv helpers, auto-activate virtualenvs
   poetry-env       # Auto-activate Poetry environments
-  fasd             # Frecency-based file/directory navigation (z, f, d commands)
 )
 
 # Python plugin settings
@@ -110,6 +102,7 @@ source $ZSH/oh-my-zsh.sh
 # Tool Integrations
 # Each tool adds hooks to zsh for enhanced functionality
 # ───────────────────────────────────────────────────────────────────────────────
+eval "$(zoxide init zsh --cmd z)"  # Frecency-based cd (z foo, zi for fzf picker)
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
