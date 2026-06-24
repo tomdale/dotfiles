@@ -12,21 +12,26 @@ process.stdout.on("error", (error) => {
   throw error;
 });
 
-const usage = `Usage: codex-session-recap [--excerpt|-e] [--cwd <path>]
+const usage = `Usage: codex-session-recap [--excerpt|-e] [--raw-excerpt] [--cwd <path>]
 
 Print Codex session transcript paths whose latest recorded cwd is the current
 directory or one of its child directories.
 
 Options:
-  -e, --excerpt   Also print first 50 and last 50 lines from each matching file
-      --cwd PATH  Use PATH instead of the process current working directory
-  -h, --help      Show this help
+  -e, --excerpt     Also print a compact digest of each matching transcript
+      --raw-excerpt Print first 50 and last 50 raw JSONL lines for diagnostics
+      --cwd PATH    Use PATH instead of the process current working directory
+  -h, --help        Show this help
 `;
+
+const MAX_TEXT_LENGTH = 500;
+const MAX_SECTION_ITEMS = 16;
 
 function parseArgs(argv) {
   const options = {
     cwd: process.cwd(),
     excerpt: false,
+    rawExcerpt: false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -35,6 +40,9 @@ function parseArgs(argv) {
       case "-e":
       case "--excerpt":
         options.excerpt = true;
+        break;
+      case "--raw-excerpt":
+        options.rawExcerpt = true;
         break;
       case "--cwd":
         i += 1;
@@ -54,6 +62,18 @@ function parseArgs(argv) {
   }
 
   return options;
+}
+
+function parseJsonLine(line) {
+  if (!line.trim()) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(line);
+  } catch {
+    return null;
+  }
 }
 
 function codexHome() {
@@ -88,35 +108,256 @@ function cwdIsInTree(sessionCwd, root) {
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
-async function latestSessionCwd(file) {
+function displayPath(file, root) {
+  if (!file) {
+    return file;
+  }
+
+  const resolved = path.resolve(file);
+  const relative = path.relative(root, resolved);
+  if (relative && !relative.startsWith("..") && !path.isAbsolute(relative)) {
+    return relative;
+  }
+  if (resolved === root) {
+    return ".";
+  }
+  return file;
+}
+
+function cleanText(value) {
+  return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function truncateText(value, maxLength = MAX_TEXT_LENGTH) {
+  const text = cleanText(value);
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength - 3).trimEnd()}...`;
+}
+
+function addText(list, value, options = {}) {
+  const text = truncateText(value, options.maxLength);
+  if (!text) {
+    return;
+  }
+  if (options.skipSkillInjection && text.startsWith("<skill>")) {
+    return;
+  }
+  if (!list.includes(text)) {
+    list.push(text);
+  }
+}
+
+function parseArguments(value) {
+  if (!value) {
+    return {};
+  }
+  if (typeof value === "object") {
+    return value;
+  }
+  try {
+    return JSON.parse(value);
+  } catch {
+    return {};
+  }
+}
+
+async function latestSessionInfo(file) {
   const stream = fs.createReadStream(file, { encoding: "utf8" });
   const lines = readline.createInterface({
     input: stream,
     crlfDelay: Infinity,
   });
 
-  let latest = null;
-  for await (const line of lines) {
-    if (!line.trim()) {
-      continue;
-    }
+  const info = {
+    cwd: null,
+    threadSource: null,
+  };
 
-    let item;
-    try {
-      item = JSON.parse(line);
-    } catch {
+  for await (const line of lines) {
+    const item = parseJsonLine(line);
+    if (!item) {
       continue;
     }
 
     if ((item.type === "session_meta" || item.type === "turn_context") && item.payload?.cwd) {
-      latest = item.payload.cwd;
+      info.cwd = item.payload.cwd;
+    }
+    if (item.type === "session_meta" && item.payload?.thread_source) {
+      info.threadSource = item.payload.thread_source;
     }
   }
 
-  return latest;
+  return info;
 }
 
-async function printExcerpt(file) {
+async function readSessionDigest(file, root) {
+  const digest = {
+    assistantOutcomes: [],
+    commands: [],
+    edits: [],
+    git: null,
+    initialCwd: null,
+    latestCwd: null,
+    startedAt: null,
+    userRequests: [],
+  };
+
+  const stream = fs.createReadStream(file, { encoding: "utf8" });
+  const lines = readline.createInterface({
+    input: stream,
+    crlfDelay: Infinity,
+  });
+
+  for await (const line of lines) {
+    const item = parseJsonLine(line);
+    if (!item) {
+      continue;
+    }
+
+    if (item.type === "session_meta") {
+      digest.startedAt = item.payload?.timestamp || item.timestamp || digest.startedAt;
+      digest.initialCwd = item.payload?.cwd || digest.initialCwd;
+      digest.latestCwd = item.payload?.cwd || digest.latestCwd;
+      digest.git = item.payload?.git || digest.git;
+      continue;
+    }
+
+    if (item.type === "turn_context" && item.payload?.cwd) {
+      digest.latestCwd = item.payload.cwd;
+      continue;
+    }
+
+    if (item.type === "event_msg") {
+      collectEventMessage(digest, item.payload, root);
+      continue;
+    }
+
+    if (item.type === "response_item") {
+      collectResponseItem(digest, item.payload, root);
+    }
+  }
+
+  return digest;
+}
+
+function collectEventMessage(digest, payload, root) {
+  switch (payload?.type) {
+    case "user_message":
+      addText(digest.userRequests, payload.message, { skipSkillInjection: true });
+      break;
+    case "task_complete":
+      addText(digest.assistantOutcomes, payload.last_agent_message);
+      break;
+    case "patch_apply_end":
+      collectPatchChanges(digest, payload, root);
+      break;
+  }
+}
+
+function collectResponseItem(digest, payload, root) {
+  if (payload?.type !== "function_call") {
+    return;
+  }
+
+  if (payload.name === "exec_command") {
+    const args = parseArguments(payload.arguments);
+    addText(digest.commands, formatCommand(args, root), { maxLength: 300 });
+  }
+}
+
+function collectPatchChanges(digest, payload, root) {
+  const changes = payload?.changes;
+  if (!changes || typeof changes !== "object") {
+    if (payload?.success === false) {
+      addText(digest.edits, "failed patch application");
+    }
+    return;
+  }
+
+  for (const [file, change] of Object.entries(changes)) {
+    const type = change?.type || "update";
+    const movePath = change?.move_path ? ` -> ${displayPath(change.move_path, root)}` : "";
+    addText(digest.edits, `${type} ${displayPath(file, root)}${movePath}`, {
+      maxLength: 300,
+    });
+  }
+}
+
+function formatCommand(args, root) {
+  if (!args?.cmd) {
+    return "";
+  }
+
+  const command = cleanText(args.cmd);
+  if (!args.workdir) {
+    return command;
+  }
+
+  const workdir = displayPath(args.workdir, root);
+  return workdir === "." ? command : `${command}  (cwd: ${workdir})`;
+}
+
+function printDigest(file, digest, root) {
+  process.stdout.write(`----- summary: ${file} -----\n`);
+
+  if (digest.startedAt) {
+    process.stdout.write(`started: ${digest.startedAt}\n`);
+  }
+  if (digest.initialCwd) {
+    process.stdout.write(`initial cwd: ${displayPath(digest.initialCwd, root)}\n`);
+  }
+  if (digest.latestCwd && digest.latestCwd !== digest.initialCwd) {
+    process.stdout.write(`latest cwd: ${displayPath(digest.latestCwd, root)}\n`);
+  }
+  if (digest.git) {
+    const branch = digest.git.branch || "unknown-branch";
+    const hash = digest.git.commit_hash ? ` @ ${digest.git.commit_hash.slice(0, 12)}` : "";
+    process.stdout.write(`git: ${branch}${hash}\n`);
+  }
+
+  printSection("user requests", digest.userRequests);
+  printSection("assistant outcomes", digest.assistantOutcomes);
+  printSection("edited files", digest.edits);
+  printSection("commands", digest.commands);
+}
+
+function printSection(title, items) {
+  if (!items.length) {
+    return;
+  }
+
+  process.stdout.write(`${title}:\n`);
+  const { head, omitted, tail } = limitedItems(items);
+  for (const item of head) {
+    process.stdout.write(`- ${item}\n`);
+  }
+  if (omitted > 0) {
+    process.stdout.write(`- ... ${omitted} more omitted ...\n`);
+  }
+  for (const item of tail) {
+    process.stdout.write(`- ${item}\n`);
+  }
+}
+
+function limitedItems(items) {
+  if (items.length <= MAX_SECTION_ITEMS) {
+    return { head: items, omitted: 0, tail: [] };
+  }
+
+  const headCount = Math.ceil(MAX_SECTION_ITEMS / 2);
+  const tailCount = Math.floor(MAX_SECTION_ITEMS / 2);
+  return {
+    head: items.slice(0, headCount),
+    omitted: items.length - headCount - tailCount,
+    tail: items.slice(items.length - tailCount),
+  };
+}
+
+async function printRawExcerpt(file) {
   const stream = fs.createReadStream(file, { encoding: "utf8" });
   const lines = readline.createInterface({
     input: stream,
@@ -138,7 +379,7 @@ async function printExcerpt(file) {
     }
   }
 
-  process.stdout.write(`----- excerpt: ${file} -----\n`);
+  process.stdout.write(`----- raw excerpt: ${file} -----\n`);
   if (total <= 100) {
     const remainingLineCount = total - head.length;
     const remainingLines =
@@ -169,15 +410,19 @@ async function main() {
 
   let found = false;
   for await (const file of walkFiles(sessionsDir)) {
-    const sessionCwd = await latestSessionCwd(file);
-    if (!cwdIsInTree(sessionCwd, root)) {
+    const session = await latestSessionInfo(file);
+    if (session.threadSource === "subagent" || !cwdIsInTree(session.cwd, root)) {
       continue;
     }
 
     found = true;
     process.stdout.write(`${file}\n`);
     if (options.excerpt) {
-      await printExcerpt(file);
+      const digest = await readSessionDigest(file, root);
+      printDigest(file, digest, root);
+    }
+    if (options.rawExcerpt) {
+      await printRawExcerpt(file);
     }
   }
 

@@ -18,7 +18,9 @@ Use this skill to summarize prior Codex work in the current directory tree.
 
    Resolve the script path relative to this skill directory.
 
-2. Read the returned session file paths and excerpts.
+2. Read the returned session paths and compact digests. Each digest extracts
+   the user requests, final assistant outcomes, patch-applied files, and shell
+   commands from the JSONL transcript.
 
 3. Summarize the nature of the work that happened in the current directory and
    any child directories:
@@ -33,5 +35,5 @@ The script scans `${CODEX_HOME:-$HOME/.codex}/sessions` for Codex rollout JSONL
 files whose latest recorded cwd is the current directory or a child directory.
 
 By default it prints matching file paths. With `--excerpt`, it also prints a
-100-line excerpt for each session: the first 50 lines and the last 50 lines,
-with an omitted-line marker for longer files.
+compact digest for each session. Use `--raw-excerpt` only when the digest is
+insufficient and you need to inspect the first 50 and last 50 raw JSONL lines.
