@@ -178,26 +178,32 @@
     "ask": [],
     "defaultMode": "auto"
   },
-  "model": "claude-opus-4-6",
   "enabledPlugins": {
     "tasks@tomdale-claude-code-plugins": false,
     "code-simplifier@claude-plugins-official": true,
     "agent-browser@agent-browser": true,
-    "rust-analyzer-lsp@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": false,
     "iterm-status@tomdale-claude-code-plugins": true,
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "benchmark@tomdale-claude-code-plugins": true,
-    "plugin-dev@claude-plugins-official": true,
-    "vercel-plugin@vercel-vercel-plugin": true,
-    "vercel@claude-plugins-official": true
+    "feature-dev@claude-plugins-official": false,
+    "benchmark@tomdale-claude-code-plugins": false,
+    "plugin-dev@claude-plugins-official": false,
+    "vercel@claude-plugins-official": true,
+    "datadog@claude-plugins-official": true,
+    "tomdale-shared@tomdale-claude-code-plugins": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {
       "source": {
         "source": "directory",
         "path": "/Users/tomdale/.cache/plugins/github.com-vercel-vercel-plugin"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
       }
     }
   },
@@ -219,9 +225,21 @@
         "//tmp/claude/**",
         "//tmp/claude/tmux.sock",
         "//Users/tomdale/.agent-browser/*.sock",
-        "/private/tmp/tmux-501/default"
+        "/private/tmp/tmux-501/default",
+        "//Users/tomdale/Library/Group Containers/2BUA8C4S2C.com.1password/t/*",
+        "//tmp/tsx-*/*",
+        "/private/tmp/tsx-*/*"
       ],
+      "allowAllUnixSockets": true,
       "allowLocalBinding": true
+    },
+    "filesystem": {
+      "allowWrite": [
+        "/tmp/tsx-*",
+        "/tmp/tsx-*/**",
+        "/private/tmp/tsx-*",
+        "/private/tmp/tsx-*/**"
+      ]
     },
     "excludedCommands": [
       "agent-browser:*",
@@ -231,9 +249,9 @@
       "d3k:*"
     ]
   },
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
-  "skipAutoPermissionPrompt": true,
   "terminalProgressBarEnabled": false,
-  "teammateMode": "tmux"
+  "teammateMode": "tmux",
+  "skipAutoPermissionPrompt": true
 }
