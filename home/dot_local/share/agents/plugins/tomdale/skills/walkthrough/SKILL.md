@@ -3,107 +3,30 @@ name: walkthrough
 description: Guide a reviewer through someone else's checked-out GitHub PR by explaining the change narrative, grouping the diff into conceptual units, presenting annotated code snippets, pausing for questions after each unit, and ending with whole-PR review questions. Use when the user has a PR branch checked out and asks for a walkthrough, review walkthrough, guided PR review, or help understanding someone else's PR.
 ---
 
-# Walkthrough
+Guide a user through someone else's checked-out PR in review order. Teach in conceptual chunks, pause after each chunk, help form review questions before judgment. Use ../narrative/SKILL.md as baseline style/process when needed.
 
-## Overview
+First load only: before PR analysis, print:
+Using the walkthrough skill:
+I will map the PR into conceptual groups, then walk through one group at a time. After each group, I will pause so you can ask questions, skip ahead, or ask me to continue. If you want, I can keep a review notes file as we go. Say "note that", "capture this", or "make this a review comment" and I will maintain it.
+Useful phrases: "continue"/"next"/"move on" goes to next group; "skip this group" leaves current group; "finish"/"wrap up" gives final recap; "note that"/"capture this"/"remember this" adds notes; "make this a review comment" drafts under possible review comments; "what notes do we have?" summarizes notes.
+Do not repeat this tutorial after pauses, questions, resumes, or later groups.
 
-Guide the user through a checked-out PR in review order. Build understanding in
-small conceptual steps, pause after each step, and help the user form useful
-review questions before they judge the PR.
+User commands: continue variants = "continue", "next", "move on", "go on", "keep going"; skip variants = "skip", "skip this", "skip this group"; finish variants = "finish", "wrap up", "done", "final recap"; notes variants = "note that", "capture this", "remember this", "add that to notes"; comment variants = "make this a review comment", "draft a comment", "comment on that"; notes-summary variants = "show notes", "what notes do we have?", "summarize notes". Interpret close variants by intent; if ambiguous, ask one concise clarifying question.
 
-## Preparation
+Preparation: identify PR base, usually merge-base with origin/main, origin/master, or PR-configured base; read recent commits, full diff base..HEAD, relevant pre-change code with git show <base>:<path>, and enough current surrounding implementation. If base is ambiguous, choose likely base, state assumption, continue.
 
-Before presenting the walkthrough:
+Review notes: at walkthrough start offer to maintain review-notes.md in repo root unless a better path exists or user chooses one. Do not create/write notes until user asks, accepts, or gives obviously recordable feedback. Consent phrases above trigger immediate write. Comment phrases create possible review-comment drafts only; never post to GitHub/Linear without separate explicit request. Agent owns mechanics: create file, append promptly, organize, mention path after writes.
 
-1. Use the `narrative` skill as the baseline style and process. If needed, read
-   `../narrative/SKILL.md`.
-2. Identify the PR base, usually the merge base with `origin/main`,
-   `origin/master`, or the branch configured for the PR.
-3. Read recent commit messages, the full diff from base to `HEAD`, and the
-   relevant pre-change implementation using `git show <base>:<path>`.
-4. Read enough current implementation to understand how the changed code fits
-   into the surrounding system.
-5. If base detection is ambiguous, choose the most likely base, state the
-   assumption, and continue.
+Notes file shape: title "Review Notes"; optional Context section only when branch/base/scope helps later; content sections only when nonempty: Open Questions entries like [Group] Question..., Follow-Ups entries like [Group] Follow-up..., Possible Review Comments entries like [path:line] Draft comment..., Resolved / Answered for moved resolved items. Open questions = author-facing uncertainties; follow-ups = later walkthrough/local/adjacent-code checks; possible comments = concise drafts tied to file+line when possible, with severity only if useful (question, nit, risk, blocking); resolved/answered = notes answered later, moved not duplicated.
 
-## Opening Overview
+Notes writing rules: terse review material, not transcript. Preserve user intent while rewriting vague remarks into clear notes. Prefer stable file:line references. Ask for exact wording only when intent is ambiguous; otherwise draft reasonably. Do not add speculative findings unless user agrees or they are clearly questions/follow-ups. After writing, briefly say what was recorded and continue from current walkthrough point. If notes exist, use them as source of truth for final recap and any notes summary command.
 
-Start with a concise narrative overview of the whole PR:
+Opening overview: concise, explanatory, not evaluative: how relevant code worked before, what changed, why major changes appear to exist, how changes work together. Save detailed concerns for grouped walkthrough unless understanding is blocked. Offer review notes before first group; continue without notes unless user opts in.
 
-- How the relevant code worked before the PR.
-- What changed in the PR.
-- Why each major change appears to exist.
-- How the changes work together.
+Group changes by conceptual unit, not file. A group may span files; a file may appear in multiple groups. Teaching order: substantive before mechanical/follow-on; low-dependency before dependent when helpful; foundations before consumers; API/data-shape before call sites when needed; tests near behavior unless test strategy is its own concept. Before group 1, list planned sequence compactly with concept names, not file names.
 
-Keep this overview explanatory, not evaluative. Save detailed concerns for the
-later grouped walkthrough unless there is an immediate blocker in understanding.
+For each group: apply narrative style scoped to the group; explain before/after/why it matters; show only relevant snippets with syntax-highlighted fences and file references; annotate outside snippets unless inline comment is necessary; connect to prior groups when useful; avoid previewing later groups enough to answer likely future questions. End with pause and wait for continue/skip/finish. Handoff text: "Before we move on, useful questions to ask about this group:" then 3-4 reviewer questions not answered by later planned groups.
 
-## Group The Changes
+When asked a question: answer from code/diff with snippets if useful; stay scoped to current group unless broader context is needed; if answer depends on a later group, say so and offer to answer now or cover later; if user raises a rememberable question/follow-up/comment, offer notes, or append immediately when they directly say to note it. Then ask whether to continue.
 
-Break the diff into logical units of conceptual change, not file-based sections.
-Multiple groups may include snippets from the same file, and one group may span
-many files.
-
-Choose an order that teaches the PR:
-
-- Prefer substantive changes before mechanical or follow-on changes.
-- Prefer groups with few dependencies first when that makes later groups easier
-  to understand.
-- Put foundations before features that rely on them.
-- Put API or data-shape changes before call-site changes when readers need that
-  context.
-- Put tests near the behavior they validate, unless the test strategy itself is
-  a distinct conceptual change.
-
-Before presenting the first group, list the planned sequence in one compact
-numbered list. Name each group by concept, not by file.
-
-## Present Each Group
-
-For each group:
-
-1. Apply the `narrative` skill again, scoped only to this group.
-2. Explain how this part worked before, what changed, and why the change matters
-   inside the broader system.
-3. Include only the relevant code snippets. Use fenced code blocks with syntax
-   highlighting and file references. Annotate outside the snippet unless an
-   inline comment is necessary to explain the code.
-4. Connect the group to prior groups when useful. Avoid previewing later groups
-   in a way that answers the user's likely questions before they reach them.
-5. End with a pause and do not continue until the user asks to continue, move
-   on, skip, or finish.
-
-Use this handoff format:
-
-```markdown
-Before we move on, useful questions to ask about this group:
-
-1. ...
-2. ...
-3. ...
-```
-
-Suggest 3-4 clarifying questions a diligent reviewer might reasonably ask about
-the current group. Do not suggest questions that will be answered by later
-groups.
-
-## Handle Questions
-
-When the user asks a clarifying question:
-
-- Answer from the code and diff, with snippets if they help.
-- Keep the answer scoped to the current group unless broader context is needed.
-- If the answer depends on a later group, say so briefly and offer either to
-  answer now or cover it when that group arrives.
-- After answering, ask whether to continue with the next group.
-
-## Finish
-
-After all groups are covered and the user has no more follow-up questions,
-provide:
-
-- A short recap of the sequence of conceptual changes reviewed.
-- Five key whole-PR review questions a diligent reviewer should ask.
-
-Keep the closing recap brief. The walkthrough's value comes from the grouped
-explanations, not a second full summary.
+Finish after all groups or a finish command: brief recap of conceptual sequence; if notes used, recap notes grouped into open questions/follow-ups/possible comments; provide five whole-PR review questions informed by notes when present. Keep final recap brief; value comes from grouped explanations.
