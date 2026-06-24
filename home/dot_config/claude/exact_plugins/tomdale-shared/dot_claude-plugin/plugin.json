@@ -1,0 +1,14 @@
+{
+  "name": "tomdale-shared",
+  "version": "0.1.0",
+  "description": "Personal skills shared with Claude Code from the tomdale Codex plugin. The skills/ directory is a symlink to the single source of truth at ~/.local/share/agents/plugins/tomdale/skills.",
+  "author": {
+    "name": "Tom Dale"
+  },
+  "keywords": [
+    "personal",
+    "skills",
+    "shared",
+    "codex"
+  ]
+}
