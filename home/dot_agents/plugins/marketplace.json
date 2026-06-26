@@ -1,14 +1,14 @@
 {
-  "name": "tomdale-codex-plugins",
+  "name": "tomdale-skills",
   "interface": {
-    "displayName": "tomdale"
+    "displayName": "Tom Dale Skills"
   },
   "plugins": [
     {
-      "name": "tomdale",
+      "name": "tdx",
       "source": {
         "source": "local",
-        "path": "./.local/share/agents/plugins/tomdale"
+        "path": "./Code/tomdale-skills"
       },
       "policy": {
         "installation": "AVAILABLE",

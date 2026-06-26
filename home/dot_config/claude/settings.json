@@ -191,7 +191,7 @@
     "plugin-dev@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
     "datadog@claude-plugins-official": true,
-    "tomdale-shared@tomdale-claude-code-plugins": true
+    "tdx@tomdale-claude-code-plugins": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {

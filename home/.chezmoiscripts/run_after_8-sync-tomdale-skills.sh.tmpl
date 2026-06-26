@@ -1,0 +1,57 @@
+#!/bin/bash
+
+set -euo pipefail
+
+repo_dir="{{ .chezmoi.homeDir }}/Code/tomdale-skills"
+repo_url="https://github.com/tomdale/skills.git"
+branch="main"
+
+warn() {
+  echo "tomdale-skills: $*" >&2
+}
+
+if ! command -v git >/dev/null 2>&1; then
+  warn "git not found; skipping checkout sync"
+  exit 0
+fi
+
+if [[ ! -d "$repo_dir/.git" ]]; then
+  if [[ -e "$repo_dir" ]]; then
+    warn "$repo_dir exists but is not a git checkout; skipping clone"
+    exit 0
+  fi
+
+  mkdir -p "$(dirname "$repo_dir")"
+  git clone "$repo_url" "$repo_dir"
+  exit 0
+fi
+
+cd "$repo_dir"
+
+current_branch="$(git branch --show-current 2>/dev/null || true)"
+if [[ "$current_branch" != "$branch" ]]; then
+  warn "$repo_dir is on ${current_branch:-detached HEAD}, expected $branch; skipping update"
+  exit 0
+fi
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  warn "$repo_dir has local changes; skipping update"
+  exit 0
+fi
+
+origin_url="$(git remote get-url origin 2>/dev/null || true)"
+case "$origin_url" in
+  "https://github.com/tomdale/skills"|"https://github.com/tomdale/skills.git"|"git@github.com:tomdale/skills.git")
+    ;;
+  "")
+    warn "$repo_dir has no origin remote; skipping update"
+    exit 0
+    ;;
+  *)
+    warn "$repo_dir origin is $origin_url, expected $repo_url; skipping update"
+    exit 0
+    ;;
+esac
+
+git fetch --quiet origin "$branch"
+git merge --ff-only "origin/$branch"

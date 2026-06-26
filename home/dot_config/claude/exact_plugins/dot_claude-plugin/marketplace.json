@@ -31,9 +31,9 @@
       "description": "Communication tools for executive summaries and stakeholder updates"
     },
     {
-      "name": "tomdale-shared",
-      "source": "./tomdale-shared",
-      "description": "Personal skills shared with Claude Code from the tomdale Codex plugin (symlinked single source)"
+      "name": "tdx",
+      "source": "./tdx",
+      "description": "Tom Dale's personal agent skills and lightweight workflow helpers"
     }
   ]
 }

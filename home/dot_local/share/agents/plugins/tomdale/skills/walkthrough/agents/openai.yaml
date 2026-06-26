@@ -1,4 +1,0 @@
-interface:
-  display_name: "Walkthrough"
-  short_description: "Guide a reviewer through a checked-out PR"
-  default_prompt: "Use $walkthrough to guide me through this checked-out PR for review."
