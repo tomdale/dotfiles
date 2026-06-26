@@ -13,13 +13,11 @@
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Proto Toolchain Manager
-# Runs first so oh-my-zsh and all tools below inherit the fully activated PATH.
-# This is the interactive-shell counterpart to the --export call in env.zsh.
-# Uses full activation (not --export) to register a chpwd hook that re-resolves
-# tool versions when you cd between projects. See env.zsh for the full
-# architecture note explaining how proto activation is split across files.
+# Proto shims are already first in PATH from env.zsh and resolve the configured
+# runtime for each invocation. Avoid generating and evaluating a full activation
+# script at every prompt; that work is only needed for programs whose directory
+# changes after startup, and the shims preserve correct tool selection.
 # ───────────────────────────────────────────────────────────────────────────────
-eval "$(proto activate zsh --config-mode all)"
 typeset -U path
 
 # Keep managed local shims ahead of proto's pnpm-global path.
@@ -84,9 +82,7 @@ zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
 
 plugins=(
   git              # Git aliases (ga, gc, gp, etc.) and completion
-  ssh              # SSH agent management
   python           # Python/venv helpers, auto-activate virtualenvs
-  poetry-env       # Auto-activate Poetry environments
 )
 
 # Python plugin settings
@@ -98,6 +94,47 @@ export PYTHON_AUTO_VRUN=true       # Auto-activate venv when entering directory
 # ───────────────────────────────────────────────────────────────────────────────
 source $ZSH/oh-my-zsh.sh
 
+# The Oh My Zsh ssh plugin builds its host list through five external
+# processes. Parse the small config file with zsh instead, while retaining the
+# host completion and its key-management helpers.
+if [[ -r "$HOME/.ssh/config" ]]; then
+  typeset -a __tomdale_ssh_hosts
+  typeset __tomdale_ssh_line
+  while IFS= read -r __tomdale_ssh_line; do
+    __tomdale_ssh_line=${__tomdale_ssh_line%%\#*}
+    typeset -a __tomdale_ssh_words
+    __tomdale_ssh_words=(${(z)__tomdale_ssh_line})
+    [[ ${__tomdale_ssh_words[1]-} == Host ]] || continue
+    typeset __tomdale_ssh_host
+    for __tomdale_ssh_host in ${__tomdale_ssh_words[2,-1]}; do
+      [[ $__tomdale_ssh_host == *[\*\?\!]* ]] || __tomdale_ssh_hosts+=$__tomdale_ssh_host
+    done
+  done < "$HOME/.ssh/config"
+  zstyle ':completion:*:hosts' hosts ${(u)__tomdale_ssh_hosts}
+  unset __tomdale_ssh_hosts __tomdale_ssh_line __tomdale_ssh_words __tomdale_ssh_host
+fi
+
+ssh_rmhkey() {
+  local ssh_configfile="$HOME/.ssh/config"
+  local ssh_host="$1"
+  [[ -n $ssh_host ]] || return
+  ssh-keygen -R "$(grep -A10 "$ssh_host" "$ssh_configfile" | grep -i HostName | head -n 1 | awk '{print $2}')"
+}
+
+ssh_load_key() {
+  local keyfile="$HOME/.ssh/$1"
+  [[ -n $1 ]] || return
+  local keysig=$(ssh-keygen -l -f "$keyfile")
+  ssh-add -l | grep -q "$keysig" || ssh-add "$keyfile"
+}
+
+ssh_unload_key() {
+  local keyfile="$HOME/.ssh/$1"
+  [[ -n $1 ]] || return
+  local keysig=$(ssh-keygen -l -f "$keyfile")
+  ssh-add -l | grep -q "$keysig" && ssh-add -d "$keyfile"
+}
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # External Tools
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -106,8 +143,27 @@ source $ZSH/oh-my-zsh.sh
 # Tool Integrations
 # Each tool adds hooks to zsh for enhanced functionality
 # ───────────────────────────────────────────────────────────────────────────────
-eval "$(zoxide init zsh --cmd z)"  # Frecency-based cd (z foo, zi for fzf picker)
-eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
+# zoxide emits sizeable function/completion definitions. Its command shims load
+# that integration on first use, keeping normal shell startup lean.
+__tomdale_load_zoxide() {
+  unfunction z zi __tomdale_load_zoxide
+  eval "$(command zoxide init zsh --cmd z)"
+}
+z() {
+  __tomdale_load_zoxide
+  z "$@"
+}
+zi() {
+  __tomdale_load_zoxide
+  zi "$@"
+}
+# Keep the direnv hook local instead of starting direnv merely to print this
+# five-line function at every shell startup.
+_direnv_hook() {
+  trap -- '' SIGINT
+  eval "$(command direnv export zsh)"
+  trap - SIGINT
+}
 # The generated hook checks direnv on every prompt. Keep directory changes
 # immediate, while limiting unchanged-directory refreshes to once a second.
 zmodload zsh/datetime
@@ -120,13 +176,46 @@ __tomdale_direnv_precmd() {
 }
 add-zsh-hook -d precmd _direnv_hook
 precmd_functions=(__tomdale_direnv_precmd $precmd_functions)
-eval "$(termtint hook zsh)"     # Terminal color scheme switching
-eval "$(termtitle hook zsh)"    # Automatic terminal title management
-# termtitle applies once at startup and already updates when the directory
-# changes. Avoid spawning it again for every prompt redraw.
-add-zsh-hook -d precmd _termtitle_hook
-eval "$(wtp shell-init zsh)"    # wtp completion and shell navigation hook
-eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
+# These integrations only generate small, stable shell functions. Define them
+# directly so opening a shell doesn't spawn two helper processes first.
+_termtint_hook() { termtint apply }
+add-zsh-hook chpwd _termtint_hook
+_termtitle_hook() { termtitle apply }
+add-zsh-hook chpwd _termtitle_hook
+# Render the first prompt before asking external tools to update terminal
+# decorations. The line editor runs this once immediately afterward, so a new
+# shell still receives its color scheme and title before normal interaction.
+__tomdale_apply_initial_terminal_decorations() {
+  _termtint_hook
+  _termtitle_hook
+  zle -D zle-line-init
+  unfunction __tomdale_apply_initial_terminal_decorations
+}
+zle -N zle-line-init __tomdale_apply_initial_terminal_decorations
+# Workforest emits a large shell integration script. Load it on its first use
+# rather than making every shell pay the generator's startup cost.
+__tomdale_load_workforest() {
+  unfunction wf workforest __tomdale_load_workforest
+  eval "$(command wf shell init zsh)"
+}
+wf() {
+  __tomdale_load_workforest
+  wf "$@"
+}
+workforest() {
+  __tomdale_load_workforest
+  workforest "$@"
+}
+
+# Poetry's plugin only matters inside a Poetry project. Register a tiny watcher
+# now and load its full environment-management hook when entering one.
+__tomdale_load_poetry_env() {
+  [[ -f pyproject.toml && -f poetry.lock ]] || return
+  add-zsh-hook -d chpwd __tomdale_load_poetry_env
+  source "$ZSH/plugins/poetry-env/poetry-env.plugin.zsh"
+}
+add-zsh-hook chpwd __tomdale_load_poetry_env
+__tomdale_load_poetry_env
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration

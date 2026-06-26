@@ -76,11 +76,20 @@ ulimit -n 65536 2>/dev/null || true
 # not inherited by child shells, so it must be set in every shell's env setup.
 typeset -U path
 
-# Homebrew (macOS only — sets HOMEBREW_PREFIX, MANPATH, etc.)
+# Homebrew (macOS only)
 if [[ -d /opt/homebrew/bin ]]; then
+    # `brew shellenv` forks Homebrew and path_helper on every shell startup.
+    # The ARM Homebrew prefix is stable, so set its equivalent shell state
+    # directly and retain its completion, manpage, and infopage locations.
     export HOMEBREW_NO_ENV_HINTS=1
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    export PATH="$(brew --prefix rustup)/bin:$PATH"
+    export HOMEBREW_PREFIX=/opt/homebrew
+    export HOMEBREW_CELLAR=/opt/homebrew/Cellar
+    export HOMEBREW_REPOSITORY=/opt/homebrew
+    fpath=(/opt/homebrew/share/zsh/site-functions $fpath)
+    typeset -U fpath
+    export MANPATH=":${MANPATH:-}"
+    export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
+    export PATH="/opt/homebrew/opt/rustup/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 fi
 
 # pnpm global binaries (pnpm 11+ uses $PNPM_HOME/bin, not $PNPM_HOME)
