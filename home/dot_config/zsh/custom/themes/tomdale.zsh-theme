@@ -194,6 +194,102 @@ git_toplevel() {
 	echo -n $repo_root
 }
 
+typeset -g __TOMDALE_GIT_PROMPT_VALID=0
+typeset -g __TOMDALE_GIT_PROMPT_OK=1
+typeset -g __TOMDALE_GIT_PROMPT_PWD=''
+typeset -g __TOMDALE_GIT_PROMPT_ROOT=''
+typeset -g __TOMDALE_GIT_PROMPT_GIT_DIR=''
+typeset -g __TOMDALE_GIT_PROMPT_BRANCH=''
+typeset -g __TOMDALE_GIT_PROMPT_COMMIT=''
+typeset -g __TOMDALE_GIT_PROMPT_AHEAD=0
+typeset -g __TOMDALE_GIT_PROMPT_BEHIND=0
+typeset -g __TOMDALE_GIT_PROMPT_STAGED=0
+typeset -g __TOMDALE_GIT_PROMPT_UNSTAGED=0
+typeset -g __TOMDALE_GIT_PROMPT_DIRTY=0
+typeset -g __TOMDALE_GIT_PROMPT_MODE=''
+
+__tomdale_git_prompt_reset() {
+  __TOMDALE_GIT_PROMPT_VALID=0
+}
+
+__tomdale_git_prompt_info() {
+  (( $+commands[git] )) || return 1
+  if (( __TOMDALE_GIT_PROMPT_VALID )) && [[ $__TOMDALE_GIT_PROMPT_PWD == "$PWD" ]]; then
+    return $__TOMDALE_GIT_PROMPT_OK
+  fi
+
+  __TOMDALE_GIT_PROMPT_VALID=1
+  __TOMDALE_GIT_PROMPT_OK=1
+  __TOMDALE_GIT_PROMPT_PWD="$PWD"
+  __TOMDALE_GIT_PROMPT_ROOT=''
+  __TOMDALE_GIT_PROMPT_GIT_DIR=''
+  __TOMDALE_GIT_PROMPT_BRANCH=''
+  __TOMDALE_GIT_PROMPT_COMMIT=''
+  __TOMDALE_GIT_PROMPT_AHEAD=0
+  __TOMDALE_GIT_PROMPT_BEHIND=0
+  __TOMDALE_GIT_PROMPT_STAGED=0
+  __TOMDALE_GIT_PROMPT_UNSTAGED=0
+  __TOMDALE_GIT_PROMPT_DIRTY=0
+  __TOMDALE_GIT_PROMPT_MODE=''
+
+  local rev_parse git_status line xy git_dir
+  rev_parse=$(GIT_OPTIONAL_LOCKS=0 command git rev-parse --is-inside-work-tree --show-toplevel --git-dir 2>/dev/null) || return 1
+  local -a rev_parse_lines
+  rev_parse_lines=("${(@f)rev_parse}")
+  [[ ${rev_parse_lines[1]} == true ]] || return 1
+
+  git_status=$(GIT_OPTIONAL_LOCKS=0 command git status --porcelain=v2 --branch --ignore-submodules=dirty 2>/dev/null) || return 1
+
+  __TOMDALE_GIT_PROMPT_ROOT="${rev_parse_lines[2]}"
+  git_dir="${rev_parse_lines[3]}"
+  [[ $git_dir != /* ]] && git_dir="$PWD/$git_dir"
+  __TOMDALE_GIT_PROMPT_GIT_DIR="$git_dir"
+
+  for line in "${(@f)git_status}"; do
+    case "$line" in
+      '# branch.head '*)
+        __TOMDALE_GIT_PROMPT_BRANCH="${line#\# branch.head }"
+        ;;
+      '# branch.oid '*)
+        __TOMDALE_GIT_PROMPT_COMMIT="${line#\# branch.oid }"
+        ;;
+      '# branch.ab '*)
+        local ab="${line#\# branch.ab }"
+        local ahead_part="${ab%% *}"
+        local behind_part="${ab##* }"
+        __TOMDALE_GIT_PROMPT_AHEAD="${ahead_part#+}"
+        __TOMDALE_GIT_PROMPT_BEHIND="${behind_part#-}"
+        ;;
+      [12u]' '*)
+        xy="${line[3,4]}"
+        [[ ${xy[1]} != "." ]] && __TOMDALE_GIT_PROMPT_STAGED=1
+        [[ ${xy[2]} != "." ]] && __TOMDALE_GIT_PROMPT_UNSTAGED=1
+        ;;
+      '?'*)
+        __TOMDALE_GIT_PROMPT_UNSTAGED=1
+        ;;
+    esac
+  done
+
+  (( __TOMDALE_GIT_PROMPT_STAGED || __TOMDALE_GIT_PROMPT_UNSTAGED )) && __TOMDALE_GIT_PROMPT_DIRTY=1
+
+  if [[ -e "${git_dir}/BISECT_LOG" ]]; then
+    __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_BISECT_SYMBOL"
+  elif [[ -e "${git_dir}/MERGE_HEAD" ]]; then
+    __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_MERGE_SYMBOL"
+  elif [[ -e "${git_dir}/rebase" || -e "${git_dir}/rebase-apply" || -e "${git_dir}/rebase-merge" || -e "${git_dir}/../.dotest" ]]; then
+    __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_REBASE_SYMBOL"
+  fi
+
+  __TOMDALE_GIT_PROMPT_OK=0
+  return 0
+}
+
+autoload -Uz add-zsh-hook
+if [[ -z "${precmd_functions[(r)__tomdale_git_prompt_reset]-}" ]]; then
+  add-zsh-hook precmd __tomdale_git_prompt_reset
+fi
+
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
@@ -205,69 +301,50 @@ prompt_context() {
 }
 
 prompt_git_relative() {
-  local repo_root=$(git_toplevel)
-  local path_in_repo=$(pwd | sed "s/^$(echo "$repo_root" | sed 's:/:\\/:g;s/\$/\\$/g')//;s:^/::;s:/$::;")
+  __tomdale_git_prompt_info || return
+  local path_in_repo="${PWD#$__TOMDALE_GIT_PROMPT_ROOT}"
+  path_in_repo="${path_in_repo#/}"
   if [[ $path_in_repo != '' ]]; then
-    prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" "$path_in_repo"
+    prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" "${path_in_repo:gs/%/%%}"
   fi;
 }
 
 # Git: branch/detached head, dirty status
 prompt_git() {
-  (( $+commands[git] )) || return
-  if [[ "$(command git config --get oh-my-zsh.hide-status 2>/dev/null)" = 1 ]]; then
-    return
-  fi
+  __tomdale_git_prompt_info || return
   local PL_BRANCH_CHAR=$AGNOSTER_GIT_BRANCH_SYMBOL
-  local ref dirty mode repo_path
+  local ref changes=''
 
-   if [[ "$(command git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]]; then
-    repo_path=$(command git rev-parse --git-dir 2>/dev/null)
-    dirty=$(parse_git_dirty)
-    ref=$(command git symbolic-ref HEAD 2> /dev/null) || \
-    ref="$AGNOSTER_GIT_TAG_SYMBOL $(command git describe --exact-match --tags HEAD 2> /dev/null)" || \
-    ref="$AGNOSTER_GIT_COMMIT_SYMBOL $(command git rev-parse --short HEAD 2> /dev/null)"
-    if [[ -n $dirty ]]; then
-      prompt_segment "$AGNOSTER_GIT_DIRTY_BG" "$AGNOSTER_GIT_DIRTY_FG"
-    else
-      prompt_segment "$AGNOSTER_GIT_CLEAN_BG" "$AGNOSTER_GIT_CLEAN_FG"
-    fi
-
-    if [[ $AGNOSTER_GIT_BRANCH_STATUS == 'true' ]]; then
-      local ahead behind
-      ahead=$(command git log --oneline @{upstream}.. 2>/dev/null)
-      behind=$(command git log --oneline ..@{upstream} 2>/dev/null)
-      if [[ -n "$ahead" ]] && [[ -n "$behind" ]]; then
-        PL_BRANCH_CHAR=$AGNOSTER_GIT_DIVERGED_SYMBOL
-      elif [[ -n "$ahead" ]]; then
-        PL_BRANCH_CHAR=$AGNOSTER_GIT_AHEAD_SYMBOL
-      elif [[ -n "$behind" ]]; then
-        PL_BRANCH_CHAR=$AGNOSTER_GIT_BEHIND_SYMBOL
-      fi
-    fi
-
-    if [[ -e "${repo_path}/BISECT_LOG" ]]; then
-      mode=" $AGNOSTER_GIT_BISECT_SYMBOL"
-    elif [[ -e "${repo_path}/MERGE_HEAD" ]]; then
-      mode=" $AGNOSTER_GIT_MERGE_SYMBOL"
-    elif [[ -e "${repo_path}/rebase" || -e "${repo_path}/rebase-apply" || -e "${repo_path}/rebase-merge" || -e "${repo_path}/../.dotest" ]]; then
-      mode=" $AGNOSTER_GIT_REBASE_SYMBOL"
-    fi
-
-    setopt promptsubst
-    autoload -Uz vcs_info
-
-    zstyle ':vcs_info:*' enable git
-    zstyle ':vcs_info:*' get-revision true
-    zstyle ':vcs_info:*' check-for-changes true
-    zstyle ':vcs_info:*' stagedstr "$AGNOSTER_GIT_STAGED_SYMBOL"
-    zstyle ':vcs_info:*' unstagedstr "$AGNOSTER_GIT_UNSTAGED_SYMBOL"
-    zstyle ':vcs_info:*' formats ' %u%c'
-    zstyle ':vcs_info:*' actionformats ' %u%c'
-    vcs_info
-    echo -n "${${ref:gs/%/%%}/refs\/heads\//$PL_BRANCH_CHAR }${vcs_info_msg_0_%% }${mode}"
-    [[ $AGNOSTER_GIT_INLINE == 'true' ]] && prompt_git_relative
+  if (( __TOMDALE_GIT_PROMPT_DIRTY )); then
+    prompt_segment "$AGNOSTER_GIT_DIRTY_BG" "$AGNOSTER_GIT_DIRTY_FG"
+  else
+    prompt_segment "$AGNOSTER_GIT_CLEAN_BG" "$AGNOSTER_GIT_CLEAN_FG"
   fi
+
+  if [[ $AGNOSTER_GIT_BRANCH_STATUS == 'true' ]]; then
+    if (( __TOMDALE_GIT_PROMPT_AHEAD > 0 && __TOMDALE_GIT_PROMPT_BEHIND > 0 )); then
+      PL_BRANCH_CHAR=$AGNOSTER_GIT_DIVERGED_SYMBOL
+    elif (( __TOMDALE_GIT_PROMPT_AHEAD > 0 )); then
+      PL_BRANCH_CHAR=$AGNOSTER_GIT_AHEAD_SYMBOL
+    elif (( __TOMDALE_GIT_PROMPT_BEHIND > 0 )); then
+      PL_BRANCH_CHAR=$AGNOSTER_GIT_BEHIND_SYMBOL
+    fi
+  fi
+
+  if [[ $__TOMDALE_GIT_PROMPT_BRANCH == "(detached)" || -z $__TOMDALE_GIT_PROMPT_BRANCH ]]; then
+    ref="$AGNOSTER_GIT_COMMIT_SYMBOL ${__TOMDALE_GIT_PROMPT_COMMIT[1,7]}"
+  else
+    ref="$PL_BRANCH_CHAR ${__TOMDALE_GIT_PROMPT_BRANCH:gs/%/%%}"
+  fi
+
+  if (( __TOMDALE_GIT_PROMPT_UNSTAGED || __TOMDALE_GIT_PROMPT_STAGED )); then
+    changes=' '
+    (( __TOMDALE_GIT_PROMPT_UNSTAGED )) && changes+="$AGNOSTER_GIT_UNSTAGED_SYMBOL"
+    (( __TOMDALE_GIT_PROMPT_STAGED )) && changes+="$AGNOSTER_GIT_STAGED_SYMBOL"
+  fi
+
+  echo -n "${ref}${changes}${__TOMDALE_GIT_PROMPT_MODE}"
+  [[ $AGNOSTER_GIT_INLINE == 'true' ]] && prompt_git_relative
 }
 
 prompt_bzr() {
@@ -335,9 +412,11 @@ prompt_hg() {
 
 # Dir: current working directory
 prompt_dir() {
-  if [[ $AGNOSTER_GIT_INLINE == 'true' ]] && $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+  if [[ $AGNOSTER_GIT_INLINE == 'true' ]] && __tomdale_git_prompt_info; then
     # Git repo and inline path enabled, hence only show the git root
-    prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" "$(git_toplevel | sed "s:^$HOME:~:")"
+    local repo_root="$__TOMDALE_GIT_PROMPT_ROOT"
+    [[ $repo_root == $HOME(|/*) ]] && repo_root="~${repo_root#$HOME}"
+    prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" "${repo_root:gs/%/%%}"
   else
     prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" '%~'
   fi
@@ -366,7 +445,7 @@ prompt_status() {
     [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_RETVAL_FG}%}$AGNOSTER_STATUS_ERROR_SYMBOL"
   fi
   [[ $UID -eq 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_ROOT_FG}%}$AGNOSTER_STATUS_ROOT_SYMBOL"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}$AGNOSTER_STATUS_JOB_SYMBOL"
+  [[ -n "$(jobs -l)" ]] && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}$AGNOSTER_STATUS_JOB_SYMBOL"
 
   [[ -n "$symbols" ]] && prompt_segment "$AGNOSTER_STATUS_BG" "$AGNOSTER_STATUS_FG" "$symbols"
 }

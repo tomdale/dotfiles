@@ -15,11 +15,19 @@ function iterm2_print_user_vars() {
   # ─────────────────────────────────────────────────────────────────────────────
   # Git Information
   # ─────────────────────────────────────────────────────────────────────────────
+  local git_root=""
+  local git_branch=""
+  if (( $+functions[__tomdale_git_prompt_info] )) && __tomdale_git_prompt_info; then
+    git_root="$__TOMDALE_GIT_PROMPT_ROOT"
+    git_branch="$__TOMDALE_GIT_PROMPT_BRANCH"
+    [[ $git_branch == "(detached)" ]] && git_branch="${__TOMDALE_GIT_PROMPT_COMMIT[1,7]}"
+  fi
+
   # gitBranch: Current branch name (empty if not in repo)
-  iterm2_set_user_var gitBranch $((git branch 2> /dev/null) | grep \* | cut -c3-)
+  iterm2_set_user_var gitBranch "$git_branch"
 
   # repoDir: Repository root directory name (for quick identification)
-  iterm2_set_user_var repoDir $(basename $(git rev-parse --show-toplevel 2> /dev/null) 2> /dev/null)
+  iterm2_set_user_var repoDir "${git_root:t}"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Claude Code Integration
@@ -27,13 +35,13 @@ function iterm2_print_user_vars() {
   # sessionGoal/sessionTask: Persisted goal + task from agent sessions
   # Stored in .agent/.last-goal and .agent/.last-task by SetStatus
   if [[ -f ".agent/.last-goal" ]]; then
-    iterm2_set_user_var sessionGoal "$(cat .agent/.last-goal)"
+    iterm2_set_user_var sessionGoal "$(<.agent/.last-goal)"
   else
     iterm2_set_user_var sessionGoal ""
   fi
 
   if [[ -f ".agent/.last-task" ]]; then
-    iterm2_set_user_var sessionTask "$(cat .agent/.last-task)"
+    iterm2_set_user_var sessionTask "$(<.agent/.last-task)"
   else
     iterm2_set_user_var sessionTask ""
   fi
@@ -43,28 +51,27 @@ function iterm2_print_user_vars() {
   # Priority: 1. VS Code workspace name, 2. Git repo name, 3. Path from home
   # ─────────────────────────────────────────────────────────────────────────────
   local session_title=""
-  local current_dir="$(pwd)"
+  local current_dir="$PWD"
 
   # Check for *.code-workspace file in current dir or ancestors
   while [[ "$current_dir" != "/" ]]; do
     for workspace_file in "$current_dir"/*.code-workspace(N); do
       if [[ -f "$workspace_file" ]]; then
-        session_title="$(basename "$workspace_file")"
+        session_title="${workspace_file:t}"
         break 2
       fi
     done
-    current_dir="$(dirname "$current_dir")"
+    current_dir="${current_dir:h}"
   done
 
   # Fallback to git repo name or relative path
   if [[ -z "$session_title" ]]; then
-    local git_root=$(git rev-parse --show-toplevel 2>/dev/null)
     if [[ -n "$git_root" ]]; then
-      session_title="$(basename "$git_root")"
+      session_title="${git_root:t}"
     else
       # Use path relative to home
       local home_dir="$HOME"
-      if [[ "$(pwd)" == "$home_dir"* ]]; then
+      if [[ "$PWD" == "$home_dir"* ]]; then
         session_title="${PWD#$home_dir/}"
         if [[ "$session_title" == "$PWD" ]]; then
           session_title="~"
@@ -72,7 +79,7 @@ function iterm2_print_user_vars() {
           session_title="~/$session_title"
         fi
       else
-        session_title="$(pwd)"
+        session_title="$PWD"
       fi
     fi
   fi
