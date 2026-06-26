@@ -20,7 +20,9 @@ AGENT_BROWSER_PROFILE or pass --profile to preserve login sessions across
 restarts.
 
 Git commits: ALWAYS delegate to the code-committer agent. Never run git commit
-directly.
+directly. Exception: if the local workspace defines its own commit rules (e.g. a
+project CLAUDE.md, a repo-specific committer agent, or a skill that owns
+committing), follow those instead — local workspace rules take precedence.
 
 The Bash tool runs non-interactive. REPLs, pagers, editors, CLI prompts,
 progress bars, and color output all behave differently or fail without a tty.
