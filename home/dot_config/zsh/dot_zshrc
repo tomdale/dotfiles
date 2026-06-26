@@ -108,8 +108,23 @@ source $ZSH/oh-my-zsh.sh
 # ───────────────────────────────────────────────────────────────────────────────
 eval "$(zoxide init zsh --cmd z)"  # Frecency-based cd (z foo, zi for fzf picker)
 eval "$(direnv hook zsh)"       # Per-directory environment variables (.envrc)
+# The generated hook checks direnv on every prompt. Keep directory changes
+# immediate, while limiting unchanged-directory refreshes to once a second.
+zmodload zsh/datetime
+typeset -gF __TOMDALE_DIRENV_LAST_CHECK=0
+__tomdale_direnv_precmd() {
+  local -F now=$EPOCHREALTIME
+  (( now - __TOMDALE_DIRENV_LAST_CHECK >= 1 )) || return
+  __TOMDALE_DIRENV_LAST_CHECK=$now
+  _direnv_hook
+}
+add-zsh-hook -d precmd _direnv_hook
+precmd_functions=(__tomdale_direnv_precmd $precmd_functions)
 eval "$(termtint hook zsh)"     # Terminal color scheme switching
 eval "$(termtitle hook zsh)"    # Automatic terminal title management
+# termtitle applies once at startup and already updates when the directory
+# changes. Avoid spawning it again for every prompt redraw.
+add-zsh-hook -d precmd _termtitle_hook
 eval "$(wtp shell-init zsh)"    # wtp completion and shell navigation hook
 eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
 

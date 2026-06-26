@@ -101,6 +101,9 @@ esac
 : ${AGNOSTER_GIT_INLINE:=false}
 # Show the git branch status in the prompt rather than the generic branch symbol
 : ${AGNOSTER_GIT_BRANCH_STATUS:=true}
+# Keep Git information fresh without spawning Git for every prompt redraw. Set
+# this to 0 to refresh on every render.
+: ${AGNOSTER_GIT_STATUS_CACHE_SECONDS:=2}
 
 ## Symbol Configuration
 # Override these in your ~/.zshrc to customize symbols
@@ -194,9 +197,12 @@ git_toplevel() {
 	echo -n $repo_root
 }
 
+zmodload zsh/datetime
+
 typeset -g __TOMDALE_GIT_PROMPT_VALID=0
 typeset -g __TOMDALE_GIT_PROMPT_OK=1
 typeset -g __TOMDALE_GIT_PROMPT_PWD=''
+typeset -gF __TOMDALE_GIT_PROMPT_UPDATED_AT=0
 typeset -g __TOMDALE_GIT_PROMPT_ROOT=''
 typeset -g __TOMDALE_GIT_PROMPT_GIT_DIR=''
 typeset -g __TOMDALE_GIT_PROMPT_BRANCH=''
@@ -214,13 +220,15 @@ __tomdale_git_prompt_reset() {
 
 __tomdale_git_prompt_info() {
   (( $+commands[git] )) || return 1
-  if (( __TOMDALE_GIT_PROMPT_VALID )) && [[ $__TOMDALE_GIT_PROMPT_PWD == "$PWD" ]]; then
+  local -F now=$EPOCHREALTIME
+  if (( __TOMDALE_GIT_PROMPT_VALID )) && [[ $__TOMDALE_GIT_PROMPT_PWD == "$PWD" ]] && (( now - __TOMDALE_GIT_PROMPT_UPDATED_AT < AGNOSTER_GIT_STATUS_CACHE_SECONDS )); then
     return $__TOMDALE_GIT_PROMPT_OK
   fi
 
   __TOMDALE_GIT_PROMPT_VALID=1
   __TOMDALE_GIT_PROMPT_OK=1
   __TOMDALE_GIT_PROMPT_PWD="$PWD"
+  __TOMDALE_GIT_PROMPT_UPDATED_AT=$now
   __TOMDALE_GIT_PROMPT_ROOT=''
   __TOMDALE_GIT_PROMPT_GIT_DIR=''
   __TOMDALE_GIT_PROMPT_BRANCH=''
@@ -286,8 +294,8 @@ __tomdale_git_prompt_info() {
 }
 
 autoload -Uz add-zsh-hook
-if [[ -z "${precmd_functions[(r)__tomdale_git_prompt_reset]-}" ]]; then
-  add-zsh-hook precmd __tomdale_git_prompt_reset
+if [[ -z "${chpwd_functions[(r)__tomdale_git_prompt_reset]-}" ]]; then
+  add-zsh-hook chpwd __tomdale_git_prompt_reset
 fi
 
 ### Prompt components
