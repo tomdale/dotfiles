@@ -17,4 +17,6 @@ export CARGO_HOME="$XDG_DATA_HOME/cargo"
 export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
 export PNPM_HOME="$XDG_DATA_HOME/pnpm"
 export PROTO_HOME="$XDG_DATA_HOME/proto"
-export ZSH="$XDG_DATA_HOME/oh-my-zsh"
+
+# Clear the legacy Oh My Zsh installation path inherited by child shells.
+unset ZSH

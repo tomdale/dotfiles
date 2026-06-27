@@ -1,4 +1,5 @@
 # vim:ft=zsh ts=2 sw=2 sts=2
+# Local Powerline-style prompt, originally derived from Agnoster.
 #
 # agnoster's Theme - https://gist.github.com/3712874
 # A Powerline-inspired theme for ZSH
@@ -472,6 +473,7 @@ prompt_aws() {
 }
 
 prompt_terraform() {
+  (( $+functions[tf_prompt_info] )) || return
   local terraform_info=$(tf_prompt_info)
   [[ -z "$terraform_info" ]] && return
   prompt_segment magenta yellow "TF: $terraform_info"

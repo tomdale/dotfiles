@@ -40,7 +40,7 @@
 # │     1-3. Same as above                                                 │
 # │   .zshrc                                                               │
 # │     5. proto activate: resolve tools for cwd + register chpwd hook     │
-# │     6. oh-my-zsh, direnv, termtint, termtitle, functions, iTerm2      │
+# │     6. completion, prompt, direnv, terminal hooks, functions, iTerm2  │
 # │                                                                         │
 # └─────────────────────────────────────────────────────────────────────────┘
 

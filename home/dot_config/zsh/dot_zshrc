@@ -2,7 +2,7 @@
 # ║ .zshrc - Interactive Shell Configuration                                  ║
 # ╠═══════════════════════════════════════════════════════════════════════════╣
 # ║ Configures the interactive shell experience: prompt, completions, aliases,║
-# ║ functions, key bindings, and integrations with tools like oh-my-zsh.      ║
+# ║ functions, key bindings, completion, prompt, and tool integrations.       ║
 # ║                                                                           ║
 # ║ This runs for interactive terminals but NOT for scripts. Environment      ║
 # ║ variables are in env.zsh (sourced from .zshenv) so they're available to   ║
@@ -13,7 +13,7 @@
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Proto Toolchain Manager
-# Runs first so oh-my-zsh and all tools below inherit the fully activated PATH.
+# Runs first so completion and all tools below inherit the fully activated PATH.
 # This is the interactive-shell counterpart to the --export call in env.zsh.
 # Uses full activation (not --export) to register a chpwd hook that re-resolves
 # tool versions when you cd between projects. See env.zsh for the full
@@ -31,24 +31,14 @@ typeset -U path
 # ───────────────────────────────────────────────────────────────────────────────
 export LESS="-R --no-init --quit-if-one-screen"  # Keep output on screen, auto-exit if one screen
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Oh My Zsh Configuration
-# https://github.com/ohmyzsh/ohmyzsh
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Directories (XDG-compliant)
-# ───────────────────────────────────────────────────────────────────────────────
-
-ZSH_CACHE_DIR="$XDG_CACHE_HOME/zsh"    # Completion cache, etc.
-ZSH_CUSTOM="$ZDOTDIR/custom"           # Custom plugins/themes
-
 # ───────────────────────────────────────────────────────────────────────────────
 # History
 # ───────────────────────────────────────────────────────────────────────────────
 HISTFILE="$XDG_STATE_HOME/zsh/history"  # History file location
-HISTSIZE=10000                          # Commands to keep in memory
+HISTSIZE=50000                          # Commands to keep in memory
 SAVEHIST=10000                          # Commands to save to file
+setopt EXTENDED_HISTORY                 # Include timestamps and durations
+setopt HIST_EXPIRE_DUPS_FIRST           # Expire duplicates before unique entries
 setopt SHARE_HISTORY                    # Share history across sessions
 setopt HIST_IGNORE_SPACE                # Don't save commands starting with space
 setopt HIST_IGNORE_DUPS                 # Don't save duplicate adjacent commands
@@ -61,44 +51,72 @@ setopt HIST_VERIFY                      # Show command before executing from his
 # Miscellaneous
 # ───────────────────────────────────────────────────────────────────────────────
 setopt INTERACTIVE_COMMENTS
+setopt PROMPT_SUBST
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_MINUS
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Theme & Appearance
+# Completion
 # ───────────────────────────────────────────────────────────────────────────────
-ZSH_THEME="tomdale"           # Custom theme (fork of agnoster, in custom/themes/)
-COMPLETION_WAITING_DOTS="true" # Show dots while waiting for completion
-DISABLE_AUTO_TITLE="true"      # Don't let oh-my-zsh set terminal title (we use termtitle)
+zmodload -i zsh/complist
+autoload -Uz add-zsh-hook compinit
+compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump"
 
-# Agnoster theme settings
-AGNOSTER_GIT_INLINE=true      # Show git root and relative path inline
+WORDCHARS=''
+unsetopt MENU_COMPLETE FLOW_CONTROL
+setopt AUTO_MENU COMPLETE_IN_WORD ALWAYS_TO_END
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' matcher-list \
+  'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' \
+  'r:|=*' \
+  'l:|=* r:|=*'
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' use-cache true
+zstyle ':completion:*' cache-path "$XDG_CACHE_HOME/zsh"
+zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
+bindkey -M menuselect '^o' accept-and-infer-next-history
+
+expand-or-complete-with-dots() {
+  printf '\e[?7l%F{red}…%f\e[?7h'
+  zle expand-or-complete
+  zle redisplay
+}
+zle -N expand-or-complete-with-dots
+bindkey '^I' expand-or-complete-with-dots
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Updates
+# Key Bindings
 # ───────────────────────────────────────────────────────────────────────────────
-zstyle ':omz:update' mode disabled  # Manage updates manually via chezmoi
+bindkey -e
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search edit-command-line
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zle -N edit-command-line
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+[[ -n ${terminfo[kcuu1]} ]] && bindkey "${terminfo[kcuu1]}" up-line-or-beginning-search
+[[ -n ${terminfo[kcud1]} ]] && bindkey "${terminfo[kcud1]}" down-line-or-beginning-search
+[[ -n ${terminfo[khome]} ]] && bindkey "${terminfo[khome]}" beginning-of-line
+[[ -n ${terminfo[kend]} ]] && bindkey "${terminfo[kend]}" end-of-line
+[[ -n ${terminfo[kdch1]} ]] && bindkey "${terminfo[kdch1]}" delete-char
+[[ -n ${terminfo[kcbt]} ]] && bindkey "${terminfo[kcbt]}" reverse-menu-complete
+bindkey '^[[3;5~' kill-word
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+bindkey '^X^E' edit-command-line
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Plugins
-# See: https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins
+# Local Functions and Prompt
 # ───────────────────────────────────────────────────────────────────────────────
+for f in "$ZDOTDIR"/functions/*.zsh; do source "$f"; done
 
-plugins=(
-  git              # Git aliases (ga, gc, gp, etc.) and completion
-  python           # Python/venv helpers, auto-activate virtualenvs
-)
+AGNOSTER_GIT_INLINE=true
+source "$ZDOTDIR/prompt.zsh"
 
-# Python plugin settings
-export PYTHON_VENV_NAME=".venv"   # Virtual environment directory name
-export PYTHON_AUTO_VRUN=true       # Auto-activate venv when entering directory
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Initialize Oh My Zsh
-# ───────────────────────────────────────────────────────────────────────────────
-source $ZSH/oh-my-zsh.sh
-
-# The Oh My Zsh ssh plugin builds its host list through five external
-# processes. Parse the small config file with zsh instead, while retaining the
-# host completion and its key-management helpers.
+# Parse SSH hosts directly instead of using the subprocess-heavy integration
+# formerly provided by Oh My Zsh.
 if [[ -r "$HOME/.ssh/config" ]]; then
   typeset -a __tomdale_ssh_hosts
   typeset __tomdale_ssh_line
@@ -195,59 +213,6 @@ __tomdale_apply_initial_terminal_decorations() {
 }
 zle -N zle-line-init __tomdale_apply_initial_terminal_decorations
 eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
-
-# Find the nearest Poetry project without starting Poetry. This keeps directory
-# changes cheap while supporting shells opened anywhere below the project root.
-__tomdale_find_poetry_root() {
-  local dir=${PWD:A}
-  while true; do
-    if [[ -f "$dir/pyproject.toml" && -f "$dir/poetry.lock" ]]; then
-      REPLY=$dir
-      return 0
-    fi
-    [[ $dir == / ]] && break
-    dir=${dir:h}
-  done
-  REPLY=
-  return 1
-}
-
-__tomdale_update_poetry_env() {
-  local poetry_root=
-  __tomdale_find_poetry_root && poetry_root=$REPLY
-
-  if [[ ${poetry_active:-0} -eq 1 && ${poetry_dir-} != "$poetry_root" ]]; then
-    export poetry_active=0
-    unset poetry_dir
-    (( $+functions[deactivate] )) && deactivate
-  fi
-
-  [[ -n $poetry_root ]] || return
-  [[ ${poetry_active:-0} -eq 1 && ${poetry_dir-} == "$poetry_root" ]] && return
-
-  local venv_dir
-  venv_dir=$(
-    builtin cd -q -- "$poetry_root" || exit
-    command poetry env info --path 2>/dev/null
-  )
-  if [[ -n $venv_dir && -r "$venv_dir/bin/activate" ]]; then
-    export poetry_active=1
-    export poetry_dir=$poetry_root
-    source "$venv_dir/bin/activate"
-  fi
-}
-add-zsh-hook chpwd __tomdale_update_poetry_env
-__tomdale_update_poetry_env
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Custom Configuration
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Functions and Aliases
-# Loaded from modular files in functions/ directory
-# ───────────────────────────────────────────────────────────────────────────────
-for f in "$ZDOTDIR"/functions/*.zsh; do source "$f"; done
 
 # ───────────────────────────────────────────────────────────────────────────────
 # iTerm2 Integration
