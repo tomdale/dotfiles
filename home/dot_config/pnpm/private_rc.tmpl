@@ -1,5 +1,5 @@
 {{- $isWork := get . "isWork" | default false -}}
 {{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
 {{- if and $isWork $npmTokenOpRef }}
-tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
+//registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
 {{- end }}
