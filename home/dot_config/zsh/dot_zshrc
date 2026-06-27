@@ -13,11 +13,13 @@
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Proto Toolchain Manager
-# Proto shims are already first in PATH from env.zsh and resolve the configured
-# runtime for each invocation. Avoid generating and evaluating a full activation
-# script at every prompt; that work is only needed for programs whose directory
-# changes after startup, and the shims preserve correct tool selection.
+# Runs first so oh-my-zsh and all tools below inherit the fully activated PATH.
+# This is the interactive-shell counterpart to the --export call in env.zsh.
+# Uses full activation (not --export) to register a chpwd hook that re-resolves
+# tool versions when you cd between projects. See env.zsh for the full
+# architecture note explaining how proto activation is split across files.
 # ───────────────────────────────────────────────────────────────────────────────
+eval "$(proto activate zsh --config-mode all)"
 typeset -U path
 
 # Keep managed local shims ahead of proto's pnpm-global path.
@@ -192,30 +194,50 @@ __tomdale_apply_initial_terminal_decorations() {
   unfunction __tomdale_apply_initial_terminal_decorations
 }
 zle -N zle-line-init __tomdale_apply_initial_terminal_decorations
-# Workforest emits a large shell integration script. Load it on its first use
-# rather than making every shell pay the generator's startup cost.
-__tomdale_load_workforest() {
-  unfunction wf workforest __tomdale_load_workforest
-  eval "$(command wf shell init zsh)"
-}
-wf() {
-  __tomdale_load_workforest
-  wf "$@"
-}
-workforest() {
-  __tomdale_load_workforest
-  workforest "$@"
+eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
+
+# Find the nearest Poetry project without starting Poetry. This keeps directory
+# changes cheap while supporting shells opened anywhere below the project root.
+__tomdale_find_poetry_root() {
+  local dir=${PWD:A}
+  while true; do
+    if [[ -f "$dir/pyproject.toml" && -f "$dir/poetry.lock" ]]; then
+      REPLY=$dir
+      return 0
+    fi
+    [[ $dir == / ]] && break
+    dir=${dir:h}
+  done
+  REPLY=
+  return 1
 }
 
-# Poetry's plugin only matters inside a Poetry project. Register a tiny watcher
-# now and load its full environment-management hook when entering one.
-__tomdale_load_poetry_env() {
-  [[ -f pyproject.toml && -f poetry.lock ]] || return
-  add-zsh-hook -d chpwd __tomdale_load_poetry_env
-  source "$ZSH/plugins/poetry-env/poetry-env.plugin.zsh"
+__tomdale_update_poetry_env() {
+  local poetry_root=
+  __tomdale_find_poetry_root && poetry_root=$REPLY
+
+  if [[ ${poetry_active:-0} -eq 1 && ${poetry_dir-} != "$poetry_root" ]]; then
+    export poetry_active=0
+    unset poetry_dir
+    (( $+functions[deactivate] )) && deactivate
+  fi
+
+  [[ -n $poetry_root ]] || return
+  [[ ${poetry_active:-0} -eq 1 && ${poetry_dir-} == "$poetry_root" ]] && return
+
+  local venv_dir
+  venv_dir=$(
+    builtin cd -q -- "$poetry_root" || exit
+    command poetry env info --path 2>/dev/null
+  )
+  if [[ -n $venv_dir && -r "$venv_dir/bin/activate" ]]; then
+    export poetry_active=1
+    export poetry_dir=$poetry_root
+    source "$venv_dir/bin/activate"
+  fi
 }
-add-zsh-hook chpwd __tomdale_load_poetry_env
-__tomdale_load_poetry_env
+add-zsh-hook chpwd __tomdale_update_poetry_env
+__tomdale_update_poetry_env
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Custom Configuration
