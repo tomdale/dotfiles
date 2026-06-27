@@ -8,12 +8,25 @@ Sandbox: write scratch/temp files to .agent/ (gitignored). Sandboxed commands
 auto-approve; unsandboxed require manual approval per invocation. Always prefer
 expanding sandbox permissions over disabling the sandbox.
 
-On sandbox failure, STOP. Never retry with dangerouslyDisableSandbox. Identify
-the blocked resource, suggest a permission for .claude/settings.json, wait for
-the user. Permission patterns: file write Edit(/path/\*_), network
-WebFetch(domain:host.com), command Bash(cmd-prefix:_). Only suggest
-dangerouslyDisableSandbox when permissions cannot solve it (dynamic paths,
-system-wide ops, one-off commands).
+On sandbox failure, first decide whether the blocked operation is in scope for
+the current task. The goal is for all normal development operations to succeed
+*within* the sandbox by fixing the config — not by repeatedly breaking out of
+it.
+
+- **In scope** (the operation targets the current workspace — the repo you're
+  working in and its normal dev resources): STOP. Never retry with
+  dangerouslyDisableSandbox. Identify the blocked resource, suggest a permission
+  for .claude/settings.json, wait for the user. Permission patterns: file write
+  Edit(/path/\*_), network WebFetch(domain:host.com), command Bash(cmd-prefix:_).
+- **Out of scope but explicitly requested** (the operation targets something
+  outside the current workspace — e.g. while working in one repo, I ask you to
+  edit my dotfiles or another project's files): do NOT stall by asking me to
+  edit .claude/settings.json. Permanent config for an out-of-scope target is the
+  wrong fix. Retry with dangerouslyDisableSandbox so I can approve the elevated
+  access per invocation.
+
+Only suggest dangerouslyDisableSandbox for in-scope work when permissions truly
+cannot solve it (dynamic paths, system-wide ops, one-off commands).
 
 Browser automation: use the agent-browser skill. Always set
 AGENT_BROWSER_PROFILE or pass --profile to preserve login sessions across
