@@ -227,6 +227,7 @@
         "//Users/tomdale/.agent-browser/*.sock",
         "/private/tmp/tmux-501/default",
         "//Users/tomdale/Library/Group Containers/2BUA8C4S2C.com.1password/t/*",
+        "//Users/tomdale/.local/state/pnpm-npm-token-cache/socket",
         "//tmp/tsx-*/*",
         "/private/tmp/tsx-*/*"
       ],
@@ -249,8 +250,9 @@
       "d3k:*"
     ]
   },
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "terminalProgressBarEnabled": false,
   "teammateMode": "tmux",
   "skipAutoPermissionPrompt": true
