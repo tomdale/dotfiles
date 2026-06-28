@@ -3,7 +3,40 @@ set -eu
 
 {{- $isWork := get . "isWork" | default false -}}
 {{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
-{{- if and $isWork $npmTokenOpRef }}
+{{- if and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef }}
+socket="${HOME}/.local/state/pnpm-npm-token-cache/socket"
+service="gui/$(id -u)/com.tomdale.pnpm-npm-token-cache"
+
+if [ ! -S "$socket" ]; then
+  # Start the agent if it isn't running. No -k: that would force-kill a healthy
+  # daemon and discard the warm cache other concurrent installs are relying on.
+  launchctl kickstart "$service" >/dev/null 2>&1 || true
+  # A #!/usr/bin/swift daemon compiles, binds, and listens on cold start, which
+  # routinely exceeds a fixed 0.2s. Poll for the socket up to ~3s instead.
+  i=0
+  while [ ! -S "$socket" ] && [ "$i" -lt 60 ]; do
+    sleep 0.05
+    i=$((i + 1))
+  done
+fi
+
+if [ ! -S "$socket" ]; then
+  echo "pnpm npm token cache socket is not available" >&2
+  exit 1
+fi
+
+response="$(printf 'token\n' | /usr/bin/nc -w 5 -U "$socket")"
+
+case "$response" in
+  "Bearer "*)
+    printf '%s\n' "$response"
+    ;;
+  *)
+    echo "pnpm npm token cache did not return a bearer token" >&2
+    exit 1
+    ;;
+esac
+{{- else if and $isWork $npmTokenOpRef }}
 printf 'Bearer '
 op read {{ $npmTokenOpRef | quote }}
 {{- else }}

@@ -1,0 +1,57 @@
+#!/bin/sh
+set -eu
+{{ $isWork := get . "isWork" | default false -}}
+{{ $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+{{ $enabled := and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef -}}
+LABEL="com.tomdale.pnpm-npm-token-cache"
+DOMAIN="gui/$(id -u)"
+PLIST="${HOME}/Library/LaunchAgents/${LABEL}.plist"
+BINARY="${HOME}/.local/libexec/pnpm-npm-token-cache"
+SOURCE="${HOME}/.local/libexec/pnpm-npm-token-cache.swift"
+STATE_DIR="${HOME}/.local/state/pnpm-npm-token-cache"
+# Manage the npm-token-cache LaunchAgent's lifecycle.
+#
+# When enabled: compile the Swift source to a signed, named binary and point
+# launchd at it. This makes 1Password's auth prompt read "pnpm-npm-token-cache"
+# instead of "swift-frontend" (it names the caller by its signed binary), and
+# starts the daemon instantly instead of recompiling (~17s) on every launch.
+#
+# When disabled: tear the daemon down. .chezmoiignore only stops chezmoi from
+# *managing* these files; it never unloads the running agent or deletes the
+# deployed copies, so we do it here.
+#
+# The state + trigger lines below change when the feature flag flips or the
+# rendered source changes, so run_onchange re-runs on exactly those edits.
+# state: {{ if $enabled }}enabled{{ else }}disabled{{ end }}
+{{- if $enabled }}
+# trigger: {{ include "dot_local/libexec/private_executable_pnpm-npm-token-cache.swift.tmpl" | sha256sum }} ttl={{ get . "npmTokenCacheTTLSeconds" | default 43200 }}
+swiftc -O -o "$BINARY" "$SOURCE"
+
+# 1Password authorizes the caller by its code signature. A stable Developer ID
+# identity makes that authorization persist across rebuilds; ad-hoc is the
+# fallback (re-prompts once per rebuild). Override the match via the
+# npmTokenCacheSigningIdentity chezmoi data key.
+SIGN_MATCH='{{ get . "npmTokenCacheSigningIdentity" | default "Developer ID Application" }}'
+IDENTITY="$(security find-identity -v -p codesigning | grep -F "$SIGN_MATCH" | head -1 | awk '{print $2}')"
+if [ -n "$IDENTITY" ]; then
+  codesign --force --sign "$IDENTITY" "$BINARY"
+else
+  echo "pnpm-npm-token-cache: no codesigning identity matching '$SIGN_MATCH'; using ad-hoc" >&2
+  codesign --force --sign - "$BINARY"
+fi
+
+# Reload so launchd adopts the new program path / binary. bootout is async, so
+# wait for the old instance to fully unload before bootstrapping — otherwise
+# bootstrap races it and fails with EIO ("Bootstrap failed: 5: Input/output error").
+launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+i=0
+while launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1 && [ "$i" -lt 50 ]; do
+  sleep 0.1
+  i=$((i + 1))
+done
+launchctl bootstrap "$DOMAIN" "$PLIST"
+{{- else }}
+launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+rm -f "$PLIST" "$BINARY" "$SOURCE"
+rm -rf "$STATE_DIR"
+{{- end }}

@@ -1,0 +1,328 @@
+#!/usr/bin/swift
+{{- $isWork := get . "isWork" | default false -}}
+{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+{{- if and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef }}
+import Darwin
+import Foundation
+import IOKit.pwr_mgt
+
+private let opReference = {{ $npmTokenOpRef | quote }}
+private let socketDirectory = FileManager.default.homeDirectoryForCurrentUser
+    .appendingPathComponent(".local/state/pnpm-npm-token-cache", isDirectory: true)
+private let socketURL = socketDirectory.appendingPathComponent("socket")
+private let sleepGapThreshold: TimeInterval = 5
+
+// Absolute backstop on how long a fetched token is served. Sleep/lid-close also
+// clears the cache; this bounds the window for a kept-awake machine, where no
+// sleep event ever fires. Measured against CLOCK_UPTIME_RAW (does not advance
+// during sleep), so it is "active seconds since fetch". Tunable via chezmoi data.
+private let maxTokenAge: TimeInterval = {{ get . "npmTokenCacheTTLSeconds" | default 43200 }}
+private let ioMessageCanSystemSleep = UInt32(0xe0000270)
+private let ioMessageSystemWillSleep = UInt32(0xe0000280)
+
+private func uptimeRawSeconds() -> TimeInterval {
+    var time = timespec()
+    clock_gettime(CLOCK_UPTIME_RAW, &time)
+    return TimeInterval(time.tv_sec) + TimeInterval(time.tv_nsec) / 1_000_000_000
+}
+
+private func opExecutableURL() throws -> URL {
+    for path in ["/opt/homebrew/bin/op", "/usr/local/bin/op", "/usr/bin/op"] {
+        if FileManager.default.isExecutableFile(atPath: path) {
+            return URL(fileURLWithPath: path)
+        }
+    }
+
+    throw NSError(
+        domain: "PNPMTokenCache",
+        code: 1,
+        userInfo: [NSLocalizedDescriptionKey: "1Password CLI not found"]
+    )
+}
+
+private final class TokenCache {
+    private let condition = NSCondition()
+    private var token: String?
+    private var fetchInProgress = false
+    private var fetchedAtUptime: TimeInterval = 0
+    private var lastWallClock = Date()
+    private var lastUptime = uptimeRawSeconds()
+
+    func clear() {
+        condition.lock()
+        token = nil
+        lastWallClock = Date()
+        lastUptime = uptimeRawSeconds()
+        condition.unlock()
+    }
+
+    func bearerToken() throws -> String {
+        condition.lock()
+
+        // Single-flight: serve a fresh cached token, wait for an in-flight fetch,
+        // or become the sole fetcher. A cold-start burst of clients therefore
+        // triggers exactly one `op read` (and one 1Password prompt) rather than one
+        // per client. The loop re-checks state after each wait (also covering
+        // spurious wakeups and a clear() that races the fetch).
+        while true {
+            clearIfSleepWasMissed()
+            clearIfExpired()
+
+            if let cachedToken = token {
+                updateClocks()
+                condition.unlock()
+                return "Bearer \(cachedToken)"
+            }
+
+            if fetchInProgress {
+                condition.wait()
+                continue
+            }
+
+            fetchInProgress = true
+            condition.unlock()
+            break
+        }
+
+        let result = Result { try readTokenFromOnePassword() }
+
+        condition.lock()
+        fetchInProgress = false
+        defer {
+            // Wake the clients that waited on this fetch: on success they pick up
+            // the cached token; on failure the next one retries (serialized).
+            condition.broadcast()
+            condition.unlock()
+        }
+
+        let fetchedToken = try result.get()
+        token = fetchedToken
+        fetchedAtUptime = uptimeRawSeconds()
+        updateClocks()
+        return "Bearer \(fetchedToken)"
+    }
+
+    private func clearIfSleepWasMissed() {
+        let wallElapsed = Date().timeIntervalSince(lastWallClock)
+        let uptimeElapsed = uptimeRawSeconds() - lastUptime
+
+        if wallElapsed - uptimeElapsed > sleepGapThreshold {
+            token = nil
+        }
+    }
+
+    private func clearIfExpired() {
+        if token != nil, uptimeRawSeconds() - fetchedAtUptime > maxTokenAge {
+            token = nil
+        }
+    }
+
+    private func updateClocks() {
+        lastWallClock = Date()
+        lastUptime = uptimeRawSeconds()
+    }
+
+    private func readTokenFromOnePassword() throws -> String {
+        let process = Process()
+        let stdout = Pipe()
+        let stderr = Pipe()
+
+        process.executableURL = try opExecutableURL()
+        process.arguments = ["read", opReference]
+        process.standardOutput = stdout
+        process.standardError = stderr
+
+        try process.run()
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0 else {
+            let errorText = String(data: stderr.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            throw NSError(
+                domain: "PNPMTokenCache",
+                code: Int(process.terminationStatus),
+                userInfo: [
+                    NSLocalizedDescriptionKey: errorText.map { "op read failed: \($0)" } ?? "op read failed"
+                ]
+            )
+        }
+
+        let token = String(data: stdout.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+        guard !token.isEmpty else {
+            throw NSError(
+                domain: "PNPMTokenCache",
+                code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "op read returned an empty token"]
+            )
+        }
+
+        return token
+    }
+}
+
+private let cache = TokenCache()
+private var powerNotificationPort: IONotificationPortRef?
+private var powerNotifier: io_object_t = 0
+private var powerConnection: io_connect_t = 0
+
+private func logError(_ message: String) {
+    FileHandle.standardError.write(Data((message + "\n").utf8))
+}
+
+private func installPowerObserver() {
+    powerConnection = IORegisterForSystemPower(nil, &powerNotificationPort, { _, _, messageType, messageArgument in
+        switch messageType {
+        case ioMessageCanSystemSleep:
+            IOAllowPowerChange(powerConnection, Int(bitPattern: messageArgument))
+        case ioMessageSystemWillSleep:
+            cache.clear()
+            IOAllowPowerChange(powerConnection, Int(bitPattern: messageArgument))
+        default:
+            break
+        }
+    }, &powerNotifier)
+
+    guard powerConnection != 0, let powerNotificationPort else {
+        logError("failed to register for system power notifications")
+        return
+    }
+
+    CFRunLoopAddSource(
+        CFRunLoopGetCurrent(),
+        IONotificationPortGetRunLoopSource(powerNotificationPort).takeUnretainedValue(),
+        .defaultMode
+    )
+}
+
+private func prepareSocketDirectory() throws {
+    try FileManager.default.createDirectory(at: socketDirectory, withIntermediateDirectories: true)
+    try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: socketDirectory.path)
+
+    if FileManager.default.fileExists(atPath: socketURL.path) {
+        try FileManager.default.removeItem(at: socketURL)
+    }
+}
+
+private func makeSocketAddress(path: String) throws -> (sockaddr_un, socklen_t) {
+    let pathBytes = Array(path.utf8)
+    let pathCapacity = MemoryLayout.size(ofValue: sockaddr_un().sun_path)
+
+    guard pathBytes.count < pathCapacity else {
+        throw NSError(
+            domain: "PNPMTokenCache",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "socket path is too long: \(path)"]
+        )
+    }
+
+    var address = sockaddr_un()
+    address.sun_family = sa_family_t(AF_UNIX)
+
+    withUnsafeMutablePointer(to: &address.sun_path) { pointer in
+        pointer.withMemoryRebound(to: CChar.self, capacity: pathCapacity) { destination in
+            for index in 0..<pathBytes.count {
+                destination[index] = CChar(bitPattern: pathBytes[index])
+            }
+            destination[pathBytes.count] = 0
+        }
+    }
+
+    return (address, socklen_t(MemoryLayout<sa_family_t>.size + pathBytes.count + 1))
+}
+
+private func writeAll(_ fd: Int32, _ data: Data) {
+    data.withUnsafeBytes { rawBuffer in
+        guard let baseAddress = rawBuffer.baseAddress else {
+            return
+        }
+
+        var written = 0
+        while written < data.count {
+            let result = Darwin.write(fd, baseAddress.advanced(by: written), data.count - written)
+            if result <= 0 {
+                return
+            }
+            written += result
+        }
+    }
+}
+
+private func handleClient(_ client: Int32) {
+    defer { close(client) }
+
+    var buffer = [UInt8](repeating: 0, count: 64)
+    _ = buffer.withUnsafeMutableBufferPointer { rawBuffer in
+        Darwin.read(client, rawBuffer.baseAddress, rawBuffer.count)
+    }
+
+    do {
+        let response = try cache.bearerToken() + "\n"
+        writeAll(client, Data(response.utf8))
+    } catch {
+        logError(error.localizedDescription)
+        writeAll(client, Data("ERROR\n".utf8))
+    }
+}
+
+private func startSocketServer() throws {
+    try prepareSocketDirectory()
+
+    let server = socket(AF_UNIX, SOCK_STREAM, 0)
+    guard server >= 0 else {
+        throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
+    }
+
+    var (address, addressLength) = try makeSocketAddress(path: socketURL.path)
+
+    let bindResult = withUnsafePointer(to: &address) { pointer in
+        pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+            Darwin.bind(server, $0, addressLength)
+        }
+    }
+
+    guard bindResult == 0 else {
+        throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
+    }
+
+    chmod(socketURL.path, 0o600)
+
+    guard listen(server, 16) == 0 else {
+        throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno))
+    }
+
+    DispatchQueue.global(qos: .userInitiated).async {
+        while true {
+            let client = accept(server, nil, nil)
+            if client >= 0 {
+                DispatchQueue.global(qos: .userInitiated).async {
+                    handleClient(client)
+                }
+            } else if errno != EINTR {
+                logError("accept failed: \(String(cString: strerror(errno)))")
+                // Back off so a persistent error (e.g. EMFILE under load) can't spin
+                // a core at 100% and flood the log with the same line.
+                usleep(100_000)
+            }
+        }
+    }
+}
+
+signal(SIGPIPE, SIG_IGN)
+installPowerObserver()
+
+do {
+    try startSocketServer()
+} catch {
+    logError(error.localizedDescription)
+    exit(1)
+}
+
+RunLoop.current.run()
+{{- else }}
+import Foundation
+
+FileHandle.standardError.write(Data("pnpm npm token cache is not configured\n".utf8))
+exit(1)
+{{- end }}

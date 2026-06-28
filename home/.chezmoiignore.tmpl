@@ -1,0 +1,8 @@
+{{- $isWork := get . "isWork" | default false -}}
+{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+{{- if not (and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef) }}
+dot_local/libexec/private_executable_pnpm-npm-token-cache.swift.tmpl
+dot_local/libexec/pnpm-npm-token-cache.swift
+private_Library/LaunchAgents/com.tomdale.pnpm-npm-token-cache.plist.tmpl
+Library/LaunchAgents/com.tomdale.pnpm-npm-token-cache.plist
+{{- end }}
