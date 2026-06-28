@@ -22,9 +22,15 @@
 eval "$(proto activate zsh --config-mode all)"
 typeset -U path
 
-# Keep managed local shims ahead of proto's pnpm-global path.
-export PATH="$HOME/.local/bin:$PATH"
+# Keep personal scripts and proto-managed shims ahead of package-manager
+# global bins. npm/pnpm global CLI packages should be installed through
+# proto's npm backend instead of resolving from package-manager shim dirs.
+path=("$HOME/.local/bin" "$PROTO_HOME/shims" "$PROTO_HOME/bin" $path)
+path=(${path:#$PNPM_HOME/bin})
+path=(${path:#$PNPM_HOME})
+path=(${path:#$HOME/Library/pnpm})
 typeset -U path
+export PATH
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Interactive Tool Configuration

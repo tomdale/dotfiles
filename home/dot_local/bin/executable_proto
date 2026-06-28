@@ -1,0 +1,106 @@
+#!/bin/sh
+set -eu
+
+real_proto="${PROTO_HOME:-$HOME/.local/share/proto}/bin/proto"
+
+if [ ! -x "$real_proto" ]; then
+  echo "proto wrapper could not find real proto at $real_proto" >&2
+  exit 127
+fi
+
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  proto npm install [-g|--global] <package[@version]>...
+  proto npm i       [-g|--global] <package[@version]>...
+  proto npm add     [-g|--global] <package[@version]>...
+
+Installs npm packages through proto's npm backend and pins them globally.
+EOF
+}
+
+install_npm_package() {
+  spec="$1"
+
+  case "$spec" in
+    @*/*@*)
+      package="${spec%@*}"
+      ;;
+    @*/*)
+      package="$spec"
+      ;;
+    *@*)
+      package="${spec%@*}"
+      ;;
+    *)
+      package="$spec"
+      ;;
+  esac
+
+  if [ -z "$package" ]; then
+    echo "Invalid npm package spec: $spec" >&2
+    exit 2
+  fi
+
+  temp_prefix="$(mktemp -d)"
+  mkdir -p "$temp_prefix/lib"
+
+  if ! output="$(npm install "$spec" --global --prefix "$temp_prefix" --dry-run --json 2>&1)"; then
+    printf '%s\n' "$output" >&2
+    rm -rf "$temp_prefix"
+    exit 1
+  fi
+
+  rm -rf "$temp_prefix"
+
+  version="$(printf '%s\n' "$output" | awk -v package="$package" '$1 == "add" && $2 == package { print $3; exit }')"
+
+  if [ -z "$version" ]; then
+    echo "Could not resolve npm package version for $spec" >&2
+    printf '%s\n' "$output" >&2
+    exit 1
+  fi
+
+  "$real_proto" install "npm:$package" "$version" --pin global
+}
+
+if [ "${1:-}" = "npm" ]; then
+  shift
+  case "${1:-}" in
+    install|i|add)
+      shift
+
+      while [ "$#" -gt 0 ]; do
+        case "$1" in
+          -g|--global)
+            shift
+            ;;
+          --)
+            shift
+            break
+            ;;
+          -*)
+            echo "Unsupported option for proto npm install: $1" >&2
+            usage
+            exit 2
+            ;;
+          *)
+            break
+            ;;
+        esac
+      done
+
+      if [ "$#" -eq 0 ]; then
+        usage
+        exit 2
+      fi
+
+      for package in "$@"; do
+        install_npm_package "$package"
+      done
+      exit 0
+      ;;
+  esac
+fi
+
+exec "$real_proto" "$@"
