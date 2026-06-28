@@ -206,6 +206,7 @@ typeset -g __TOMDALE_GIT_PROMPT_PWD=''
 typeset -gF __TOMDALE_GIT_PROMPT_UPDATED_AT=0
 typeset -g __TOMDALE_GIT_PROMPT_ROOT=''
 typeset -g __TOMDALE_GIT_PROMPT_GIT_DIR=''
+typeset -g __TOMDALE_GIT_PROMPT_PREFIX=''
 typeset -g __TOMDALE_GIT_PROMPT_BRANCH=''
 typeset -g __TOMDALE_GIT_PROMPT_COMMIT=''
 typeset -g __TOMDALE_GIT_PROMPT_AHEAD=0
@@ -232,6 +233,7 @@ __tomdale_git_prompt_info() {
   __TOMDALE_GIT_PROMPT_UPDATED_AT=$now
   __TOMDALE_GIT_PROMPT_ROOT=''
   __TOMDALE_GIT_PROMPT_GIT_DIR=''
+  __TOMDALE_GIT_PROMPT_PREFIX=''
   __TOMDALE_GIT_PROMPT_BRANCH=''
   __TOMDALE_GIT_PROMPT_COMMIT=''
   __TOMDALE_GIT_PROMPT_AHEAD=0
@@ -242,7 +244,7 @@ __tomdale_git_prompt_info() {
   __TOMDALE_GIT_PROMPT_MODE=''
 
   local rev_parse git_status line xy git_dir
-  rev_parse=$(GIT_OPTIONAL_LOCKS=0 command git rev-parse --is-inside-work-tree --show-toplevel --git-dir 2>/dev/null) || return 1
+  rev_parse=$(GIT_OPTIONAL_LOCKS=0 command git rev-parse --is-inside-work-tree --show-toplevel --git-dir --show-prefix 2>/dev/null) || return 1
   local -a rev_parse_lines
   rev_parse_lines=("${(@f)rev_parse}")
   [[ ${rev_parse_lines[1]} == true ]] || return 1
@@ -253,6 +255,7 @@ __tomdale_git_prompt_info() {
   git_dir="${rev_parse_lines[3]}"
   [[ $git_dir != /* ]] && git_dir="$PWD/$git_dir"
   __TOMDALE_GIT_PROMPT_GIT_DIR="$git_dir"
+  __TOMDALE_GIT_PROMPT_PREFIX="${rev_parse_lines[4]%/}"
 
   for line in "${(@f)git_status}"; do
     case "$line" in
@@ -311,8 +314,7 @@ prompt_context() {
 
 prompt_git_relative() {
   __tomdale_git_prompt_info || return
-  local path_in_repo="${PWD#$__TOMDALE_GIT_PROMPT_ROOT}"
-  path_in_repo="${path_in_repo#/}"
+  local path_in_repo="$__TOMDALE_GIT_PROMPT_PREFIX"
   if [[ $path_in_repo != '' ]]; then
     prompt_segment "$AGNOSTER_DIR_BG" "$AGNOSTER_DIR_FG" "${path_in_repo:gs/%/%%}"
   fi;
