@@ -2,8 +2,9 @@
   "mcpServers": {
     "iterm_status": {
       "type": "stdio",
-      "command": "node",
+      "command": "{{ .chezmoi.homeDir }}/.local/bin/run-mcp",
       "args": [
+        "node",
         "{{ .chezmoi.homeDir }}/.local/share/mcp/status-server.js"
       ],
       "cwd": "{{ .chezmoi.homeDir }}/.local/share/mcp"

@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+
+export PROTO_HOME="${PROTO_HOME:-$HOME/.local/share/proto}"
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: run-mcp <command> [args...]" >&2
+  exit 2
+fi
+
+command_name="$1"
+shift
+
+case "$command_name" in
+  */*)
+    exec "$command_name" "$@"
+    ;;
+esac
+
+proto_shim="$PROTO_HOME/shims/$command_name"
+if [ -x "$proto_shim" ]; then
+  exec "$proto_shim" "$@"
+fi
+
+exec "$command_name" "$@"
