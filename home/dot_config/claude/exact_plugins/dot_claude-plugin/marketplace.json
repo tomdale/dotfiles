@@ -16,16 +16,6 @@
       "description": "Updates iTerm2 status with conversation summary while Claude Code is running"
     },
     {
-      "name": "iterm2",
-      "source": "./iterm2",
-      "description": "Write, debug, and deploy iTerm2 Python scripts for terminal automation"
-    },
-    {
-      "name": "comms",
-      "source": "./comms",
-      "description": "Communication tools for executive summaries and stakeholder updates"
-    },
-    {
       "name": "tdx",
       "source": "./tdx",
       "description": "Tom Dale's personal agent skills and lightweight workflow helpers"
