@@ -1,0 +1,55 @@
+#!/bin/bash
+#
+# Install the agent skills recorded in ~/.agents/.skill-lock.json.
+#
+# The `skills` CLI (github.com/vercel-labs/skills) has no command that restores
+# the global ~/.agents/.skill-lock.json — that file is bookkeeping, not a
+# manifest — so chezmoi expands the vendored lock into the explicit `skills add`
+# calls generated below. Because those calls are derived from the lock, adding
+# or removing a skill changes this script, and chezmoi re-runs it on next apply.
+#
+# Skills are fetched at the tip of each source's default branch (the lock cannot
+# pin a commit), so this needs network access and the `skills` CLI. Skills that
+# are already present are left untouched; run `skills update` to refresh them.
+
+set -euo pipefail
+
+warn() { echo "install-skills: $*" >&2; }
+
+# PATH for node and the globally-installed skills CLI (proto shims) is assembled
+# in env.sh, which chezmoi deploys before scripts run.
+env_file="{{ .chezmoi.homeDir }}/.config/zsh/env.sh"
+if [ -f "$env_file" ]; then
+  set +u # env.sh may reference unset vars
+  # shellcheck source=/dev/null
+  source "$env_file"
+  set -u
+fi
+
+# A missing CLI must not fail the whole `chezmoi apply` — warn and move on.
+if ! command -v skills >/dev/null 2>&1; then
+  warn "'skills' CLI not installed (npm i -g skills); skipping skill install"
+  exit 0
+fi
+
+skills_dir="{{ .chezmoi.homeDir }}/.agents/skills"
+agents="{{ (include "dot_agents/dot_skill-lock.json" | fromJson).lastSelectedAgents | default (list "claude-code") | join " " }}"
+
+# Install one skill globally unless its folder is already present. The lock key
+# is the skill's SKILL.md frontmatter name, which is exactly what the
+# `add <source>@<name>` filter matches, so the key round-trips as the target.
+add_skill() {
+  local name="$1" source="$2"
+  if [ -d "$skills_dir/$name" ]; then
+    echo "install-skills: $name already present; skipping"
+    return 0
+  fi
+  echo "install-skills: installing $name from $source"
+  # shellcheck disable=SC2086 -- $agents is intentionally word-split
+  skills add "$source@$name" -g -y --agent $agents || warn "failed to install $name"
+}
+{{ range $name, $meta := (include "dot_agents/dot_skill-lock.json" | fromJson).skills -}}
+{{ if $meta.source -}}
+add_skill "{{ $name }}" "{{ $meta.source }}"
+{{ end -}}
+{{ end -}}
