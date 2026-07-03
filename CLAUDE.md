@@ -175,9 +175,9 @@ home/
 │   └── run_onchange_after_3-install-homebrew.sh
 ├── dot_config/
 │   ├── Brewfile.tmpl           # Homebrew dependencies (macOS only)
-│   ├── claude/                 # Claude Code config (skills, commands, agents)
+│   ├── claude/plugins/         # Claude Code plugin marketplace (tomdale-claude-code-plugins)
 │   └── zsh/                    # Shell configuration
-├── dot_claude/                 # Symlinks to dot_config/claude for ~/.claude
+├── dot_claude/                 # Claude Code config (CLAUDE.md, settings, agents, commands, skills) → ~/.claude
 └── private_dot_gitconfig.tmpl  # Private Git config with work/personal email switching
 ```
 
@@ -281,14 +281,17 @@ chezmoi apply ~/.config/claude/plugins/foo
 
 ### Claude Code Configuration
 
-`home/dot_claude/` contains symlinks pointing to `home/dot_config/claude/`:
+Claude Code reads config from `~/.claude` (the default — `CLAUDE_CONFIG_DIR` is
+unset), so `home/dot_claude/` holds that config directly as real files:
+`CLAUDE.md`, `settings.json`, `exact_agents/`, `exact_commands/`, and `skills/`.
 
-- `symlink_CLAUDE.md` → `../.config/claude/CLAUDE.md`
-- `symlink_skills` → `../.config/claude/exact_skills`
-- etc.
+Managing `~/.claude/skills` as a real directory (rather than a symlink into
+`~/.config/claude`) is what lets the `skills` CLI create working relative
+symlinks when it installs to the `claude-code` agent.
 
-This allows managing Claude Code config in `~/.config/claude/` while chezmoi
-deploys symlinks to `~/.claude/`.
+Plugins are the exception: the `tomdale-claude-code-plugins` marketplace stays
+at `home/dot_config/claude/exact_plugins` (→ `~/.config/claude/plugins`), the
+path registered in Claude Code's runtime plugin registry.
 
 ### Plugin Versioning (MANDATORY)
 

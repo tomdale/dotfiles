@@ -52,4 +52,4 @@ alias tmux='tmux -f $XDG_CONFIG_HOME/tmux/tmux.conf'  # Use XDG-compliant config
 alias sonnet='claude --model sonnet'   # Quick access to Sonnet model
 alias opus='claude --model opus'       # Quick access to Opus model
 alias haiku='claude --model haiku'
-alias csettings='nvim "$(chezmoi source-path)/dot_config/claude/settings.json"'  # Edit chezmoi-managed Claude settings
+alias csettings='nvim "$(chezmoi source-path)/dot_claude/settings.json"'  # Edit chezmoi-managed Claude settings
