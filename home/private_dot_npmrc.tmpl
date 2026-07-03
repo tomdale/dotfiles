@@ -1,0 +1,6 @@
+{{- $isWork := get . "isWork" | default false -}}
+{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+min-release-age=2
+{{ if and $isWork $npmTokenOpRef -}}
+//registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
+{{- end }}
