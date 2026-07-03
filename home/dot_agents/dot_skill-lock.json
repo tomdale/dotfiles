@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "skills": {
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-03-06T02:09:49.798Z",
+      "updatedAt": "2026-03-11T14:37:19.187Z"
+    },
+    "graphite": {
+      "source": "withgraphite/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/withgraphite/agent-skills.git",
+      "skillPath": "skills/graphite/SKILL.md",
+      "skillFolderHash": "404bf8d36e67273abeb7fbbf66efb2ba3ef15375",
+      "installedAt": "2026-03-07T22:13:30.918Z",
+      "updatedAt": "2026-03-07T22:13:30.918Z"
+    },
+    "workflow": {
+      "source": "vercel/workflow",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel/workflow.git",
+      "skillPath": "skills/workflow/SKILL.md",
+      "skillFolderHash": "4f314ebfd31b17b7c8a7ea41c98e47e3a84c14f3",
+      "installedAt": "2026-03-10T21:23:34.583Z",
+      "updatedAt": "2026-03-10T21:23:34.583Z"
+    },
+    "nextjs-app-router-fundamentals": {
+      "source": "wsimmonds/claude-nextjs-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/wsimmonds/claude-nextjs-skills.git",
+      "skillPath": "nextjs-app-router-fundamentals/SKILL.md",
+      "skillFolderHash": "7d700f8c9892719f3eb6808be48dc632e53dad53",
+      "installedAt": "2026-03-11T14:41:06.994Z",
+      "updatedAt": "2026-03-11T14:41:06.994Z"
+    },
+    "vercel-cli": {
+      "source": "vercel/vercel",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel/vercel.git",
+      "skillPath": "skills/vercel-cli/SKILL.md",
+      "skillFolderHash": "dd7c694de4756f2ace9f6de8e5eca0adde052905",
+      "installedAt": "2026-03-11T14:48:48.016Z",
+      "updatedAt": "2026-03-11T14:49:43.416Z"
+    },
+    "vercel-react-best-practices": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/react-best-practices/SKILL.md",
+      "skillFolderHash": "fce8b5a24ff4ff2fc5db6aa1051e03b53c6b5bf1",
+      "installedAt": "2026-03-11T14:52:19.871Z",
+      "updatedAt": "2026-03-11T14:52:19.871Z"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/agent-skills.git",
+      "skillPath": "skills/web-design-guidelines/SKILL.md",
+      "skillFolderHash": "3116f3e62dbd02b44a598b1aa690d2a8938e8f89",
+      "installedAt": "2026-03-11T16:09:23.743Z",
+      "updatedAt": "2026-03-11T16:09:23.743Z"
+    },
+    "deployments-cicd": {
+      "source": "vercel-labs/vercel-plugin",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/vercel-plugin.git",
+      "skillPath": "skills/deployments-cicd/SKILL.md",
+      "skillFolderHash": "baab164fefccfc310512407703973648bba8dfa8",
+      "installedAt": "2026-03-11T16:09:52.079Z",
+      "updatedAt": "2026-03-11T16:09:52.079Z"
+    },
+    "nextjs": {
+      "source": "vercel-labs/vercel-plugin",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/vercel-plugin.git",
+      "skillPath": "skills/nextjs/SKILL.md",
+      "skillFolderHash": "a72054fd95424b613f5b40fb2b46b0dd2bc88c78",
+      "installedAt": "2026-03-11T16:09:52.080Z",
+      "updatedAt": "2026-03-11T16:09:52.080Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "cline",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-cli",
+    "opencode",
+    "claude-code"
+  ]
+}

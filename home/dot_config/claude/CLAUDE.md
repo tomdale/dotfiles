@@ -24,10 +24,6 @@ per invocation.
 Only suggest dangerouslyDisableSandbox for in-scope work when permissions truly
 cannot solve it (dynamic paths, system-wide ops, one-off commands).
 
-Browser automation: use the agent-browser skill. Always set
-AGENT_BROWSER_PROFILE or pass --profile to preserve login sessions across
-restarts.
-
 Git commits: ALWAYS delegate to the code-committer agent. Never run git commit
 directly. Exception: if the local workspace defines its own commit rules (e.g. a
 project CLAUDE.md, a repo-specific committer agent, or a skill that owns
