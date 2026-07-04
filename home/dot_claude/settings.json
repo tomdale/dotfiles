@@ -235,35 +235,24 @@
         "results-receiver.actions.githubusercontent.com"
       ],
       "allowUnixSockets": [
-        ".agent/sockets/*",
-        ".agent/sockets/agent.sock",
-        "//tmp/claude/**",
-        "//tmp/claude/tmux.sock",
-        "//Users/tomdale/.agent-browser/*.sock",
         "/private/tmp/tmux-501/default",
-        "//Users/tomdale/Library/Group Containers/2BUA8C4S2C.com.1password/t/*",
-        "//Users/tomdale/.local/state/pnpm-npm-token-cache/socket",
-        "//tmp/tsx-*/*",
-        "/private/tmp/tsx-*/*"
+        "/Users/tomdale/.local/state/pnpm-npm-token-cache/socket"
       ],
       "allowAllUnixSockets": true,
       "allowLocalBinding": true
     },
     "filesystem": {
       "allowWrite": [
-        "/tmp/tsx-*",
-        "/tmp/tsx-*/**",
-        "/private/tmp/tsx-*",
-        "/private/tmp/tsx-*/**"
+        "/private/tmp/tsx-*"
       ]
     },
     "excludedCommands": [
-      "agent-browser",
       "agent-browser *",
       "gh *",
       "pnpm install *",
       "docker *",
-      "d3k *"
+      "d3k *",
+      "wf *"
     ]
   },
   "effortLevel": "xhigh",
