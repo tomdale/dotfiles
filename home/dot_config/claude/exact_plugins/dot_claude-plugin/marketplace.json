@@ -6,16 +6,6 @@
   },
   "plugins": [
     {
-      "name": "tasks",
-      "source": "./tasks",
-      "description": "Manage tasks using markdown checkboxes in .agent/tasks.md"
-    },
-    {
-      "name": "iterm-status",
-      "source": "./iterm-status",
-      "description": "Updates iTerm2 status with conversation summary while Claude Code is running"
-    },
-    {
       "name": "tdx",
       "source": "./tdx",
       "description": "Tom Dale's personal agent skills and lightweight workflow helpers"
