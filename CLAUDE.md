@@ -175,7 +175,6 @@ home/
 │   └── run_onchange_after_3-install-homebrew.sh
 ├── dot_config/
 │   ├── Brewfile.tmpl           # Homebrew dependencies (macOS only)
-│   ├── claude/plugins/         # Claude Code plugin marketplace (tomdale-claude-code-plugins)
 │   └── zsh/                    # Shell configuration
 ├── dot_claude/                 # Claude Code config (CLAUDE.md, settings, agents, commands, skills) → ~/.claude
 └── private_dot_gitconfig.tmpl  # Private Git config with work/personal email switching
@@ -273,10 +272,10 @@ Prefixes can combine: `private_dot_ssh/` → `~/.ssh/` with 0700 permissions.
 
 ```bash
 # Wrong - these are source attributes, not path components
-chezmoi apply ~/.config/claude/exact_plugins/foo
+chezmoi apply ~/.claude/exact_agents/foo
 
 # Correct - use the actual target path
-chezmoi apply ~/.config/claude/plugins/foo
+chezmoi apply ~/.claude/agents/foo
 ```
 
 ### Claude Code Configuration
@@ -289,46 +288,19 @@ Managing `~/.claude/skills` as a real directory (rather than a symlink into
 `~/.config/claude`) is what lets the `skills` CLI create working relative
 symlinks when it installs to the `claude-code` agent.
 
-Plugins are the exception: the `tomdale-claude-code-plugins` marketplace stays
-at `home/dot_config/claude/exact_plugins` (→ `~/.config/claude/plugins`), the
-path registered in Claude Code's runtime plugin registry.
+### Plugins live outside this repo
 
-### Plugin Versioning (MANDATORY)
+Claude/Codex **plugins** (agents, commands, hooks, MCP) are no longer vendored
+here. They live in separate GitHub marketplaces, installed via `/plugin`:
 
-**After modifying any Claude plugin component (commands, skills, agents, hooks,
-scripts), you MUST bump the version in the plugin's `plugin.json`.**
+- [`tomdale/agent-plugins`](https://github.com/tomdale/agent-plugins) — true
+  plugins, tiered by harness compatibility (`universal/`, `claude/`, `codex/`).
+- [`tomdale/skills`](https://github.com/tomdale/skills) — portable `SKILL.md`
+  skills (the `tdx` plugin), consumed cross-agent.
 
-This is required for Claude to pick up changes. Version bumps follow semver:
-
-| Change Type              | Version Bump  | Examples                                                   |
-| ------------------------ | ------------- | ---------------------------------------------------------- |
-| Small tweaks             | Patch (0.0.X) | Typo fixes, minor wording changes, small bug fixes         |
-| Significant improvements | Minor (0.X.0) | New commands/skills, improved functionality, refactors     |
-| Major overhauls          | Major (X.0.0) | Breaking changes, complete rewrites, architectural changes |
-
-```bash
-# Example: After updating a command in the tasks plugin
-# Edit home/dot_config/claude/exact_plugins/tasks/dot_claude-plugin/plugin.json
-# Change: "version": "1.0.0" → "version": "1.1.0"
-```
-
-### Plugin Marketplace (MANDATORY)
-
-**When creating a new plugin, you MUST add it to the marketplace registry.**
-
-Edit `home/dot_config/claude/exact_plugins/dot_claude-plugin/marketplace.json`
-and add an entry:
-
-```json
-{
-  "name": "plugin-name",
-  "source": "./plugin-name",
-  "description": "Brief description of what the plugin does"
-}
-```
-
-This allows Claude Code to discover and load plugins from the shared plugins
-directory.
+This repo deploys only Claude's *config* (`CLAUDE.md`, `settings.json`, agents,
+commands, skills) to `~/.claude`. Plugin authoring — bumping `plugin.json`
+versions, updating a marketplace manifest — happens in those repos, not here.
 
 ### Homebrew Dependencies
 
@@ -360,7 +332,7 @@ After making changes to files in `home/`, run `chezmoi apply` scoped to affected
 files:
 
 ```bash
-chezmoi apply ~/.config/claude/settings.json
+chezmoi apply ~/.claude/settings.json
 chezmoi apply ~/.zshrc
 ```
 
