@@ -1,3 +1,7 @@
+{{ includeTemplate "agent-shared.md" . | trimSuffix "\n" }}
+
+## Claude Code-specific rules
+
 Comments: explain why, not what. Never reference how code changed from a
 previous version. Ask: "will this make sense in a year to someone who never saw
 the old code?" If not, put it in a commit message or PR description, not code.

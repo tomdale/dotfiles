@@ -194,7 +194,8 @@
     "vercel@claude-plugins-official": true,
     "datadog@claude-plugins-official": true,
     "tdx@tomdale-claude-code-plugins": true,
-    "sideshow@sideshow": true
+    "sideshow@sideshow": true,
+    "tdx@tomdale-skills": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {
@@ -243,7 +244,8 @@
     },
     "filesystem": {
       "allowWrite": [
-        "/private/tmp/tsx-*"
+        "/private/tmp/tsx-*",
+        "/Users/tomdale/Library/Application Support/Google/Chrome for Testing/**"
       ]
     },
     "excludedCommands": [
@@ -256,16 +258,17 @@
     ]
   },
   "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true,
-  "skipWorkflowUsageWarning": true,
-  "terminalProgressBarEnabled": false,
-  "teammateMode": "tmux",
-  "skipAutoPermissionPrompt": true,
   "pluginConfigs": {
     "sideshow@sideshow": {
       "options": {
         "sideshowUrl": "http://localhost:8228"
       }
     }
-  }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "terminalProgressBarEnabled": false,
+  "teammateMode": "tmux",
+  "skipAutoPermissionPrompt": true,
+  "model": "fable"
 }
