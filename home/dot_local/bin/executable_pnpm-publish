@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+export PNPM_NPM_TOKEN_MODE=publish
+exec pnpm publish "$@"

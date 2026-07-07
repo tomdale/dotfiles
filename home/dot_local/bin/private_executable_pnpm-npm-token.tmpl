@@ -3,6 +3,49 @@ set -eu
 
 {{- $isWork := get . "isWork" | default false -}}
 {{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
+{{- $npmPublishTokenOpRef := get . "npmPublishTokenOpRef" | default "" }}
+
+usage() {
+  echo "usage: pnpm-npm-token [--publish]" >&2
+  exit 2
+}
+
+case "${PNPM_NPM_TOKEN_MODE-}" in
+  "")
+    ;;
+  publish)
+    if [ "$#" -eq 0 ]; then
+      set -- --publish
+    fi
+    ;;
+  *)
+    echo "unsupported PNPM_NPM_TOKEN_MODE: ${PNPM_NPM_TOKEN_MODE}" >&2
+    usage
+    ;;
+esac
+
+if [ "$#" -gt 1 ]; then
+  usage
+fi
+
+case "${1-}" in
+  "")
+    ;;
+  --publish)
+{{- if and $isWork $npmPublishTokenOpRef }}
+    printf 'Bearer '
+    op read {{ $npmPublishTokenOpRef | quote }}
+    exit 0
+{{- else }}
+    echo "npm publish token 1Password reference is not configured" >&2
+    exit 1
+{{- end }}
+    ;;
+  *)
+    usage
+    ;;
+esac
+
 {{- if and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef }}
 socket="${HOME}/.local/state/pnpm-npm-token-cache/socket"
 service="gui/$(id -u)/com.tomdale.pnpm-npm-token-cache"
