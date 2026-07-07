@@ -1,0 +1,17 @@
+{
+  "lastChangelogVersion": "0.80.3",
+  "defaultProvider": "vercel-ai-gateway",
+  "defaultModel": "openai/gpt-5.5",
+  "defaultThinkingLevel": "medium",
+  "enabledModels": [
+    "vercel-ai-gateway/openai/gpt-5.5",
+    "vercel-ai-gateway/openai/gpt-5.4-nano",
+    "vercel-ai-gateway/anthropic/claude-opus-4.8",
+    "vercel-ai-gateway/anthropic/claude-opus-4.5",
+    "vercel-ai-gateway/anthropic/claude-haiku-4.5",
+    "vercel-ai-gateway/anthropic/claude-sonnet-4.6",
+    "ollama/gemma-4-26b-a4b-it-q4_k_m-128k",
+    "vercel-ai-gateway/google/gemma-4-31b-it"
+  ],
+  "theme": "dark"
+}
