@@ -1,0 +1,39 @@
+#!/bin/sh
+set -eu
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: npm-rw <npm command> [args...]" >&2
+  exit 2
+fi
+
+tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/npm-rw.XXXXXX")"
+cleanup() {
+  rm -rf "$tmpdir"
+}
+trap cleanup EXIT HUP INT TERM
+
+auth_file="$tmpdir/npmrc"
+umask 077
+
+bearer="$("${HOME}/.local/bin/pnpm-npm-token" --publish)"
+case "$bearer" in
+  "Bearer "*)
+    token="${bearer#Bearer }"
+    ;;
+  *)
+    echo "pnpm-npm-token --publish did not return a bearer token" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "$token" ]; then
+  echo "npm publish token is empty" >&2
+  exit 1
+fi
+
+{
+  printf 'registry=https://registry.npmjs.org/\n'
+  printf '//registry.npmjs.org/:_authToken=%s\n' "$token"
+} >"$auth_file"
+
+npm --userconfig "$auth_file" "$@"
