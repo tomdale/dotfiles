@@ -13,6 +13,19 @@ For comprehensive chezmoi documentation, use the `chezmoi` skill which provides
 detailed reference on templating, file naming conventions, scripts, external
 files, and secrets management.
 
+## Branching and Commits
+
+Do all work directly on the default branch (`master`). **Do not create feature
+branches, and do not delegate commits to the code-committer agent** — it refuses
+to commit to `master` while other branches exist. Commit to `master` directly.
+
+This repository deploys straight to live machine state via `chezmoi apply`, so
+only one version of the tracked files can ever be active at a time. Feature
+branches model parallel variants that cannot coexist once applied — they add
+friction and divergence with no benefit. Keep a single linear history on
+`master`. This repo-local rule overrides the global defaults to delegate commits
+to the code-committer agent and to create `tomdale/`-prefixed feature branches.
+
 ## Inspiration
 
 `.agent/inspo/` contains example chezmoi dotfiles and a README that summarizes

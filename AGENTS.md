@@ -1,5 +1,17 @@
 # AGENTS
 
+## Branching and commits
+
+Do all work directly on the default branch (`master`). Do not create feature
+branches for changes in this repository, and do not route commits through any
+committer agent or workflow that refuses to commit to the default branch —
+commit to `master` directly.
+
+This repository deploys straight to live machine state via `chezmoi apply`, so
+only one version of the tracked files can ever be active at a time. Branches
+model parallel variants that cannot coexist once applied; here they add friction
+and divergence with no payoff. Keep a single linear history on `master`.
+
 If Codex needs to clarify ambiguous behavior in how the Codex CLI operates, it may refer to `~/Code/codex` to review the actual Codex CLI source code.
 
 Codex should always run `chezmoi apply` and related `chezmoi apply...` commands unsandboxed.
