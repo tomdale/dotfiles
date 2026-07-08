@@ -181,11 +181,11 @@
     "defaultMode": "auto"
   },
   "enabledPlugins": {
-    "tasks@tomdale-claude-code-plugins": false,
+    "tasks@agent-plugins": false,
     "code-simplifier@claude-plugins-official": true,
     "agent-browser@agent-browser": true,
     "rust-analyzer-lsp@claude-plugins-official": false,
-    "iterm-status@tomdale-claude-code-plugins": true,
+    "iterm-status@agent-plugins": true,
     "frontend-design@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "feature-dev@claude-plugins-official": false,
@@ -193,7 +193,6 @@
     "plugin-dev@claude-plugins-official": false,
     "vercel@claude-plugins-official": true,
     "datadog@claude-plugins-official": true,
-    "tdx@tomdale-claude-code-plugins": true,
     "sideshow@sideshow": true,
     "tdx@tomdale-skills": true
   },
@@ -220,6 +219,12 @@
       "source": {
         "source": "github",
         "repo": "tomdale/skills"
+      }
+    },
+    "agent-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "tomdale/agent-plugins"
       }
     }
   },
