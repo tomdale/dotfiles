@@ -1,17 +1,74 @@
 {
   "lastChangelogVersion": "0.80.3",
   "defaultProvider": "vercel-ai-gateway",
-  "defaultModel": "openai/gpt-5.5",
+  "defaultModel": "anthropic/claude-sonnet-4.6",
   "defaultThinkingLevel": "medium",
+  "theme": "dark",
+  "externalEditor": "code --wait",
+  "hideThinkingBlock": false,
+  "doubleEscapeAction": "tree",
+  "treeFilterMode": "default",
+  "quietStartup": false,
+  "defaultProjectTrust": "ask",
+  "enableSkillCommands": true,
+  "enableInstallTelemetry": false,
+  "collapseChangelog": true,
+  "autocompleteMaxVisible": 10,
+  "outputPad": 1,
   "enabledModels": [
-    "vercel-ai-gateway/openai/gpt-5.5",
-    "vercel-ai-gateway/openai/gpt-5.4-nano",
-    "vercel-ai-gateway/anthropic/claude-opus-4.8",
-    "vercel-ai-gateway/anthropic/claude-opus-4.5",
-    "vercel-ai-gateway/anthropic/claude-haiku-4.5",
-    "vercel-ai-gateway/anthropic/claude-sonnet-4.6",
-    "ollama/gemma-4-26b-a4b-it-q4_k_m-128k",
-    "vercel-ai-gateway/google/gemma-4-31b-it"
+    "vercel-ai-gateway/anthropic/claude-sonnet-4.6:medium",
+    "vercel-ai-gateway/anthropic/claude-opus-4.8:high",
+    "vercel-ai-gateway/anthropic/claude-haiku-4.5:low",
+    "vercel-ai-gateway/openai/gpt-5.5:medium",
+    "vercel-ai-gateway/openai/gpt-5.5-pro:high",
+    "vercel-ai-gateway/openai/gpt-5.4-nano:low",
+    "vercel-ai-gateway/openai/gpt-5.2-codex:medium",
+    "vercel-ai-gateway/google/gemini-3.1-pro-preview:medium",
+    "vercel-ai-gateway/google/gemini-3.5-flash:low",
+    "vercel-ai-gateway/google/gemma-4-31b-it:medium",
+    "ollama/gemma-4-26b-a4b-it-q4_k_m-128k"
   ],
-  "theme": "dark"
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 32768,
+    "keepRecentTokens": 32000
+  },
+  "branchSummary": {
+    "reserveTokens": 32768,
+    "skipPrompt": false
+  },
+  "retry": {
+    "enabled": true,
+    "maxRetries": 3,
+    "baseDelayMs": 2000,
+    "provider": {
+      "timeoutMs": 3600000,
+      "maxRetries": 0,
+      "maxRetryDelayMs": 60000
+    }
+  },
+  "steeringMode": "one-at-a-time",
+  "followUpMode": "one-at-a-time",
+  "transport": "auto",
+  "httpIdleTimeoutMs": 300000,
+  "websocketConnectTimeoutMs": 15000,
+  "terminal": {
+    "showImages": true,
+    "imageWidthCells": 60,
+    "clearOnShrink": false
+  },
+  "images": {
+    "autoResize": true,
+    "blockImages": false
+  },
+  "markdown": {
+    "codeBlockIndent": "  "
+  },
+  "skills": [],
+  "prompts": [
+    "prompts"
+  ],
+  "extensions": [
+    "extensions"
+  ]
 }
