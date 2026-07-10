@@ -117,7 +117,6 @@
       "Bash(env *)",
       "Bash(sleep *)",
       "Bash(printenv *)",
-      "mcp__iterm_status__set_status",
       "mcp__next-devtools",
       "mcp__dev3000",
       "mcp__datadog",
@@ -174,24 +173,26 @@
       "Bash(gh issue *)",
       "Skill(agent-browser)",
       "WebFetch(domain:arxiv.org)",
-      "Bash(agent-browser eval *)"
+      "Bash(agent-browser eval *)",
+      "mcp__plugin_iterm-status_iterm_status__set_status"
     ],
     "deny": [],
     "ask": [],
     "defaultMode": "auto"
   },
+  "model": "opus",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
   },
   "enabledPlugins": {
     "tasks@agent-plugins": false,
-    "code-simplifier@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": false,
     "agent-browser@agent-browser": true,
     "rust-analyzer-lsp@claude-plugins-official": false,
     "iterm-status@agent-plugins": true,
-    "frontend-design@claude-plugins-official": true,
-    "code-review@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": false,
+    "code-review@claude-plugins-official": false,
     "feature-dev@claude-plugins-official": false,
     "benchmark@tomdale-skills": true,
     "plugin-dev@claude-plugins-official": false,
@@ -254,7 +255,8 @@
     "filesystem": {
       "allowWrite": [
         "/private/tmp/tsx-*",
-        "/Users/tomdale/Library/Application Support/Google/Chrome for Testing/**"
+        "/Users/tomdale/Library/Application Support/Google/Chrome for Testing/**",
+        "/Users/tomdale/.claude/**"
       ]
     },
     "excludedCommands": [
@@ -266,7 +268,7 @@
       "wf *"
     ]
   },
-  "effortLevel": "xhigh",
+  "effortLevel": "medium",
   "pluginConfigs": {
     "sideshow@sideshow": {
       "options": {
@@ -278,6 +280,5 @@
   "skipWorkflowUsageWarning": true,
   "terminalProgressBarEnabled": false,
   "teammateMode": "tmux",
-  "skipAutoPermissionPrompt": true,
-  "model": "fable"
+  "skipAutoPermissionPrompt": true
 }

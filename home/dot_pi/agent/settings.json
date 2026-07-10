@@ -70,5 +70,8 @@
   ],
   "extensions": [
     "extensions"
+  ],
+  "packages": [
+    "../../Code/Repos/toolbelt/pi-plugins/claude-plugin-loader"
   ]
 }

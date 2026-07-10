@@ -9,3 +9,5 @@ CLAUDE.local.md
 .playwright-mcp
 *.tsbuildinfo
 **/*.tsbuildinfo
+
+**/.claude/.cc-writes/

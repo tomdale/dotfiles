@@ -56,6 +56,12 @@ source "${ZDOTDIR:-$HOME/.config/zsh}/env.sh"
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 
+if [[ -z "$AI_GATEWAY_API_KEY" && -x /usr/bin/security ]]; then
+    AI_GATEWAY_API_KEY="$(/usr/bin/security find-generic-password \
+        -a "vercel-ai-gateway" -s "Vercel AI Gateway" -w 2>/dev/null)"
+    [[ -n "$AI_GATEWAY_API_KEY" ]] && export AI_GATEWAY_API_KEY
+fi
+
 # GPG pinentry needs the active terminal in interactive shells.
 if [[ -o interactive && -t 0 ]]; then
     export GPG_TTY="$(tty)"
