@@ -1,7 +1,7 @@
 {
-  "lastChangelogVersion": "0.80.3",
+  "lastChangelogVersion": "0.80.6",
   "defaultProvider": "vercel-ai-gateway",
-  "defaultModel": "anthropic/claude-sonnet-4.6",
+  "defaultModel": "openai/gpt-5.6-luna",
   "defaultThinkingLevel": "medium",
   "theme": "dark",
   "externalEditor": "code --wait",
@@ -16,17 +16,11 @@
   "autocompleteMaxVisible": 10,
   "outputPad": 1,
   "enabledModels": [
-    "vercel-ai-gateway/anthropic/claude-sonnet-4.6:medium",
-    "vercel-ai-gateway/anthropic/claude-opus-4.8:high",
-    "vercel-ai-gateway/anthropic/claude-haiku-4.5:low",
-    "vercel-ai-gateway/openai/gpt-5.5:medium",
-    "vercel-ai-gateway/openai/gpt-5.5-pro:high",
-    "vercel-ai-gateway/openai/gpt-5.4-nano:low",
-    "vercel-ai-gateway/openai/gpt-5.2-codex:medium",
-    "vercel-ai-gateway/google/gemini-3.1-pro-preview:medium",
-    "vercel-ai-gateway/google/gemini-3.5-flash:low",
-    "vercel-ai-gateway/google/gemma-4-31b-it:medium",
-    "ollama/gemma-4-26b-a4b-it-q4_k_m-128k"
+    "vercel-ai-gateway/anthropic/claude-sonnet-4.6",
+    "vercel-ai-gateway/anthropic/claude-opus-4.8",
+    "vercel-ai-gateway/anthropic/claude-haiku-4.5",
+    "vercel-ai-gateway/openai/gpt-5.6-luna",
+    "vercel-ai-gateway/openai/gpt-5.6-sol"
   ],
   "compaction": {
     "enabled": true,
