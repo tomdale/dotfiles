@@ -114,22 +114,6 @@ The primary custom template variable is `.isWork`, which controls the work or
 personal Git email and may be used for work-specific configuration. Built-ins
 include `.chezmoi.os`, `.chezmoi.hostname`, and `.chezmoi.homeDir`.
 
-## Shell configuration orientation
-
-Environment setup belongs in `.zshenv` or the sourced `env.zsh`; interactive
-aliases, functions, prompt, completions, plugins, and hooks belong in `.zshrc`.
-`.zprofile` is reserved for login-only setup. This avoids relying on `.zprofile`
-for environments that start non-login interactive shells.
-
-The repository's shell layout is:
-
-- `~/.zshenv` — sets `ZDOTDIR` and sources environment configuration.
-- `~/.config/zsh/env.zsh` — environment variables and `PATH`.
-- `~/.config/zsh/.zprofile` — minimal login-only setup.
-- `~/.config/zsh/.zshrc` — interactive configuration.
-- `~/.config/zsh/functions/` — aliases and shell functions.
-- `~/.config/zsh/custom/themes/` — Oh My Zsh themes.
-
 `home/dot_config/Brewfile.tmpl` is macOS-only, and external files are declared
 in `home/.chezmoiexternal.toml`.
 
@@ -143,7 +127,4 @@ harness-specific skill directories.
 
 Claude and Codex plugins are maintained in their separate marketplaces rather
 than vendored in this repository. This repository deploys configuration, not
-plugin authoring or marketplace manifests. The shared global instructions
-include routing for the `notion` and `proto` skills. Read those skills when
-their task triggers apply; keep their detailed procedures in the skills rather
-than copying them into this file.
+plugin authoring or marketplace manifests.
