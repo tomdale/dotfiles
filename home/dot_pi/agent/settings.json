@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.80.6",
+  "lastChangelogVersion": "0.80.7",
   "defaultProvider": "vercel-ai-gateway",
   "defaultModel": "openai/gpt-5.6-luna",
   "defaultThinkingLevel": "medium",
@@ -58,14 +58,20 @@
   "markdown": {
     "codeBlockIndent": "  "
   },
-  "skills": [],
+  "skills": ["~/.agents/skills"],
   "prompts": [
     "prompts"
   ],
   "extensions": [
-    "extensions"
+    "extensions/claude-rules.ts",
+    "extensions/plan-mode",
+    "extensions/preset.ts",
+    "extensions/protected-paths.ts",
+    "extensions/subagent",
+    "extensions/todo.ts"
   ],
   "packages": [
-    "../../Code/Repos/toolbelt/pi-plugins/claude-plugin-loader"
+    "../../Code/Repos/toolbelt/pi-plugins/claude-plugin-loader",
+    "npm:pi-mcp-adapter@2.11.0"
   ]
 }
