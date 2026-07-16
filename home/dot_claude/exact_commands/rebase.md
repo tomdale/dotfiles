@@ -3,6 +3,10 @@ description: Fetch changes from remote and rebase current branch on default bran
 allowed-tools: Bash(git:*)
 ---
 
+Before rebasing, follow any applicable repository or project-specific
+`AGENTS.md`, `CLAUDE.md`, or other local instructions. They override this
+generic workflow.
+
 Rebase the current branch on top of the default branch.
 
 **Default branch:** !`git rev-parse --abbrev-ref origin/HEAD 2>/dev/null | sed 's@origin/@@'`

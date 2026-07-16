@@ -2,6 +2,10 @@
 description: Fetch remote changes and rebase the current branch on the default branch
 argument-hint: "[base-branch]"
 ---
+Before rebasing, follow any applicable repository or project-specific
+`AGENTS.md`, `CLAUDE.md`, or other local instructions. They override this
+generic workflow.
+
 Rebase the current branch on top of the default branch.
 
 Base branch: `$1` if provided, otherwise detect `origin/HEAD` or use `main`.
