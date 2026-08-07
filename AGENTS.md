@@ -117,6 +117,19 @@ include `.chezmoi.os`, `.chezmoi.hostname`, and `.chezmoi.homeDir`.
 `home/dot_config/Brewfile.tmpl` is macOS-only, and external files are declared
 in `home/.chezmoiexternal.toml`.
 
+## General workflow
+
+Comments should explain why, not what. Do not describe how code changed from a
+previous version; write that context in a commit message or PR description.
+
+Use `./.agent/` for repository scratch files when that directory is available.
+Otherwise use the OS temporary directory for artifacts that do not belong in the
+repository, and do not leave accidental generated files in the workspace.
+
+The shell tool is non-interactive. Use the `interactive-shell` skill and a PTY
+wrapper such as tmux for REPLs, interactive prompts, TUIs, and progress-
+displaying programs.
+
 ## Shared configuration boundaries
 
 Rules that apply to Claude Code, Codex, and Pi belong in

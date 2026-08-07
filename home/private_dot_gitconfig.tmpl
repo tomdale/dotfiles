@@ -9,6 +9,7 @@
 	path = ~/.config/git/local.gitconfig
 [core]
 	excludesfile = ~/.config/git/ignore
+	pager = delta
 [pull]
 	rebase = false
 [push]
@@ -32,3 +33,12 @@
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [gpg "ssh"]
 	allowedSignersFile = ~/.config/git/allowed_signers
+[diff]
+	colorMoved = default
+[delta]
+	line-numbers = true
+	navigate = true
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+	conflictstyle = zdiff3

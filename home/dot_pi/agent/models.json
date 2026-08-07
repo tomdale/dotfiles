@@ -26,6 +26,14 @@
     },
     "vercel-ai-gateway": {
       "modelOverrides": {
+        "deepseek/deepseek-v4-flash-0731": {
+          "compat": {
+            "vercelGatewayRouting": {
+              "only": ["fireworks"],
+              "order": ["fireworks"]
+            }
+          }
+        },
         "zai/glm-4.5": { "compat": { "vercelGatewayRouting": { "only": ["fireworks"] } } },
         "zai/glm-4.5-air": { "compat": { "vercelGatewayRouting": { "only": ["fireworks"] } } },
         "zai/glm-4.5v": { "compat": { "vercelGatewayRouting": { "only": ["fireworks"] } } },

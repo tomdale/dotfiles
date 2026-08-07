@@ -199,7 +199,8 @@
     "vercel@claude-plugins-official": true,
     "datadog@claude-plugins-official": true,
     "sideshow@sideshow": true,
-    "tdx@tomdale-skills": true
+    "tdx@tomdale-skills": true,
+    "figma@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {

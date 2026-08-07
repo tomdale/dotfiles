@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "raindrop": {
+      "url": "https://mcp.raindrop.ai/mcp",
+      "auth": "oauth"
+    }
+  }
+}

@@ -227,7 +227,7 @@ export default function (pi: ExtensionAPI) {
 
 		renderResult(result, { expanded }, theme, _context) {
 			const details = result.details as TodoDetails | undefined;
-			if (!details) {
+			if (!details || !Array.isArray(details.todos)) {
 				const text = result.content[0];
 				return new Text(text?.type === "text" ? text.text : "", 0, 0);
 			}

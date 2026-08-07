@@ -4,3 +4,11 @@ min-release-age=2
 {{ if and $isWork $npmTokenOpRef -}}
 //registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
 {{- end }}
+{{- if $isWork }}
+
+# Socket Firewall npm-family registry
+registry=https://registry.k8s.vercel-security.com/npm/
+//registry.k8s.vercel-security.com/npm/:username=client-gate
+//registry.k8s.vercel-security.com/npm/:_password=${SOCKET_PASSWORD_B64}
+omit-lockfile-registry-resolved=true
+{{- end }}
