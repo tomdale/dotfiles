@@ -5,6 +5,9 @@
 # ║ and bash. Used by shell config AND chezmoi scripts during setup.          ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝
 
+# External-service identity prefix (for example, Vercel Blob paths).
+export USER_PREFIX="${USER_PREFIX:-tomdale}"
+
 # XDG Base Directory Specification
 # https://specifications.freedesktop.org/basedir-spec/latest/
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
