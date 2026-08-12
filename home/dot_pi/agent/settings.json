@@ -76,8 +76,7 @@
     "extensions/claude-rules.ts",
     "extensions/plan-mode",
     "extensions/preset.ts",
-    "extensions/protected-paths.ts",
-    "extensions/todo.ts"
+    "extensions/protected-paths.ts"
   ],
   "packages": [
     "../../Code/Repos/toolbelt/main/claude-plugin-loader",
@@ -86,6 +85,7 @@
     "../../Code/Repos/pi-subagents",
     "../../Code/Repos/pi-dynamic-workflows",
     "npm:@capyup/pi-goal@0.6.0",
-    "npm:@harms-haus/pi-cwd@1.0.0"
+    "npm:@harms-haus/pi-cwd@1.0.0",
+    "npm:@juicesharp/rpiv-todo@2.4.0"
   ]
 }
