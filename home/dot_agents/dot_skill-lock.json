@@ -10,15 +10,6 @@
       "installedAt": "2026-03-06T02:09:49.798Z",
       "updatedAt": "2026-03-11T14:37:19.187Z"
     },
-    "graphite": {
-      "source": "withgraphite/agent-skills",
-      "sourceType": "github",
-      "sourceUrl": "https://github.com/withgraphite/agent-skills.git",
-      "skillPath": "skills/graphite/SKILL.md",
-      "skillFolderHash": "404bf8d36e67273abeb7fbbf66efb2ba3ef15375",
-      "installedAt": "2026-03-07T22:13:30.918Z",
-      "updatedAt": "2026-03-07T22:13:30.918Z"
-    },
     "workflow": {
       "source": "vercel/workflow",
       "sourceType": "github",
