@@ -1,143 +1,37 @@
 # Repository instructions
 
-This is a public chezmoi-managed dotfiles repository. The `.chezmoiroot` is
-`home/`, so managed files live under `home/`; root-level documentation and
-configuration are not deployed to `~`.
+Public chezmoi-managed dotfiles repo; root-level files are not deployed. Terms:
+- Repository root: this checkout; `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.agent/` are repo-local, not deployed.
+- Managed source: under `home/` (the `.chezmoiroot`); source names encode destinations — `dot_`→`.`, `private_`→permissions, `symlink_`→symlink, `.tmpl`→Go template.
+- Deployed destination: the rendered live path under `$HOME` (e.g. `$HOME/.agents/skills`); never edit deployed destinations as the permanent fix.
+- `.agent/` (scratch + local plugin material) vs `.agents/skills/` (repo-local skills): both repo-local, neither a chezmoi destination — do not confuse them.
+- User-global shared skill: managed `home/dot_agents/skills/<name>/SKILL.md` → deployed `$HOME/.agents/skills/<name>/SKILL.md`.
 
-Before modifying agent or harness configuration, read the shared `agent-config`
-skill. The source repository is authoritative; do not make permanent fixes by
-editing generated files under `~/.claude`, `~/.codex`, `~/.pi`, or `~/.agents`.
+Before modifying agent/harness config read the `agent-config` skill. Managed source is authoritative; do not fix by editing deployed `$HOME/{.claude,.codex,.pi,.agents}`.
 
-## Branching and commits
-
-Do all work directly on the default branch (`master`). Do not create feature
-branches for changes in this repository. Commit directly to `master`; do not use
-a commit workflow that requires a feature branch.
-
-This repository deploys straight to live machine state via `chezmoi apply`, so
-only one version of the tracked files can ever be active at a time. Branches
-model parallel variants that cannot coexist once applied; here they add friction
-and divergence with no payoff. Keep a single linear history on `master`.
-
-When an agent is running in a sandboxed harness, it should always run
-`chezmoi apply` and related `chezmoi apply...` commands unsandboxed.
-
-If an agent needs to clarify ambiguous behavior in how an agent CLI operates, it
-may consult the checked-out source repositories for Codex at `~/Code/codex` and
-Pi at `~/Code/pi`. Claude Code is not open source, so no corresponding local
-source reference is available.
+## Branching
+Work directly on `master`; no feature branches. The repo deploys live state via `chezmoi apply`, so only one file version can be active — branches cannot coexist; keep a single linear history. In a sandboxed harness run `chezmoi apply` (and `chezmoi apply...`) commands unsandboxed. If unsure how an agent CLI behaves, consult checked-out Codex/Pi source under `$HOME/Code/` when present.
 
 ## Safety and secrets
-
-This is a public repository. Do not commit, stage, or push secrets or anything
-potentially compromising. Treat private keys, tokens, credentials, machine IDs,
-account IDs, signing keys, personal access tokens, session material, local-only
-hostnames, and unexplained high-entropy values as sensitive until proven
-otherwise. Before any commit, PR, push, or patch that adds configuration values,
-scan the diff for sensitive material. If sensitive or potentially compromising
-material appears in tracked source, stop all work immediately and warn the user;
-do not continue, stage, commit, or push until it has been removed from tracked
-files or replaced with a documented local-only mechanism.
+Public repo — never commit/stage/push secrets or anything potentially compromising. Treat private keys, tokens, credentials, machine/account IDs, signing keys, personal access tokens, session material, local-only hostnames, and unexplained high-entropy values as sensitive until proven otherwise. Scan every diff before commit/PR/push. If sensitive material appears in tracked source, stop and warn the user; do not continue/commit/push until it is removed or replaced with a documented local-only mechanism.
 
 ## Agent plugins
-
-When modifying a local agent plugin managed by this repository, update the
-plugin source under `home/`, bump the plugin manifest version after edits are
-done so CLIs pick up the changed plugin, run `chezmoi apply` for the affected
-plugin path, and restart the affected harness so the next session loads the
-applied plugin.
-
-Local plugins are installed into the Codex cache under
-`~/.codex/plugins/cache/<marketplace-name>/<plugin-name>/<version>/`; the
-manifest version tells Codex and related CLIs that a new plugin cache entry
-should be installed.
-
-If a local plugin change is not picked up after applying and restarting Codex,
-bust the installed cache for that plugin. For example, after changing the
-`tomdale` plugin:
-
-```sh
-rm -rf ~/.codex/plugins/cache/tomdale-codex-plugins/tomdale/local
-```
-
-Do not edit files directly in `~/.codex/plugins/cache`; treat that directory as
-Codex-managed generated state.
+Editing a user-global local plugin: edit managed source under `home/`, bump the plugin manifest version, run `chezmoi apply` for the deployed destination, and restart the harness so the next session loads it. Codex installs local plugins under `$HOME/.codex/plugins/cache/<marketplace>/<plugin>/<version>/`; the version bump tells CLIs to install the new entry. If a change isn't picked up after apply+restart, bust the cache, e.g. `rm -rf "$HOME/.codex/plugins/cache/tomdale-codex-plugins/tomdale/local"`. Never edit files under `$HOME/.codex/plugins/cache` — treat as Codex-generated state.
 
 ## Repository layout and chezmoi
+For full chezmoi operations (templates, scripts, source↔destination mapping, verification, apply/conflict handling) read the repo-local `chezmoi` skill (`.agents/skills/chezmoi/`). Essential basics below.
+`.agent/inspo/` holds example dotfiles + a README; consult it before adding new patterns.
+Managed locations: `home/.chezmoitemplates/` (templates), `home/.chezmoiscripts/` (ordered setup/sync/link scripts), `home/dot_claude/`→`.claude`, `home/dot_codex/`→`.codex`, `home/dot_pi/agent/`→`.pi/agent`, `home/dot_agents/skills/`→`.agents/skills`, `home/private_dot_gitconfig.tmpl` (work/personal email switch).
 
-`.agent/inspo/` contains example chezmoi dotfiles and a README summarizing
-common patterns and techniques. Explore relevant examples before implementing
-new configuration patterns.
+Use destination paths with chezmoi, not source attributes: `chezmoi apply "$HOME/.claude/agents/foo"`, not paths containing `exact_`. Prefer plain files over templates unless values truly vary by machine, require compile-time conditionals, runtime detection is impossible, or secrets need templating; keep dynamic sections small and documented. Support macOS and Linux; prefer runtime detection and portable commands; package installs use Homebrew on macOS.
 
-Important source locations include:
-
-- `home/.chezmoitemplates/` — shared templates used to render agent config.
-- `home/.chezmoiscripts/` — ordered setup, synchronization, and linking scripts.
-- `home/dot_claude/` — Claude Code configuration deployed to `~/.claude`.
-- `home/dot_codex/` — Codex configuration deployed to `~/.codex`.
-- `home/dot_pi/agent/` — Pi configuration deployed to `~/.pi/agent`.
-- `home/dot_agents/skills/` — shared skills deployed to `~/.agents/skills`.
-- `home/private_dot_gitconfig.tmpl` — private Git configuration with
-  work/personal email switching.
-
-Use actual destination paths with `chezmoi` commands, not source attributes:
-`dot_` becomes `.`, `private_` controls permissions, `symlink_` creates a
-symlink, and `.tmpl` marks a Go template. For example, use
-`chezmoi apply ~/.claude/agents/foo`, not a path containing `exact_`.
-
-Detailed chezmoi procedures belong in the chezmoi documentation or the harness's
-chezmoi skill. Prefer plain files over templates unless values truly vary by
-machine, the format requires compile-time conditionals, runtime detection is
-impossible, or secrets require templating. When templates are necessary, keep
-dynamic sections small and document why.
-
-Changes should support macOS and Linux where relevant. Prefer runtime detection
-and portable commands; use chezmoi conditionals only when runtime detection is
-not feasible. macOS package installation uses Homebrew; Linux installation
-should account for the relevant distribution.
-
-Use `chezmoi diff` to preview changes. For managed changes, apply affected files
-with `chezmoi apply <destination>`. Use a full `chezmoi apply` when changing
-scripts, links, or several related managed files. If apply reports an unrelated
-conflict, stop and diagnose it rather than bypassing it.
-
-Common inspection commands:
-
-```bash
-chezmoi diff
-chezmoi cat ~/.config/file
-chezmoi data
-chezmoi execute-template '{{ .isWork }}'
-```
-
-The primary custom template variable is `.isWork`, which controls the work or
-personal Git email and may be used for work-specific configuration. Built-ins
-include `.chezmoi.os`, `.chezmoi.hostname`, and `.chezmoi.homeDir`.
-
-`home/dot_config/Brewfile.tmpl` is macOS-only, and external files are declared
-in `home/.chezmoiexternal.toml`.
+Preview with `chezmoi diff`; apply managed files with `chezmoi apply <dest>`; use a full `chezmoi apply` for scripts/links/multiple files. On an unrelated apply conflict, stop and diagnose — don't bypass.
+Inspect: `chezmoi diff`, `chezmoi cat "$HOME/.config/file"`, `chezmoi data`, `chezmoi execute-template '{{ .isWork }}'`.
+Custom template variable `.isWork` controls work/personal Git email and may gate work-specific config; built-ins `.chezmoi.os`, `.chezmoi.hostname`, `.chezmoi.homeDir`.
+`home/dot_config/Brewfile.tmpl` is macOS-only; external files are declared in `home/.chezmoiexternal.toml`.
 
 ## General workflow
-
-Comments should explain why, not what. Do not describe how code changed from a
-previous version; write that context in a commit message or PR description.
-
-Use `./.agent/` for repository scratch files when that directory is available.
-Otherwise use the OS temporary directory for artifacts that do not belong in the
-repository, and do not leave accidental generated files in the workspace.
-
-The shell tool is non-interactive. Use the `interactive-shell` skill and a PTY
-wrapper such as tmux for REPLs, interactive prompts, TUIs, and progress-
-displaying programs.
+Comments explain why, not what; put change history in commit message/PR description. Use `./.agent/` for scratch files when available, else OS temp; don't leave generated files in the workspace. The shell is non-interactive — use the `interactive-shell` skill + a PTY (tmux) for REPLs, prompts, TUIs, and progress displays.
 
 ## Shared configuration boundaries
-
-Rules that apply to Claude Code, Codex, and Pi belong in
-`home/.chezmoitemplates/AGENTS.shared.md`. Harness-specific rules belong in the
-corresponding source template. Shared skills belong in
-`home/dot_agents/skills/<skill-name>/SKILL.md`; do not duplicate them under
-harness-specific skill directories.
-
-Claude and Codex plugins are maintained in their separate marketplaces rather
-than vendored in this repository. This repository deploys configuration, not
-plugin authoring or marketplace manifests.
+Shared rules (all harnesses): `home/.chezmoitemplates/AGENTS.shared.md`. Harness-specific rules live in the target harness config (`home/dot_claude/`, `home/dot_codex/`, `home/dot_pi/agent/`); no per-harness AGENTS template exists. Don't duplicate shared skills under harness-specific skill directories. Claude/Codex plugins live in their separate marketplaces, not vendored here; this repo deploys configuration, not plugin/marketplace manifests.
