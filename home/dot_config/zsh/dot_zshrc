@@ -13,13 +13,14 @@
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Proto Toolchain Manager
-# Runs first so completion and all tools below inherit the fully activated PATH.
-# This is the interactive-shell counterpart to the --export call in env.zsh.
-# Uses full activation (not --export) to register a chpwd hook that re-resolves
-# tool versions when you cd between projects. See env.zsh for the full
-# architecture note explaining how proto activation is split across files.
+# Runs first so completion and all tools below inherit proto's PATH and its
+# directory-change hook. Do not resolve every installed global tool here:
+# `--config-mode all` adds roughly 700 ms to each shell and emits NDJSON when
+# launched by an AI agent, which is not valid shell input. The default mode
+# keeps startup fast; proto shims resolve project-specific tool versions when
+# invoked. `--reporter text` guarantees that eval receives shell code.
 # ───────────────────────────────────────────────────────────────────────────────
-eval "$(proto activate zsh --config-mode all)"
+eval "$(proto activate zsh --reporter text)"
 typeset -U path
 
 # Keep personal scripts and proto-managed shims ahead of package-manager
