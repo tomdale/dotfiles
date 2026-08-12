@@ -13,24 +13,39 @@
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Proto Toolchain Manager
-# Runs first so completion and all tools below inherit proto's PATH and its
-# directory-change hook. Do not resolve every installed global tool here:
-# `--config-mode all` adds roughly 700 ms to each shell and emits NDJSON when
-# launched by an AI agent, which is not valid shell input. The default mode
-# keeps startup fast; proto shims resolve project-specific tool versions when
-# invoked. `--reporter text` guarantees that eval receives shell code.
+# env.zsh already puts proto shims on PATH. The generated `proto activate zsh
+# --reporter text` scaffolding is static and inlined here so startup does not
+# pay for a CLI spawn just to print it. The chpwd hook runs
+# `proto activate zsh --export` on directory changes; there is no eager export
+# at startup because shims already resolve project tool versions on demand.
+# Do not use `--config-mode all`: it adds ~700 ms and emits NDJSON that is not
+# valid shell input when an agent launches the shell.
 # ───────────────────────────────────────────────────────────────────────────────
-eval "$(proto activate zsh --reporter text)"
-typeset -U path
+export __ORIG_PATH="$PATH"
+
+_proto_activate_hook() {
+  local output
+  trap '' SIGINT
+  output=$(proto activate zsh --export)
+  if [[ -n $output ]]; then
+    eval "$output"
+  fi
+  trap - SIGINT
+}
+
+typeset -ag chpwd_functions
+if (( ! ${chpwd_functions[(I)_proto_activate_hook]} )); then
+  chpwd_functions=(_proto_activate_hook $chpwd_functions)
+fi
 
 # Keep personal scripts and proto-managed shims ahead of package-manager
 # global bins. npm/pnpm global CLI packages should be installed through
 # proto's npm backend instead of resolving from package-manager shim dirs.
+typeset -U path
 path=("$HOME/.local/bin" "$PROTO_HOME/shims" "$PROTO_HOME/bin" $path)
 path=(${path:#$PNPM_HOME/bin})
 path=(${path:#$PNPM_HOME})
 path=(${path:#$HOME/Library/pnpm})
-typeset -U path
 export PATH
 
 # ───────────────────────────────────────────────────────────────────────────────
@@ -66,10 +81,26 @@ setopt PUSHD_MINUS
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Completion
+# Skip the expensive security audit (compaudit) when the dump is less than a
+# day old. Full reinit still runs daily so new completion files are picked up.
 # ───────────────────────────────────────────────────────────────────────────────
 zmodload -i zsh/complist
 autoload -Uz add-zsh-hook compinit
-compinit -i -d "$XDG_CACHE_HOME/zsh/zcompdump"
+{
+  setopt localoptions extendedglob
+  # Fresh dump (< 24h): load only (-C), skip the slow fpath security audit.
+  # Missing or stale dump: full reinit + audit so new completions are picked up.
+  local zcompdump="$XDG_CACHE_HOME/zsh/zcompdump"
+  if [[ -s $zcompdump && -z ${zcompdump}(#qN.mh+24) ]]; then
+    compinit -C -d "$zcompdump"
+  else
+    mkdir -p "${zcompdump:h}"
+    compinit -i -d "$zcompdump"
+  fi
+  if [[ -s $zcompdump && (! -s ${zcompdump}.zwc || $zcompdump -nt ${zcompdump}.zwc) ]]; then
+    zcompile -R "$zcompdump" &!
+  fi
+}
 
 WORDCHARS=''
 unsetopt MENU_COMPLETE FLOW_CONTROL
@@ -205,13 +236,17 @@ add-zsh-hook -d precmd _direnv_hook
 precmd_functions=(__tomdale_direnv_precmd $precmd_functions)
 # These integrations only generate small, stable shell functions. Define them
 # directly so opening a shell doesn't spawn two helper processes first.
-_termtint_hook() { termtint apply }
+# Write OSC sequences to the tty asynchronously: running them synchronously in
+# zle-line-init blocks first_command_lag and can force a full prompt redraw
+# (~180 ms on this machine). Background + /dev/tty keeps the line editor free.
+_termtint_hook() { ( command termtint apply > /dev/tty ) &! }
 add-zsh-hook chpwd _termtint_hook
-_termtitle_hook() { termtitle apply }
+_termtitle_hook() { ( command termtitle apply > /dev/tty ) &! }
 add-zsh-hook chpwd _termtitle_hook
-# Render the first prompt before asking external tools to update terminal
-# decorations. The line editor runs this once immediately afterward, so a new
-# shell still receives its color scheme and title before normal interaction.
+# Kick off decorations once the first prompt is already on screen. Proto project
+# env is intentionally not activated here: shims resolve tool versions on
+# demand, and the chpwd hook above runs `proto activate --export` when the
+# working directory changes.
 __tomdale_apply_initial_terminal_decorations() {
   _termtint_hook
   _termtitle_hook
@@ -219,11 +254,86 @@ __tomdale_apply_initial_terminal_decorations() {
   unfunction __tomdale_apply_initial_terminal_decorations
 }
 zle -N zle-line-init __tomdale_apply_initial_terminal_decorations
-eval "$(wf shell init zsh)"     # Workspace shell hook for auto-cd/cleanup behavior
+
+# workforest shell integration (wf new/switch/delete auto-cd). The generated
+# snippet is static; regenerating it via `wf shell init zsh` costs ~2s because
+# wf is a Node CLI. Cache it and only refresh when the binary is newer.
+{
+  local wf_bin wf_cache
+  wf_bin="${commands[wf]:-}"
+  wf_cache="$XDG_CACHE_HOME/zsh/wf-shell-init.zsh"
+  if [[ -n $wf_bin ]]; then
+    # Resolve through one level of symlink so rebuilds of the linked checkout
+    # invalidate the cache even when the ~/.local/bin/wf link mtime is stale.
+    [[ -L $wf_bin ]] && wf_bin="${wf_bin:A}"
+    if [[ ! -s $wf_cache || $wf_bin -nt $wf_cache ]]; then
+      mkdir -p "${wf_cache:h}"
+      # Prefer the real binary so PATH lookups don't re-enter a shell function.
+      if command "$wf_bin" shell init zsh >| "$wf_cache" 2>/dev/null; then
+        :
+      else
+        rm -f "$wf_cache"
+      fi
+    fi
+    [[ -s $wf_cache ]] && source "$wf_cache"
+  fi
+}
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Lazy secret injection (keychain → shell memory; zero disk)
+# Interactive: process-sub pipe + `zle -F`. The producer runs in parallel with
+# the rest of startup; when ZLE waits for the first keystroke it notices the fd,
+# drains export lines, evals them in THIS shell, and closes the fd. No tempfile.
+# (Earlier pipe attempts looked broken only because the Python pty harness never
+# drove ZLE's input loop — under a real tty `zle -F` fires reliably on zsh 5.9.)
+# Non-interactive shells use ~/.zshenv's synchronous fallback.
+# ───────────────────────────────────────────────────────────────────────────────
+if [[ -z ${AI_GATEWAY_API_KEY-} || -z ${SOCKET_AUTH_B64-} ]]; then
+  zmodload zsh/system 2>/dev/null
+  __tomdale_emit_secrets() {
+    emulate -L zsh
+    if [[ -z ${AI_GATEWAY_API_KEY-} && -x /usr/bin/security ]]; then
+      local v
+      v="$(/usr/bin/security find-generic-password \
+        -a vercel-ai-gateway -s 'Vercel AI Gateway' -w 2>/dev/null)"
+      [[ -n $v ]] && print -r -- "export AI_GATEWAY_API_KEY=${(q+)v}"
+    fi
+    if [[ -f $HOME/.config/socket-firewall/env.sh ]]; then
+      source "$HOME/.config/socket-firewall/env.sh"
+      print -r -- "export SOCKET_AUTH_B64=${(q+)SOCKET_AUTH_B64}"
+      print -r -- "export SOCKET_PASSWORD_B64=${(q+)SOCKET_PASSWORD_B64}"
+      print -r -- "export UV_INDEX_SOCKET_FIREWALL_USERNAME=${(q+)UV_INDEX_SOCKET_FIREWALL_USERNAME:-client-gate}"
+      print -r -- "export UV_INDEX_SOCKET_FIREWALL_PASSWORD=${(q+)UV_INDEX_SOCKET_FIREWALL_PASSWORD}"
+    fi
+  }
+  __tomdale_collect_secret_fd() {
+    emulate -L zsh
+    local fd=$1 _err=${2-} line body=""
+    # Drain fully (data path and hup/err). Producer writes complete export lines.
+    while IFS= read -r -u $fd line || [[ -n $line ]]; do
+      body+="$line"$'\n'
+      line=""
+    done
+    zle -F $fd 2>/dev/null
+    exec {fd}<&- 2>/dev/null
+    [[ -n $body ]] && eval "$body"
+    unfunction __tomdale_collect_secret_fd __tomdale_emit_secrets 2>/dev/null
+  }
+  # gitstatus-style open (cloexec). exec {fd}< is the portable fallback.
+  if ! sysopen -r -o cloexec -u __tomdale_secret_fd <( __tomdale_emit_secrets ) 2>/dev/null; then
+    exec {__tomdale_secret_fd}< <( __tomdale_emit_secrets )
+  fi
+  zle -F $__tomdale_secret_fd __tomdale_collect_secret_fd
+  unset __tomdale_secret_fd
+fi
 
 # ───────────────────────────────────────────────────────────────────────────────
 # iTerm2 Integration
-# Provides shell integration features and custom status bar variables
+# Ghostty (and other terminals) ship their own shell integration. Loading the
+# iTerm2 script outside iTerm still installs precmd hooks that fork base64 for
+# every user var on every prompt (~70 ms here). Gate on TERM_PROGRAM.
 # ───────────────────────────────────────────────────────────────────────────────
-[[ -f "$ZDOTDIR/iterm2_user_vars.zsh" ]] && source "$ZDOTDIR/iterm2_user_vars.zsh"
-test -e "$ZDOTDIR/.iterm2_shell_integration.zsh" && source "$ZDOTDIR/.iterm2_shell_integration.zsh" || true
+if [[ ${TERM_PROGRAM-} == iTerm.app ]]; then
+  [[ -f $ZDOTDIR/iterm2_user_vars.zsh ]] && source "$ZDOTDIR/iterm2_user_vars.zsh"
+  [[ -e $ZDOTDIR/.iterm2_shell_integration.zsh ]] && source "$ZDOTDIR/.iterm2_shell_integration.zsh"
+fi

@@ -15,7 +15,7 @@
 # Relocate zsh config to XDG-compliant location
 export ZDOTDIR="$HOME/.config/zsh"
 
-# Source environment variables and PATH (separated for clarity)
+# Source environment variables and PATH (separated for clarity).
+# env.zsh also owns the non-interactive keychain secret fallback (shared with
+# $ZDOTDIR/.zshenv so subshells that inherit ZDOTDIR get the same path).
 source "$ZDOTDIR/env.zsh"
-
-[ -f "$HOME/.config/socket-firewall/env.sh" ] && source "$HOME/.config/socket-firewall/env.sh"  # added by socket-firewall-init

@@ -6,7 +6,7 @@
 # ║ shells spawned by tools like Claude Code), zsh looks for .zshenv HERE    ║
 # ║ instead of in ~/. Without this file, subshells skip env.zsh entirely    ║
 # ║ and inherit a stale PATH from the parent — wrong tool versions, missing  ║
-# ║ globals, etc.                                                            ║
+# ║ globals, and (via env.zsh) keychain secret fallback.                     ║
 # ║                                                                           ║
 # ║ See the architecture note in env.zsh for the full startup flow.          ║
 # ╚═══════════════════════════════════════════════════════════════════════════╝

@@ -199,6 +199,7 @@ git_toplevel() {
 }
 
 zmodload zsh/datetime
+zmodload zsh/parameter  # jobstates for prompt_status (no fork)
 
 typeset -g __TOMDALE_GIT_PROMPT_VALID=0
 typeset -g __TOMDALE_GIT_PROMPT_OK=1
@@ -456,7 +457,9 @@ prompt_status() {
     [[ $RETVAL -ne 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_RETVAL_FG}%}$AGNOSTER_STATUS_ERROR_SYMBOL"
   fi
   [[ $UID -eq 0 ]] && symbols+="%{%F{$AGNOSTER_STATUS_ROOT_FG}%}$AGNOSTER_STATUS_ROOT_SYMBOL"
-  [[ -n "$(jobs -l)" ]] && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}$AGNOSTER_STATUS_JOB_SYMBOL"
+  # jobstates is a zsh/parameter associative array; no fork. `jobs -l` in a
+  # command substitution costs ~0.7 ms per prompt for no benefit.
+  (( ${#jobstates} )) && symbols+="%{%F{$AGNOSTER_STATUS_JOB_FG}%}$AGNOSTER_STATUS_JOB_SYMBOL"
 
   [[ -n "$symbols" ]] && prompt_segment "$AGNOSTER_STATUS_BG" "$AGNOSTER_STATUS_FG" "$symbols"
 }
@@ -482,6 +485,9 @@ prompt_terraform() {
 }
 
 ## Main prompt
+# bzr/hg segments exist above for anyone who wants them, but they are not
+# called from the default build: each one probes $commands[bzr]/hg] and walks
+# ancestors on every render even when those tools are not installed.
 build_prompt() {
   RETVAL=$?
   prompt_status
@@ -491,9 +497,17 @@ build_prompt() {
   prompt_context
   prompt_dir
   prompt_git
-  prompt_bzr
-  prompt_hg
   prompt_end
 }
+
+# PROMPT uses $(build_prompt), which runs in a subshell. Cache globals written
+# only inside that subshell are discarded, so every prompt would re-run git.
+# Warm the cache here (current shell) first; the subshell inherits a hit.
+__tomdale_git_prompt_precmd() {
+  __tomdale_git_prompt_info
+}
+if [[ -z "${precmd_functions[(r)__tomdale_git_prompt_precmd]-}" ]]; then
+  add-zsh-hook precmd __tomdale_git_prompt_precmd
+fi
 
 PROMPT='%{%f%b%k%}$(build_prompt) '

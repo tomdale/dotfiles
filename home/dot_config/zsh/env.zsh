@@ -39,8 +39,8 @@
 # │   .zshenv → env.zsh                                                    │
 # │     1-3. Same as above                                                 │
 # │   .zshrc                                                               │
-# │     5. proto activate: resolve tools for cwd + register chpwd hook     │
-# │     6. completion, prompt, direnv, terminal hooks, functions, iTerm2  │
+# │     5. register proto chpwd hook (shims already on PATH)               │
+# │     6. completion, prompt, direnv, terminal hooks, functions           │
 # │                                                                         │
 # └─────────────────────────────────────────────────────────────────────────┘
 
@@ -56,10 +56,22 @@ source "${ZDOTDIR:-$HOME/.config/zsh}/env.sh"
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 
-if [[ -z "$AI_GATEWAY_API_KEY" && -x /usr/bin/security ]]; then
+# Keychain-backed secrets (no plaintext-at-rest cache).
+# Interactive shells: skip here; .zshrc injects via process-sub pipe + zle -F.
+# Non-interactive shells: fetch synchronously only when not already inherited
+# (scripts/agents/CI have no zle). Lives in env.zsh so BOTH entry points get
+# it — $HOME/.zshenv (first shell) and $ZDOTDIR/.zshenv (subshells that
+# inherit ZDOTDIR and never re-read $HOME/.zshenv).
+if [[ ! -o interactive ]]; then
+  if [[ -z ${AI_GATEWAY_API_KEY-} && -x /usr/bin/security ]]; then
     AI_GATEWAY_API_KEY="$(/usr/bin/security find-generic-password \
-        -a "vercel-ai-gateway" -s "Vercel AI Gateway" -w 2>/dev/null)"
-    [[ -n "$AI_GATEWAY_API_KEY" ]] && export AI_GATEWAY_API_KEY
+      -a vercel-ai-gateway -s 'Vercel AI Gateway' -w 2>/dev/null)"
+    [[ -n $AI_GATEWAY_API_KEY ]] && export AI_GATEWAY_API_KEY
+  fi
+  if [[ ( -z ${SOCKET_AUTH_B64-} || -z ${SOCKET_PASSWORD_B64-} || -z ${UV_INDEX_SOCKET_FIREWALL_PASSWORD-} ) \
+        && -f $HOME/.config/socket-firewall/env.sh ]]; then
+    source "$HOME/.config/socket-firewall/env.sh"
+  fi
 fi
 
 # GPG pinentry needs the active terminal in interactive shells.
