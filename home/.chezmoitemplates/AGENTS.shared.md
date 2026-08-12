@@ -2,6 +2,8 @@ Before modifying any agent or harness configuration, read the `agent-config` ski
 
 When asked to write, rewrite, improve, or generate an AGENTS.md (or dense project guidance for coding agents), read the shared `write-agents-md` skill first.
 
+Comments should explain durable intent or non-obvious invariants; never narrate implementation details, review history, or facts already clear from names, types, and control flow.
+
 When asked to interact with or use Notion, use the Notion MCP tools directly. Do not use a Notion CLI or a local Notion skill.
 
 When access to GitHub is needed, use the `gh` CLI.
