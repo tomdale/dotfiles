@@ -102,8 +102,8 @@ esac
 : ${AGNOSTER_GIT_INLINE:=false}
 # Show the git branch status in the prompt rather than the generic branch symbol
 : ${AGNOSTER_GIT_BRANCH_STATUS:=true}
-# Keep Git information fresh without spawning Git for every prompt redraw. Set
-# this to 0 to refresh on every render.
+# Refresh git prompt data at most this often (seconds). chpwd invalidates immediately.
+# Set to 0 to query git on every prompt.
 : ${AGNOSTER_GIT_STATUS_CACHE_SECONDS:=2}
 
 ## Symbol Configuration
@@ -186,20 +186,19 @@ prompt_end() {
   CURRENT_BG=''
 }
 
-git_toplevel() {
-	local repo_root=$(git rev-parse --show-toplevel)
-	if [[ $repo_root = '' ]]; then
-		# We are in a bare repo. Use git dir as root
-		repo_root=$(git rev-parse --git-dir)
-		if [[ $repo_root = '.' ]]; then
-			repo_root=$PWD
-		fi
-	fi
-	echo -n $repo_root
-}
-
 zmodload zsh/datetime
 zmodload zsh/parameter  # jobstates for prompt_status (no fork)
+autoload -Uz add-zsh-hook
+
+# ── Git prompt (porcelain=v2, not vcs_info) ───────────────────────────────────
+# zsh's vcs_info is the "native" VCS framework, but its git backend always does
+# detect + symbolic-ref (and default dirty checks spawn multiple diffs, ~130 ms).
+# Even with dirty checks off + a porcelain hook it was ~76 ms cold here vs ~22 ms
+# for one `git status --porcelain=v2 --branch`. So we talk to git's native
+# machine interface directly:
+#   1. walk up for .git (no fork) → root, git-dir, mode files, prefix
+#   2. one porcelain=v2 --branch  → branch, oid, ahead/behind, dirty
+# Short TTL cache; chpwd invalidates.
 
 typeset -g __TOMDALE_GIT_PROMPT_VALID=0
 typeset -g __TOMDALE_GIT_PROMPT_OK=1
@@ -221,16 +220,50 @@ __tomdale_git_prompt_reset() {
   __TOMDALE_GIT_PROMPT_VALID=0
 }
 
+# Locate worktree root + git-dir without forking git (handles plain .git dirs
+# and gitfile indirection used by worktrees/submodules).
+__tomdale_git_find_root() {
+  emulate -L zsh
+  local d=$PWD gitfile
+  while true; do
+    if [[ -d $d/.git ]]; then
+      __TOMDALE_GIT_PROMPT_ROOT=$d
+      __TOMDALE_GIT_PROMPT_GIT_DIR=$d/.git
+      return 0
+    elif [[ -f $d/.git ]]; then
+      gitfile=$(<$d/.git)
+      if [[ $gitfile == gitdir:\ * ]]; then
+        local gd=${gitfile#gitdir: }
+        # trim CR/spaces; resolve relative gitdir against the worktree
+        gd=${gd//$'\r'/}
+        gd=${gd##[[:space:]]##}
+        gd=${gd%%[[:space:]]##}
+        [[ $gd != /* ]] && gd=$d/$gd
+        if [[ -d $gd ]]; then
+          __TOMDALE_GIT_PROMPT_ROOT=$d
+          __TOMDALE_GIT_PROMPT_GIT_DIR=$gd
+          return 0
+        fi
+      fi
+    fi
+    [[ $d == / ]] && break
+    d=${d:h}
+  done
+  return 1
+}
+
 __tomdale_git_prompt_info() {
   (( $+commands[git] )) || return 1
   local -F now=$EPOCHREALTIME
-  if (( __TOMDALE_GIT_PROMPT_VALID )) && [[ $__TOMDALE_GIT_PROMPT_PWD == "$PWD" ]] && (( now - __TOMDALE_GIT_PROMPT_UPDATED_AT < AGNOSTER_GIT_STATUS_CACHE_SECONDS )); then
+  if (( __TOMDALE_GIT_PROMPT_VALID )) \
+     && [[ $__TOMDALE_GIT_PROMPT_PWD == "$PWD" ]] \
+     && (( now - __TOMDALE_GIT_PROMPT_UPDATED_AT < AGNOSTER_GIT_STATUS_CACHE_SECONDS )); then
     return $__TOMDALE_GIT_PROMPT_OK
   fi
 
   __TOMDALE_GIT_PROMPT_VALID=1
   __TOMDALE_GIT_PROMPT_OK=1
-  __TOMDALE_GIT_PROMPT_PWD="$PWD"
+  __TOMDALE_GIT_PROMPT_PWD=$PWD
   __TOMDALE_GIT_PROMPT_UPDATED_AT=$now
   __TOMDALE_GIT_PROMPT_ROOT=''
   __TOMDALE_GIT_PROMPT_GIT_DIR=''
@@ -244,39 +277,37 @@ __tomdale_git_prompt_info() {
   __TOMDALE_GIT_PROMPT_DIRTY=0
   __TOMDALE_GIT_PROMPT_MODE=''
 
-  local rev_parse git_status line xy git_dir
-  rev_parse=$(GIT_OPTIONAL_LOCKS=0 command git rev-parse --is-inside-work-tree --show-toplevel --git-dir --show-prefix 2>/dev/null) || return 1
-  local -a rev_parse_lines
-  rev_parse_lines=("${(@f)rev_parse}")
-  [[ ${rev_parse_lines[1]} == true ]] || return 1
+  __tomdale_git_find_root || return 1
 
+  if [[ $PWD == "$__TOMDALE_GIT_PROMPT_ROOT" ]]; then
+    __TOMDALE_GIT_PROMPT_PREFIX=''
+  else
+    __TOMDALE_GIT_PROMPT_PREFIX=${PWD#${__TOMDALE_GIT_PROMPT_ROOT}/}
+  fi
+
+  local git_status line xy git_dir=$__TOMDALE_GIT_PROMPT_GIT_DIR
+  # Single fork: branch / oid / ahead-behind / dirty. GIT_OPTIONAL_LOCKS=0 avoids
+  # contending on index.lock with concurrent git commands.
   git_status=$(GIT_OPTIONAL_LOCKS=0 command git status --porcelain=v2 --branch --ignore-submodules=dirty 2>/dev/null) || return 1
 
-  __TOMDALE_GIT_PROMPT_ROOT="${rev_parse_lines[2]}"
-  git_dir="${rev_parse_lines[3]}"
-  [[ $git_dir != /* ]] && git_dir="$PWD/$git_dir"
-  __TOMDALE_GIT_PROMPT_GIT_DIR="$git_dir"
-  __TOMDALE_GIT_PROMPT_PREFIX="${rev_parse_lines[4]%/}"
-
   for line in "${(@f)git_status}"; do
-    case "$line" in
+    case $line in
       '# branch.head '*)
-        __TOMDALE_GIT_PROMPT_BRANCH="${line#\# branch.head }"
+        __TOMDALE_GIT_PROMPT_BRANCH=${line#\# branch.head }
         ;;
       '# branch.oid '*)
-        __TOMDALE_GIT_PROMPT_COMMIT="${line#\# branch.oid }"
+        __TOMDALE_GIT_PROMPT_COMMIT=${line#\# branch.oid }
+        [[ $__TOMDALE_GIT_PROMPT_COMMIT == \(initial\) ]] && __TOMDALE_GIT_PROMPT_COMMIT=''
         ;;
       '# branch.ab '*)
-        local ab="${line#\# branch.ab }"
-        local ahead_part="${ab%% *}"
-        local behind_part="${ab##* }"
-        __TOMDALE_GIT_PROMPT_AHEAD="${ahead_part#+}"
-        __TOMDALE_GIT_PROMPT_BEHIND="${behind_part#-}"
+        local ab=${line#\# branch.ab }
+        __TOMDALE_GIT_PROMPT_AHEAD=${${ab%% *}#+}
+        __TOMDALE_GIT_PROMPT_BEHIND=${${ab##* }#-}
         ;;
       [12u]' '*)
-        xy="${line[3,4]}"
-        [[ ${xy[1]} != "." ]] && __TOMDALE_GIT_PROMPT_STAGED=1
-        [[ ${xy[2]} != "." ]] && __TOMDALE_GIT_PROMPT_UNSTAGED=1
+        xy=${line[3,4]}
+        [[ ${xy[1]} != . ]] && __TOMDALE_GIT_PROMPT_STAGED=1
+        [[ ${xy[2]} != . ]] && __TOMDALE_GIT_PROMPT_UNSTAGED=1
         ;;
       '?'*)
         __TOMDALE_GIT_PROMPT_UNSTAGED=1
@@ -286,11 +317,12 @@ __tomdale_git_prompt_info() {
 
   (( __TOMDALE_GIT_PROMPT_STAGED || __TOMDALE_GIT_PROMPT_UNSTAGED )) && __TOMDALE_GIT_PROMPT_DIRTY=1
 
-  if [[ -e "${git_dir}/BISECT_LOG" ]]; then
+  # Action state is just marker files under .git — no second git process.
+  if [[ -e $git_dir/BISECT_LOG ]]; then
     __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_BISECT_SYMBOL"
-  elif [[ -e "${git_dir}/MERGE_HEAD" ]]; then
+  elif [[ -e $git_dir/MERGE_HEAD ]]; then
     __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_MERGE_SYMBOL"
-  elif [[ -e "${git_dir}/rebase" || -e "${git_dir}/rebase-apply" || -e "${git_dir}/rebase-merge" || -e "${git_dir}/../.dotest" ]]; then
+  elif [[ -e $git_dir/rebase || -e $git_dir/rebase-apply || -e $git_dir/rebase-merge || -e $git_dir/../.dotest ]]; then
     __TOMDALE_GIT_PROMPT_MODE=" $AGNOSTER_GIT_REBASE_SYMBOL"
   fi
 
@@ -298,7 +330,6 @@ __tomdale_git_prompt_info() {
   return 0
 }
 
-autoload -Uz add-zsh-hook
 if [[ -z "${chpwd_functions[(r)__tomdale_git_prompt_reset]-}" ]]; then
   add-zsh-hook chpwd __tomdale_git_prompt_reset
 fi
@@ -343,7 +374,7 @@ prompt_git() {
     fi
   fi
 
-  if [[ $__TOMDALE_GIT_PROMPT_BRANCH == "(detached)" || -z $__TOMDALE_GIT_PROMPT_BRANCH ]]; then
+  if [[ $__TOMDALE_GIT_PROMPT_BRANCH == '(detached)' || -z $__TOMDALE_GIT_PROMPT_BRANCH ]]; then
     ref="$AGNOSTER_GIT_COMMIT_SYMBOL ${__TOMDALE_GIT_PROMPT_COMMIT[1,7]}"
   else
     ref="$PL_BRANCH_CHAR ${__TOMDALE_GIT_PROMPT_BRANCH:gs/%/%%}"
@@ -500,9 +531,8 @@ build_prompt() {
   prompt_end
 }
 
-# PROMPT uses $(build_prompt), which runs in a subshell. Cache globals written
-# only inside that subshell are discarded, so every prompt would re-run git.
-# Warm the cache here (current shell) first; the subshell inherits a hit.
+# PROMPT uses $(build_prompt), which runs in a subshell. Warm git globals in
+# the current shell so the subshell inherits a cache hit (no second git fork).
 __tomdale_git_prompt_precmd() {
   __tomdale_git_prompt_info
 }
