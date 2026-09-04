@@ -1,0 +1,21 @@
+#!/bin/sh
+set -eu
+{{- $enabled := eq .chezmoi.os "darwin" -}}
+LABEL="com.tomdale.sideshow"
+DOMAIN="gui/$(id -u)"
+PLIST="${HOME}/Library/LaunchAgents/${LABEL}.plist"
+# trigger: {{ if $enabled }}enabled{{ else }}disabled{{ end }}
+{{- if $enabled }}
+mkdir -p "${HOME}/Library/LaunchAgents" "${HOME}/Library/Logs"
+launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+i=0
+while launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1 && [ "$i" -lt 50 ]; do
+  sleep 0.1
+  i=$((i + 1))
+done
+launchctl bootstrap "$DOMAIN" "$PLIST"
+launchctl kickstart -k "$DOMAIN/$LABEL"
+{{- else }}
+launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
+rm -f "$PLIST"
+{{- end }}

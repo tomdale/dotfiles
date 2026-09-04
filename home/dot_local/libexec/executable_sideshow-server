@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+PROTO_HOME="${PROTO_HOME:-$HOME/.local/share/proto}"
+PROTO="$PROTO_HOME/bin/proto"
+SIDESHOW="$HOME/.pi/agent/npm/node_modules/sideshow/bin/sideshow.js"
+
+if [ ! -x "$PROTO" ]; then
+  echo "sideshow server could not find proto at $PROTO" >&2
+  exit 127
+fi
+
+if [ ! -f "$SIDESHOW" ]; then
+  echo "sideshow server could not find the installed package at $SIDESHOW" >&2
+  exit 127
+fi
+
+export PROTO_HOME
+exec "$PROTO" run node -- "$SIDESHOW" serve "$@"

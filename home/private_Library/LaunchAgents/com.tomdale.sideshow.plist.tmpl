@@ -1,0 +1,33 @@
+{{- if eq .chezmoi.os "darwin" -}}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.tomdale.sideshow</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>{{ joinPath .chezmoi.homeDir ".local/libexec/sideshow-server" }}</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>{{ joinPath .chezmoi.homeDir ".local/share/proto/shims" }}:{{ joinPath .chezmoi.homeDir ".local/share/proto/bin" }}:/usr/bin:/bin:/usr/sbin:/sbin</string>
+		<key>SIDESHOW_AGENT</key>
+		<string>pi</string>
+		<key>SIDESHOW_URL</key>
+		<string>http://localhost:8228</string>
+	</dict>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>ThrottleInterval</key>
+	<integer>5</integer>
+	<key>StandardOutPath</key>
+	<string>{{ joinPath .chezmoi.homeDir "Library/Logs/sideshow.log" }}</string>
+	<key>StandardErrorPath</key>
+	<string>{{ joinPath .chezmoi.homeDir "Library/Logs/sideshow.error.log" }}</string>
+</dict>
+</plist>
+{{- end -}}
