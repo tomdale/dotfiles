@@ -2,22 +2,58 @@
 set -eu
 
 usage() {
-  echo "usage: agent-upload [--path BLOB_PATH] [--content-type MIME_TYPE] FILE" >&2
+  echo "usage: agent-upload [--slug FRIENDLY_SLUG] [--content-type MIME_TYPE] FILE" >&2
   exit 2
 }
 
-blob_path=
+slugify() {
+  value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9][^a-z0-9]*/-/g; s/^-//; s/-$//')
+  printf '%s\n' "${value:-artifact}"
+}
+
+browser_content_type() {
+  filename=$(basename "$1")
+  extension=$(printf '%s' "${filename##*.}" | tr '[:upper:]' '[:lower:]')
+
+  case "$extension" in
+    html|htm) printf '%s\n' 'text/html; charset=utf-8' ;;
+    css) printf '%s\n' 'text/css; charset=utf-8' ;;
+    js|mjs|cjs) printf '%s\n' 'text/javascript; charset=utf-8' ;;
+    json|map) printf '%s\n' 'application/json; charset=utf-8' ;;
+    xml) printf '%s\n' 'application/xml; charset=utf-8' ;;
+    svg) printf '%s\n' 'image/svg+xml' ;;
+    txt|log) printf '%s\n' 'text/plain; charset=utf-8' ;;
+    md|markdown) printf '%s\n' 'text/markdown; charset=utf-8' ;;
+    webmanifest) printf '%s\n' 'application/manifest+json; charset=utf-8' ;;
+    wasm) printf '%s\n' 'application/wasm' ;;
+    pdf) printf '%s\n' 'application/pdf' ;;
+    png) printf '%s\n' 'image/png' ;;
+    jpg|jpeg) printf '%s\n' 'image/jpeg' ;;
+    gif) printf '%s\n' 'image/gif' ;;
+    webp) printf '%s\n' 'image/webp' ;;
+    avif) printf '%s\n' 'image/avif' ;;
+    ico) printf '%s\n' 'image/x-icon' ;;
+    mp3) printf '%s\n' 'audio/mpeg' ;;
+    wav) printf '%s\n' 'audio/wav' ;;
+    ogg) printf '%s\n' 'audio/ogg' ;;
+    mp4|m4v) printf '%s\n' 'video/mp4' ;;
+    webm) printf '%s\n' 'video/webm' ;;
+    *) return 1 ;;
+  esac
+}
+
+friendly_slug=
 content_type=
 while [ "$#" -gt 0 ]; do
   case "$1" in
-    --path)
-      [ "$#" -ge 2 ] || usage
-      blob_path=$2
-      shift 2
-      ;;
     --content-type)
       [ "$#" -ge 2 ] || usage
       content_type=$2
+      shift 2
+      ;;
+    --slug)
+      [ "$#" -ge 2 ] || usage
+      friendly_slug=$2
       shift 2
       ;;
     --)
@@ -43,6 +79,35 @@ if [ ! -f "$file" ]; then
   exit 1
 fi
 
+blob_path=$(basename "$file")
+if [ -z "$friendly_slug" ]; then
+  friendly_slug=$(slugify "$blob_path")
+else
+  friendly_slug=$(slugify "$friendly_slug")
+fi
+case "$friendly_slug" in
+  "")
+    echo "agent-upload: slug must contain at least one letter or number" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "$content_type" ]; then
+  content_type=$(browser_content_type "$file" 2>/dev/null || true)
+fi
+if [ -z "$content_type" ]; then
+  content_type=$(file --mime-type --brief "$file" 2>/dev/null || true)
+fi
+if [ -z "$content_type" ]; then
+  content_type=application/octet-stream
+fi
+
+case "$content_type" in
+  text/html*)
+    echo "agent-upload: warning: Vercel Blob forces HTML to download even with the correct text/html MIME type; use static hosting for an inline web page" >&2
+    ;;
+esac
+
 # Keep the credential in 1Password; the reference identifies metadata only.
 token="$(op read 'op://ygmwu4owexpyapcygqijuxwcd4/mhco3skxjrylo5tm6yywg4lwxm/password')"
 if [ -z "$token" ]; then
@@ -50,45 +115,38 @@ if [ -z "$token" ]; then
   exit 1
 fi
 
-if [ -z "${USER_PREFIX-}" ]; then
-  echo "agent-upload: USER_PREFIX is not set" >&2
+if command -v openssl >/dev/null 2>&1; then
+  artifact_token=$(openssl rand -base64 16 | tr '+/' '-_' | tr -d '=\n')
+elif command -v python3 >/dev/null 2>&1; then
+  artifact_token=$(python3 -c 'import base64, secrets; print(base64.urlsafe_b64encode(secrets.token_bytes(16)).decode().rstrip("="))')
+else
+  echo "agent-upload: openssl or python3 is required to create an artifact token" >&2
   exit 1
 fi
 
-if [ -z "$blob_path" ]; then
-  blob_path=$(basename "$file")
-fi
-case "$blob_path" in
-  "$USER_PREFIX"/*)
-    pathname=$blob_path
-    ;;
-  *)
-    pathname="$USER_PREFIX/$blob_path"
-    ;;
-esac
-
-if [ -z "$content_type" ]; then
-  content_type=$(file --mime-type --brief "$file" 2>/dev/null || true)
-fi
-if [ -z "$content_type" ] || [ "$content_type" = application/octet-stream ]; then
-  content_type=application/octet-stream
-fi
-encoded_pathname=$(printf '%s' "$pathname" | jq -sRr @uri)
+# Keep the original filename readable in Blob administration without creating directories. The
+# fixed-length token remains the identity prefix; the filename is descriptive metadata.
+storage_path="artifacts/${artifact_token}-${blob_path}"
+encoded_pathname=$(printf '%s' "$storage_path" | jq -sRr @uri)
 response="$({
   curl --fail-with-body --silent --show-error --request PUT \
     --url "https://blob.vercel-storage.com/$encoded_pathname" \
     --header 'x-vercel-blob-access: public' \
     --header "authorization: Bearer $token" \
     --header "x-content-type: $content_type" \
+    --header 'x-content-disposition: inline' \
+    --header 'x-add-random-suffix: 0' \
     --data-binary "@$file"
 } 2>&1)" || {
   echo "$response" >&2
   exit 1
 }
 
-url=$(printf '%s' "$response" | jq -er '.url') || {
+printf '%s' "$response" | jq -e '.url' >/dev/null || {
   echo "agent-upload: upload response did not contain a public URL" >&2
   printf '%s\n' "$response" >&2
   exit 1
 }
-printf '%s\n' "$url"
+
+serve_base_url=${AGENT_UPLOAD_VIEWER_BASE_URL:-https://agentfile.link}
+printf '%s/%s/%s\n' "${serve_base_url%/}" "$friendly_slug" "$artifact_token"
