@@ -26,6 +26,7 @@
     },
     "vercel-ai-gateway": {
       "modelOverrides": {
+        "deepseek/deepseek-v4-flash": { "maxTokens": 262144 },
         "deepseek/deepseek-v4-flash-0731": {
           "compat": {
             "vercelGatewayRouting": {
