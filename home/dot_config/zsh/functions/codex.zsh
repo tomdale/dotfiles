@@ -23,7 +23,7 @@ multi-commit() {
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
-# review - Check out a PR review worktree, then run Codex code review
+# review - Check out a PR review worktree, run Codex code review, then open Pi
 # ───────────────────────────────────────────────────────────────────────────────
 # Usage: review <pr>
 # Examples:
@@ -34,7 +34,8 @@ multi-commit() {
 #
 # Runs `wf review` (which cds into the review worktree via shell integration),
 # then runs a non-interactive Codex code review against the PR base branch with
-# gpt-5.6-sol at xhigh reasoning effort.
+# gpt-5.6-sol at xhigh reasoning effort, and starts Pi with the review output
+# included as initial context.
 review() {
   if [[ $# -lt 1 ]]; then
     echo "Usage: review <pr>" >&2
@@ -56,8 +57,14 @@ review() {
     return 1
   fi
 
-  # Shell integration cds into the review worktree on success.
-  wf review "$@" || return $?
+  if ! command -v pi >/dev/null 2>&1; then
+    echo "pi is not installed" >&2
+    return 1
+  fi
+
+  # Skip Workforest's completion modal so the review can continue unattended;
+  # shell integration still cds into the review worktree on success.
+  WORKFOREST_NO_TUI=1 wf review "$@" || return $?
 
   local base_branch=""
   local pr_number=""
@@ -81,10 +88,28 @@ review() {
     base_branch="main"
   fi
 
+  local review_file
+  review_file="$(mktemp "${TMPDIR:-/tmp}/codex-review.XXXXXX")" || {
+    echo "Unable to create a temporary file for the Codex review" >&2
+    return 1
+  }
+
+  # Keep the review in a file so Pi can receive the complete output without
+  # putting it in the shell's argument list.
   echo "Running Codex review against base branch '${base_branch}' (gpt-5.6-sol, xhigh)..." >&2
   codex \
     -m gpt-5.6-sol \
     -c 'model_reasoning_effort="xhigh"' \
     review \
-    --base "$base_branch"
+    --base "$base_branch" >| "$review_file"
+  local codex_status=$?
+  if (( codex_status != 0 )); then
+    rm -f "$review_file"
+    return "$codex_status"
+  fi
+
+  pi --skill "$HOME/.agents/skills/tdx-pr-feedback/SKILL.md" "@${review_file}" "Load the tdx-pr-feedback skill and use Codex's review above to begin drafting PR review feedback. Start with the first proposed inline comment and ask me to approve, edit, or skip it. Do not post anything to GitHub."
+  local pi_status=$?
+  rm -f "$review_file"
+  return "$pi_status"
 }
