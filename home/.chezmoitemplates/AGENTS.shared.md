@@ -1,5 +1,7 @@
 Before modifying any agent or harness configuration, read the `agent-config` skill.
 
+Before changing any of Tom's personal repositories (toolbelt, skills, dotfiles, or another github.com/tomdale checkout), read the `personal-repo-lifecycle` skill and follow it, normally through push and cleanup; their canonical checkouts are live, so edits happen only in your own task worktree. Before installing, reloading, or applying anything they deploy, read that skill's deploy step: only canonical checkouts are deployed.
+
 Before creating or changing any agent instruction file (AGENTS.md, CLAUDE.md, SKILL.md, or a prompt template), however small the change, read the shared `write-agents-md` skill and complete its required independent review before finishing.
 
 Write comments, documentation, help text, and tool descriptions for a reader who sees only the current system: describe current behavior and durable intent, and keep change history in commits and PRs. Comments explain non-obvious invariants rather than restating code.

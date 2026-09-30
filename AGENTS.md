@@ -10,7 +10,7 @@ Public chezmoi-managed dotfiles repo; root-level files are not deployed. Terms:
 Before modifying agent/harness config read the `agent-config` skill. Managed source is authoritative; do not fix by editing deployed `$HOME/{.claude,.codex,.pi,.agents}`.
 
 ## Branching
-Work directly on `master`; no feature branches. The repo deploys live state via `chezmoi apply`, so only one file version can be active — branches cannot coexist; keep a single linear history. In a sandboxed harness run `chezmoi apply` (and `chezmoi apply...`) commands unsandboxed. If unsure how an agent CLI behaves, consult checked-out Codex/Pi source under `$HOME/Code/` when present.
+`master` is the only deployed branch: `chezmoi apply` renders this checkout, so one version of each file is live and history stays linear. Changes go through a task worktree and land on `master` by fast-forward, per the `personal-repo-lifecycle` skill. In a sandboxed harness run `chezmoi apply` (and `chezmoi apply...`) commands unsandboxed. If unsure how an agent CLI behaves, consult checked-out Codex/Pi source under `$HOME/Code/` when present.
 
 ## Safety and secrets
 Public repo — never commit/stage/push secrets or anything potentially compromising. Treat private keys, tokens, credentials, machine/account IDs, signing keys, personal access tokens, session material, local-only hostnames, and unexplained high-entropy values as sensitive until proven otherwise. Scan every diff before commit/PR/push. If sensitive material appears in tracked source, stop and warn the user; do not continue/commit/push until it is removed or replaced with a documented local-only mechanism.
