@@ -280,13 +280,10 @@ zle -N zle-line-init __tomdale_apply_initial_terminal_decorations
 }
 
 # ───────────────────────────────────────────────────────────────────────────────
-# Lazy secret injection (keychain → shell memory; zero disk)
-# Interactive: process-sub pipe + `zle -F`. The producer runs in parallel with
-# the rest of startup; when ZLE waits for the first keystroke it notices the fd,
-# drains export lines, evals them in THIS shell, and closes the fd. No tempfile.
-# (Earlier pipe attempts looked broken only because the Python pty harness never
-# drove ZLE's input loop — under a real tty `zle -F` fires reliably on zsh 5.9.)
-# Non-interactive shells use ~/.zshenv's synchronous fallback.
+# Lazy socket-firewall credential injection (keychain → shell memory; zero disk)
+# The gateway key is loaded synchronously by env.zsh for every shell. This
+# interactive-only path remains for the socket-firewall credentials, whose
+# setup is intentionally deferred until ZLE is available.
 # ───────────────────────────────────────────────────────────────────────────────
 if [[ -z ${AI_GATEWAY_API_KEY-} || -z ${SOCKET_AUTH_B64-} ]]; then
   zmodload zsh/system 2>/dev/null
@@ -315,7 +312,9 @@ if [[ -z ${AI_GATEWAY_API_KEY-} || -z ${SOCKET_AUTH_B64-} ]]; then
       line=""
     done
     zle -F $fd 2>/dev/null
-    exec {fd}<&- 2>/dev/null
+    # Scope the error redirection: a bare `exec` would permanently replace the
+    # interactive shell's stderr, hiding diagnostics from every later command.
+    { exec {fd}<&-; } 2>/dev/null
     [[ -n $body ]] && eval "$body"
     unfunction __tomdale_collect_secret_fd __tomdale_emit_secrets 2>/dev/null
   }

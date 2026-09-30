@@ -56,18 +56,19 @@ source "${ZDOTDIR:-$HOME/.config/zsh}/env.sh"
 export LANG="en_US.UTF-8"
 export EDITOR="nvim"
 
-# Keychain-backed secrets (no plaintext-at-rest cache).
-# Interactive shells: skip here; .zshrc injects via process-sub pipe + zle -F.
-# Non-interactive shells: fetch synchronously only when not already inherited
-# (scripts/agents/CI have no zle). Lives in env.zsh so BOTH entry points get
-# it — $HOME/.zshenv (first shell) and $ZDOTDIR/.zshenv (subshells that
-# inherit ZDOTDIR and never re-read $HOME/.zshenv).
+# Keychain-backed secrets (no plaintext-at-rest cache). Load the gateway key
+# synchronously for every shell, including interactive shells without a usable
+# ZLE/TTY. GUI-launched tools and agent shells can start without either, so the
+# key cannot depend on the asynchronous .zshrc injection path.
+if [[ -z ${AI_GATEWAY_API_KEY-} && -x /usr/bin/security ]]; then
+  AI_GATEWAY_API_KEY="$(/usr/bin/security find-generic-password \
+    -a vercel-ai-gateway -s 'Vercel AI Gateway' -w 2>/dev/null)"
+  [[ -n $AI_GATEWAY_API_KEY ]] && export AI_GATEWAY_API_KEY
+fi
+
+# Socket-firewall credentials remain interactive-shell independent, but are
+# loaded here only for non-interactive shells because .zshrc owns the TTY path.
 if [[ ! -o interactive ]]; then
-  if [[ -z ${AI_GATEWAY_API_KEY-} && -x /usr/bin/security ]]; then
-    AI_GATEWAY_API_KEY="$(/usr/bin/security find-generic-password \
-      -a vercel-ai-gateway -s 'Vercel AI Gateway' -w 2>/dev/null)"
-    [[ -n $AI_GATEWAY_API_KEY ]] && export AI_GATEWAY_API_KEY
-  fi
   if [[ ( -z ${SOCKET_AUTH_B64-} || -z ${SOCKET_PASSWORD_B64-} || -z ${UV_INDEX_SOCKET_FIREWALL_PASSWORD-} ) \
         && -f $HOME/.config/socket-firewall/env.sh ]]; then
     source "$HOME/.config/socket-firewall/env.sh"
