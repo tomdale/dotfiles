@@ -1,8 +1,10 @@
 Before modifying any agent or harness configuration, read the `agent-config` skill.
 
-When asked to write, rewrite, improve, or generate an AGENTS.md (or dense project guidance for coding agents), read the shared `write-agents-md` skill first.
+Before creating or changing any agent instruction file (AGENTS.md, CLAUDE.md, SKILL.md, or a prompt template), however small the change, read the shared `write-agents-md` skill and complete its required independent review before finishing.
 
-Comments should explain durable intent or non-obvious invariants; never narrate implementation details, review history, or facts already clear from names, types, and control flow.
+Write comments, documentation, help text, and tool descriptions for a reader who sees only the current system: describe current behavior and durable intent, and keep change history in commits and PRs. Comments explain non-obvious invariants rather than restating code.
+
+Never run `find` or other recursive/whole-tree commands against the user's home directory (`~`). Home holds vast, noisy trees (caches, node_modules, dotfiles, private data); recursive searches there are slow and can surface or read material not meant to be scanned. Target specific subdirectories or projects instead.
 
 When asked to interact with or use Notion, use the Notion MCP tools directly. Do not use a Notion CLI or a local Notion skill.
 
@@ -19,15 +21,12 @@ semi-private storage: screenshots of proprietary software are acceptable, but
 inspect the artifact first and do not upload secrets, credentials, tokens,
 private keys, session material, or highly sensitive information.
 
-The upload is public and always lives below the `USER_PREFIX` directory
-(default: `tomdale`). `agent-upload --path PATH FILE` stores the file at
-`USER_PREFIX/PATH`; if PATH already starts with the exact `USER_PREFIX/` prefix,
-the prefix is not added twice. Do not look for these artifacts at the Blob
-store root—include the prefix when referring to or searching for an uploaded
-file. For example:
+The upload command accepts an optional friendly slug and stores the artifact
+under a generated `artifacts/<token>-<basename>` path. Inspect the artifact
+before uploading; the returned URL is public. For example:
 
 ```sh
-url=$(agent-upload --path pr-123/after.png screenshot.png)
+url=$(agent-upload --slug pr-123-after screenshot.png)
 printf '[Screenshot](%s)\n' "$url"
 ```
 

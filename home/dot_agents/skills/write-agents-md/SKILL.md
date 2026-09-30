@@ -1,11 +1,13 @@
 ---
 name: write-agents-md
 description: >
-  Research a codebase and write a dense, high-signal AGENTS.md for agents
-  sitting down to do real work. Use when asked to write, rewrite, improve,
-  streamline, or generate AGENTS.md / agent instructions / project guidance
-  for coding agents; when an AGENTS.md is too long, fluffy, generic, or missing
-  product context; or when documenting multi-repo feature workflow for agents.
+  Write, edit, and review agent instruction files (AGENTS.md, CLAUDE.md,
+  SKILL.md, prompt templates). Use for any change to such a file, however
+  small, and when asked to write, rewrite, improve, streamline, or generate
+  AGENTS.md / agent instructions / project guidance for coding agents; when an
+  AGENTS.md is too long, fluffy, generic, or missing product context; or when
+  documenting multi-repo feature workflow for agents. Every change requires an
+  independent fresh-context review before completion.
 ---
 
 # Write dense AGENTS.md
@@ -14,8 +16,103 @@ Produce an AGENTS.md an agent can load and immediately act on. Every token
 earns its place. Prefer product truth and operational constraints over style
 guides and generic advice.
 
+## Changing existing agent instructions
+
+This section applies to every edit of an agent instruction file (AGENTS.md,
+CLAUDE.md, SKILL.md, prompt templates), including one-line edits. Small edits
+need only this section; the research and writing procedures below are for new
+files and substantial rewrites, which also finish with the review here.
+
+Why this matters: the agent making a change has just read the old text and
+discussed what to remove, so the retired behavior is the most salient thing in
+its context. It tends to leak into the new text as denials ("there is no X"),
+notes about what changed, or rules against the specific mistake that prompted
+the edit. Future agents load the file without that history. To them, such
+sentences refer to things that do not exist, spend tokens, and can steer them
+toward the retired concept. The author's own review shares the same context and
+reliably misses these sentences, so an independent reviewer is required.
+
+Write the current contract:
+
+1. Before editing, state the new behavior as positive facts about the current
+   system: what is true, who owns what, what an agent does. Write the file from
+   that statement rather than annotating the old text.
+2. Replace or delete superseded text so the file reads as if the current
+   behavior had always been the design.
+3. Put change history and rationale for the change in the commit message, PR,
+   or project documents, never in the instruction file.
+4. Name a concept, path, role, or tool only when the current system uses it.
+5. Keep a prohibition only when it protects an invariant a fresh reader could
+   plausibly violate today (secrets, destructive commands, publish gates), and
+   give the reason. When an agent recently made a mistake, describe the correct
+   behavior; the mistake itself is not an invariant.
+
+Example. Task: retire a "Scheduler" role. Wrong result: "There is no longer a
+Scheduler role; jobs follow the same queue as other work." Right result: delete
+the Scheduler description and state the current rule: "Submit every job to the
+shared queue."
+
+Self-check before review:
+
+- Term audit: list every name, path, flag, and role in the removed lines
+  (`git diff -U0 -- <file>`). For each that still appears in the file, confirm
+  the current system uses it; otherwise delete or rewrite the sentence.
+- Transition scan: check added lines for "no longer", "anymore", "now",
+  "instead of", "previously", "there is no", "removed", "deprecated",
+  "legacy", "new". Each occurrence needs a current-system reason.
+- Fresh-reader test: reading only the final file, confirm every sentence
+  changes where an agent looks, what it runs, or what it must not violate.
+
+Required independent review. After changing any agent instruction file and
+before committing or reporting the work complete:
+
+1. Spawn a reviewer subagent with a fresh context (no inherited conversation)
+   on the fast, inexpensive model `vercel-ai-gateway/openai/gpt-6-luna`. In Pi, use the subagent tool with context inheritance
+   off and that exact model ID; fuzzy aliases can resolve to retired models.
+   If the spawn fails, retry with another fast model before giving up. Without
+   a suitable subagent tool (including Claude Code, whose subagents cannot
+   select gateway models), run a separate session:
+   `pi -p --no-session --tools read,grep,find,ls,bash --model
+   vercel-ai-gateway/openai/gpt-6-luna '<prompt>'`.
+2. Send only the reviewer prompt below with the placeholders filled in. Do not
+   add a summary of the change, its motivation, or the conversation; the review
+   depends on the reviewer lacking that context.
+3. Fix every finding, or state in your final report why a finding is wrong.
+   After fixing anything beyond typos, run a new review; finish only on PASS.
+4. Report the reviewer's verdict and model. If no reviewer could be spawned,
+   say so explicitly and do not describe the change as reviewed.
+
+Reviewer prompt:
+
+```text
+Review changes to agent instruction files. You have deliberately been given no
+context about why they changed. Do not edit any files.
+
+Changed files: <absolute paths>
+Diff command: <e.g. git -C <repo> diff HEAD -- <paths>>
+
+1. Read ~/.agents/skills/write-agents-md/SKILL.md; its rules are the standard,
+   especially "Changing existing agent instructions", plus "Density rules" for
+   AGENTS.md and CLAUDE.md files. Also read every AGENTS.md or CLAUDE.md that
+   governs the changed files (same directory and ancestors within the
+   repository) and apply its rules.
+2. Before looking at the diff, read each changed file in full as a new agent
+   loading it would. Flag any sentence that mentions something only to deny or
+   retire it, describes a change instead of the current system, or does not
+   change what an agent would do. Explanations of why a rule exists and
+   clearly labeled examples of wrong output are acceptable.
+3. Run the diff command. Flag: names, paths, or roles from removed lines that
+   survive only in denials or transition wording; transition language in added
+   lines; new prohibitions without a current invariant and reason;
+   contradictions or duplication with the rest of the file or governing
+   instructions; true rules from removed lines that are no longer expressed.
+4. Output PASS or FAIL on the first line. For FAIL, list numbered findings:
+   file:line, quoted text, rule violated, suggested fix.
+```
+
 ## When this skill applies
 
+- Any edit to an existing agent instruction file (see the section above).
 - User wants a new or rewritten AGENTS.md (repo root, package, monorepo app, or
   multi-repo workspace guide).
 - Existing AGENTS.md is long, markdown-heavy, generic, or out of date.
@@ -164,7 +261,10 @@ paragraphs. If cutting would drop an invariant, keep the invariant.
    what it runs, or what it must not violate.
 5. Pass for density (Density rules + techniques below).
 6. Write the file to the target path.
-7. Report: path; approx word count; top sources used; any open uncertainties.
+7. Run the self-check and required independent review from "Changing existing
+   agent instructions".
+8. Report: path; approx word count; top sources used; reviewer verdict and
+   model; any open uncertainties.
 
 When rewriting an existing AGENTS.md: preserve every true invariant; delete only
 redundancy, chrome, and generics; add missing product/routing/command truth.

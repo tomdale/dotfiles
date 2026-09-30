@@ -41,11 +41,11 @@ Harness-specific source directories:
 - Pi: `home/dot_pi/agent/` → `~/.pi/agent/`
 - Shared agent skills: `home/dot_agents/skills/` → `~/.agents/skills/`
 
-Pi's native global skills directory is linked to the shared directory by the
-chezmoi script `home/.chezmoiscripts/run_after_11-link-pi-skills.sh.tmpl`:
-`~/.pi/agent/skills` → `~/.agents/skills`. Claude Code and Codex use the global
-Agent Skills convention `~/.agents/skills`; keep shared skills there rather than
-duplicating them under harness-specific directories.
+Shared skills are deployed to `~/.agents/skills`. Claude Code and Codex use the
+global Agent Skills convention; keep shared skills there rather than duplicating
+them under harness-specific directories. Pi's skill discovery is configured
+separately; do not assume that `~/.pi/agent/skills` is linked to the shared
+directory.
 
 ## Choosing where to make a change
 
@@ -90,8 +90,9 @@ lowercase `name` and a useful `description`, at
 `home/dot_agents/skills/<skill-name>/SKILL.md`. Do not duplicate shared skills
 into `home/dot_claude/skills`, `home/dot_codex/skills`, or
 `home/dot_pi/agent/skills`; those are for harness-specific or native skills.
-After applying, confirm visibility at `~/.agents/skills/<skill-name>/SKILL.md`
-and, for Pi, via `~/.pi/agent/skills/<skill-name>/SKILL.md`.
+After applying, confirm visibility at
+`~/.agents/skills/<skill-name>/SKILL.md`. Verify any harness-specific discovery
+path separately before claiming that the skill is available there.
 
 ## Safety and review
 

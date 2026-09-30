@@ -2,10 +2,6 @@
 
 ## Claude Code-specific rules
 
-Comments: explain why, not what. Never reference how code changed from a
-previous version. Ask: "will this make sense in a year to someone who never saw
-the old code?" If not, put it in a commit message or PR description, not code.
-
 Sandbox: write scratch/temp files to ./.agent/ (gitignored). Writes to /tmp
 outside of /tmp/claude/ will fail. On sandbox failure, first decide whether the
 blocked operation is relevant to the current project. Goal: all normal
