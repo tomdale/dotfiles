@@ -2,12 +2,12 @@
 
 set -euo pipefail
 
-repo_dir="{{ .chezmoi.homeDir }}/Code/tomdale-skills"
+repo_dir="{{ .chezmoi.homeDir }}/Code/Repos/skills/main"
 repo_url="https://github.com/tomdale/skills.git"
 branch="main"
 
 warn() {
-  echo "tomdale-skills: $*" >&2
+  echo "skills: $*" >&2
 }
 
 if ! command -v git >/dev/null 2>&1; then
@@ -15,7 +15,7 @@ if ! command -v git >/dev/null 2>&1; then
   exit 0
 fi
 
-if [[ ! -d "$repo_dir/.git" ]]; then
+if ! git -C "$repo_dir" rev-parse --git-dir >/dev/null 2>&1; then
   if [[ -e "$repo_dir" ]]; then
     warn "$repo_dir exists but is not a git checkout; skipping clone"
     exit 0

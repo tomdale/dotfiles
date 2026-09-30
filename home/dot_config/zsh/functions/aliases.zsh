@@ -9,6 +9,7 @@ alias tt=termtint              # Terminal color scheme switcher
 alias cat=bat                  # Syntax-highlighted cat replacement
 alias gnpm=/opt/homebrew/bin/npm  # Homebrew npm
 alias c='cd "$(dirname "$(chezmoi source-path)")" && pi'  # Chezmoi repo + new pi session
+alias cs='cd "$HOME/Code/Repos/skills/main" && pi'  # Skills repo + new pi session
 
 # Frequently used shortcuts retained from Oh My Zsh.
 case $OSTYPE in

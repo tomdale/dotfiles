@@ -8,7 +8,7 @@
       "name": "tdx",
       "source": {
         "source": "local",
-        "path": "./Code/tomdale-skills"
+        "path": "./Code/Repos/skills/main"
       },
       "policy": {
         "installation": "AVAILABLE",
