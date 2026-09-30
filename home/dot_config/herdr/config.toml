@@ -1,0 +1,26 @@
+onboarding = false
+[ui]
+agent_panel_sort = "spaces"
+show_agent_labels_on_pane_borders = true
+
+[ui.toast]
+delivery = "system"
+
+[theme]
+name = "gruvbox"
+auto_switch = false
+
+[keys]
+switch_workspace = "ctrl+1..9"
+
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.toggle"
+description = "nvim sidebar"
+
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "chmarax.herdr-nvim.pick-file"
+description = "open file from agent output"

@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+app="$HOME/Applications/Herdr.app"
+
+if [ "$#" -ne 0 ]; then
+  printf '%s\n' 'herdr-ghostty currently launches the default Herdr session; run herdr directly for CLI options.' >&2
+  exit 2
+fi
+if [ ! -d "$app" ]; then
+  install-herdr-app
+fi
+
+exec open -a "$app"

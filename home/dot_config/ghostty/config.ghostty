@@ -1,0 +1,30 @@
+font-family = "FiraCode Nerd Font Mono Ret"
+config-file = ?auto/theme.ghostty
+# custom-shader = ./shaders/ghostty-aurora/aurora.glsl
+# Disabled: Pi aura state should not alter the terminal background.
+# config-file = ?~/.local/state/pi-aura/ghostty-state.conf
+# custom-shader-animation = always
+
+macos-icon = custom-style
+macos-icon-frame = chrome
+macos-icon-ghost-color = #089DFF
+macos-non-native-fullscreen = padded-notch
+# font-family = "SF Mono"
+font-size = 13
+font-thicken = true
+theme = light:Xcode Light hc,dark:Xcode Dark hc
+quick-terminal-animation-duration = 0
+cursor-style = block
+shell-integration-features = no-cursor
+cursor-style-blink = false
+link-url = true
+window-inherit-working-directory = true
+window-inherit-font-size = true
+window-theme = system
+clipboard-trim-trailing-spaces = true
+mouse-hide-while-typing = true
+macos-titlebar-proxy-icon = hidden
+macos-icon = custom-style
+macos-icon-frame = plastic
+macos-icon-ghost-color = FFFFFF
+macos-icon-screen-color = 000000

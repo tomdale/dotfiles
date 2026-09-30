@@ -1,0 +1,53 @@
+# Loaded only by Herdr.app. Ghostty has no foreground-process predicates,
+# so this profile keeps terminal-wide Command shortcuts out of normal sessions.
+window-save-state = never
+initial-command = direct:/opt/homebrew/bin/herdr
+
+# Herdr pane and workspace lifecycle.
+keybind = super+w=text:\x02x
+keybind = super+shift+w=close_surface
+keybind = super+n=text:\x02N
+keybind = super+shift+n=text:\x02G
+
+# Herdr tabs.
+keybind = super+t=text:\x02c
+keybind = super+shift+t=text:\x02T
+keybind = super+[=text:\x02p
+keybind = super+]=text:\x02n
+keybind = super+digit_1=text:\x021
+keybind = super+1=text:\x021
+keybind = super+digit_2=text:\x022
+keybind = super+2=text:\x022
+keybind = super+digit_3=text:\x023
+keybind = super+3=text:\x023
+keybind = super+digit_4=text:\x024
+keybind = super+4=text:\x024
+keybind = super+digit_5=text:\x025
+keybind = super+5=text:\x025
+keybind = super+digit_6=text:\x026
+keybind = super+6=text:\x026
+keybind = super+digit_7=text:\x027
+keybind = super+7=text:\x027
+keybind = super+digit_8=text:\x028
+keybind = super+8=text:\x028
+keybind = super+digit_9=text:\x029
+keybind = super+9=text:\x029
+
+# Herdr panes.
+keybind = super+d=text:\x02v
+keybind = super+shift+d=text:\x02-
+keybind = super+alt+arrow_left=text:\x02h
+keybind = super+alt+arrow_down=text:\x02j
+keybind = super+alt+arrow_up=text:\x02k
+keybind = super+alt+arrow_right=text:\x02l
+keybind = super+enter=text:\x02z
+keybind = super+r=text:\x02r
+keybind = super+shift+p=text:\x02P
+
+# Herdr navigation and utilities.
+keybind = super+b=text:\x02b
+keybind = super+,=text:\x02s
+keybind = super+o=text:\x02o
+keybind = super+shift+r=text:\x02R
+keybind = super+shift+f=text:\x02w
+keybind = super+shift+/=text:\x02?

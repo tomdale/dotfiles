@@ -1,0 +1,100 @@
+#!/bin/sh
+set -eu
+
+source_app=/Applications/Ghostty.app
+target_app="$HOME/Applications/Herdr.app"
+icon_source="${XDG_DATA_HOME:-$HOME/.local/share}/herdr/Herdr.png"
+work=$(mktemp -d)
+trap 'rm -rf "$work"' EXIT HUP INT TERM
+
+if [ ! -x "$source_app/Contents/MacOS/ghostty" ]; then
+  echo "install-herdr-app: Ghostty is not installed at $source_app" >&2
+  exit 1
+fi
+if [ ! -f "$icon_source" ]; then
+  echo "install-herdr-app: icon not found at $icon_source" >&2
+  exit 1
+fi
+
+mkdir -p "$HOME/Applications"
+ditto "$source_app" "$work/Herdr.app"
+mv "$work/Herdr.app/Contents/MacOS/ghostty" "$work/Herdr.app/Contents/MacOS/ghostty-bin"
+
+cat >"$work/launcher.c" <<'EOF'
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(void) {
+  const char *home = getenv("HOME");
+  char executable[PATH_MAX];
+  char profile[PATH_MAX];
+
+  if (home == NULL || home[0] == '\0') {
+    fputs("Herdr: HOME is not set\n", stderr);
+    return 1;
+  }
+
+  snprintf(executable, sizeof(executable), "%s/Applications/Herdr.app/Contents/MacOS/ghostty-bin", home);
+  snprintf(profile, sizeof(profile), "--config-file=%s/.config/ghostty/herdr.ghostty", home);
+  execl(executable, executable, profile, (char *)NULL);
+  perror("Herdr");
+  return 1;
+}
+EOF
+xcrun clang -Os -Wall -Wextra -o "$work/Herdr.app/Contents/MacOS/HerdrLauncher" "$work/launcher.c"
+
+python3 - "$work/Herdr.app/Contents/Info.plist" <<'PY'
+import plistlib
+import sys
+
+path = sys.argv[1]
+with open(path, "rb") as source:
+    info = plistlib.load(source)
+info.update({
+    "CFBundleDisplayName": "Herdr",
+    "CFBundleExecutable": "HerdrLauncher",
+    "CFBundleIconFile": "Herdr.icns",
+    "CFBundleIdentifier": "dev.herdr.desktop",
+    "CFBundleName": "Herdr",
+    "SUEnableAutomaticChecks": False,
+    "SUAutomaticallyUpdate": False,
+})
+for key in (
+    "CFBundleDocumentTypes",
+    "CFBundleIconName",
+    "CFBundleURLTypes",
+    "NSDockTilePlugIn",
+    "NSServices",
+):
+    info.pop(key, None)
+with open(path, "wb") as destination:
+    plistlib.dump(info, destination, sort_keys=False)
+PY
+
+iconset="$work/Herdr.iconset"
+mkdir "$iconset"
+for spec in \
+  '16 icon_16x16.png' \
+  '32 icon_16x16@2x.png' \
+  '32 icon_32x32.png' \
+  '64 icon_32x32@2x.png' \
+  '128 icon_128x128.png' \
+  '256 icon_128x128@2x.png' \
+  '256 icon_256x256.png' \
+  '512 icon_256x256@2x.png' \
+  '512 icon_512x512.png' \
+  '1024 icon_512x512@2x.png'
+do
+  set -- $spec
+  sips -z "$1" "$1" "$icon_source" --out "$iconset/$2" >/dev/null
+done
+iconutil -c icns "$iconset" -o "$work/Herdr.app/Contents/Resources/Herdr.icns"
+
+codesign --force --deep --sign - "$work/Herdr.app"
+rm -rf "$target_app"
+ditto "$work/Herdr.app" "$target_app"
+touch "$target_app"
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$target_app"
+echo "Installed $target_app"
