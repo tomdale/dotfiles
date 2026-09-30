@@ -180,7 +180,21 @@
     "ask": [],
     "defaultMode": "auto"
   },
-  "model": "opus",
+  "model": "opus[1m]",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/tomdale/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline-command.sh"
@@ -200,7 +214,8 @@
     "datadog@claude-plugins-official": true,
     "sideshow@sideshow": true,
     "tdx@tomdale-skills": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "notion@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "vercel-vercel-plugin": {
@@ -223,8 +238,8 @@
     },
     "tomdale-skills": {
       "source": {
-        "source": "github",
-        "repo": "tomdale/skills"
+        "source": "directory",
+        "path": "/Users/tomdale/Code/Repos/skills/main"
       }
     },
     "agent-plugins": {
