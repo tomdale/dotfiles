@@ -1,9 +1,10 @@
 {
-  "lastChangelogVersion": "0.84.0",
+  "lastChangelogVersion": "0.87.1",
   "defaultProvider": "vercel-ai-gateway",
-  "defaultModel": "openai/gpt-5.6-luna",
+  "defaultModel": "openai/gpt-6-luna",
   "defaultThinkingLevel": "xhigh",
   "theme": "dark",
+  "tuiMode": "fullscreen",
   "externalEditor": "code --wait",
   "hideThinkingBlock": false,
   "doubleEscapeAction": "tree",
@@ -17,19 +18,19 @@
   "outputPad": 1,
   "enabledModels": [
     "ollama/gemma-4-26b-a4b-it-q4_k_m-128k",
-    "vercel-ai-gateway/anthropic/claude-haiku-4.5",
-    "vercel-ai-gateway/openai/gpt-5.6-luna",
-    "vercel-ai-gateway/openai/gpt-5.6-sol",
     "vercel-ai-gateway/zai/glm-5.2",
-    "vercel-ai-gateway/zai/glm-5.2-fast",
-    "vercel-ai-gateway/anthropic/claude-sonnet-5",
-    "vercel-ai-gateway/anthropic/claude-opus-5",
-    "vercel-ai-gateway/openai/gpt-5.6-terra",
-    "vercel-ai-gateway/deepseek/deepseek-v4-flash",
-    "vercel-ai-gateway/deepseek/deepseek-v4-flash-0731",
-    "vercel-ai-gateway/xai/grok-4.5",
     "vercel-ai-gateway/moonshotai/kimi-k3",
-    "vercel-ai-gateway/deepseek/deepseek-v4-pro"
+    "vercel-ai-gateway/google/gemini-3.8-flash",
+    "vercel-ai-gateway/openai/gpt-6-luna-fast",
+    "vercel-ai-gateway/zai/glm-5.3-flash",
+    "vercel-ai-gateway/zai/glm-5.3-fast",
+    "vercel-ai-gateway/openai/gpt-6-astra",
+    "vercel-ai-gateway/openai/gpt-6-sol-fast",
+    "vercel-ai-gateway/openai/gpt-5.6-luna",
+    "vercel-ai-gateway/openai/gpt-6-luna",
+    "vercel-ai-gateway/anthropic/claude-opus-5.5-fast",
+    "vercel-ai-gateway/anthropic/claude-opus-5.5",
+    "vercel-ai-gateway/openai/gpt-6.1-sol"
   ],
   "compaction": {
     "enabled": true,
@@ -74,20 +75,25 @@
     "prompts"
   ],
   "extensions": [
-    "extensions/claude-rules.ts",
-    "extensions/plan-mode",
-    "extensions/preset.ts",
-    "extensions/protected-paths.ts"
+    "../../Code/Repos/toolbelt/main/pi-extensions/extensions/claude-rules.ts",
+    "../../Code/Repos/toolbelt/main/pi-extensions/extensions/plan-shortcut.ts",
+    "../../Code/Repos/toolbelt/main/pi-extensions/extensions/preset.ts",
+    "../../Code/Repos/toolbelt/main/pi-extensions/extensions/protected-paths.ts",
+    "extensions/nvim.ts"
   ],
   "packages": [
     "../../Code/Repos/toolbelt/main/claude-plugin-loader",
-    "npm:pi-mcp-adapter@2.17.0",
+    "npm:pi-mcp-adapter@2.33.0",
     "npm:pi-web-search@1.3.1",
-    "../../Code/Repos/pi-subagents",
-    "../../Code/Repos/pi-dynamic-workflows",
+    "../../Code/Repos/toolbelt/main/pi-extensions/packages/pi-subagents-local",
+    "../../Code/Repos/toolbelt/main/pi-extensions/packages/pi-dynamic-workflows",
     "npm:@capyup/pi-goal@0.6.0",
     "npm:@harms-haus/pi-cwd@1.0.0",
-    "npm:@juicesharp/rpiv-todo@2.4.0",
-    "npm:sideshow"
+    "../../Code/Repos/toolbelt/main/pi-extensions/packages/pi-recap",
+    "npm:@narumitw/pi-plan-mode@0.49.3",
+    "../../Code/Repos/toolbelt/main/pi-extensions/packages/pi-offshoot",
+    "npm:sideshow",
+    "https://github.com/mastertyko/pi-cmux-preview",
+    "../../Code/Repos/toolbelt/main/pi-extensions/packages/pi-todo"
   ]
 }
