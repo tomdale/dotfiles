@@ -7,8 +7,8 @@ min-release-age=2
 {{- if $isWork }}
 
 # Socket Firewall npm-family registry
-registry=https://registry.k8s.vercel-security.com/npm/
-//registry.k8s.vercel-security.com/npm/:username=client-gate
-//registry.k8s.vercel-security.com/npm/:_password=${SOCKET_PASSWORD_B64}
+registry=https://registry.k8s.vercel.security/npm/
+//registry.k8s.vercel.security/npm/:username=client-gate
+//registry.k8s.vercel.security/npm/:_password=${SOCKET_PASSWORD_B64}
 omit-lockfile-registry-resolved=true
 {{- end }}
