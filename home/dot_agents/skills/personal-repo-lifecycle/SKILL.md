@@ -19,8 +19,8 @@ report the step, the failure, and the task path.
 Canonical checkouts (branch):
 
 - toolbelt `~/Code/Repos/toolbelt/main` (main): BB plugins `bb-plugin-*`,
-  `claude-plugin-loader/`, small utilities. Its `AGENTS.md` covers the
-  untracked `pi-extensions/` tree, which this workflow can't reach.
+  Pi packages (`claude-plugin-loader/`, `pi-*/`), small utilities. Pi loads
+  them through `~/.pi/agent/settings.json`, deployed from dotfiles.
 - skills `~/Code/Repos/skills/main` (main).
 - dotfiles `~/.local/share/chezmoi` (master), deployed only by `chezmoi apply`.
 - Other checkouts under `~/Code/Repos` whose origin is
@@ -57,6 +57,11 @@ It installs the plugin into a throwaway BB server with its own data directory
 and ports, checks that it activates, and removes the server. The daily BB app
 loads only canonical paths, so `bb plugin install`, `bb plugin dev`, and
 `bb plugin reload` are used only in step 4, never with a task path.
+
+Pi packages: `pi -p --no-session -ne -e <task>/<package> --model
+vercel-ai-gateway/openai/gpt-6-luna-fast 'Reply with exactly: ok'` loads only
+the task copy and must print `ok` with no "Failed to load extension" warning.
+Pi settings keep pointing at canonical paths.
 
 dotfiles: `chezmoi --source <task> diff <destination>` previews what the
 change would deploy. Agent instruction files: complete the review the
