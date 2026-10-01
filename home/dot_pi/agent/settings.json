@@ -21,6 +21,7 @@
     "vercel-ai-gateway/zai/glm-5.2",
     "vercel-ai-gateway/moonshotai/kimi-k3",
     "vercel-ai-gateway/google/gemini-3.8-flash",
+    "vercel-ai-gateway/google/gemini-3.1-flash-lite",
     "vercel-ai-gateway/openai/gpt-6-luna-fast",
     "vercel-ai-gateway/zai/glm-5.3-flash",
     "vercel-ai-gateway/zai/glm-5.3-fast",
