@@ -1,3 +1,4 @@
 {
-  "toolDescriptionMode": "custom"
+  "toolDescriptionMode": "custom",
+  "workflowsEnabled": false
 }
