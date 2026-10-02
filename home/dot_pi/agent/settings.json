@@ -69,7 +69,7 @@
   },
   "skills": [
     "~/.agents/skills",
-    "~/.pi/agent/claude-plugins/current/tdx"
+    "~/.pi/agent/claude-plugins/current/tdx/skills"
   ],
   "prompts": [
     "prompts"
