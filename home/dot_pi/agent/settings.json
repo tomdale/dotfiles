@@ -89,7 +89,6 @@
     "../../Code/Repos/toolbelt/main/pi-recap",
     "npm:@narumitw/pi-plan-mode@0.49.3",
     "../../Code/Repos/toolbelt/main/pi-offshoot",
-    "npm:sideshow",
     "https://github.com/mastertyko/pi-cmux-preview",
     "../../Code/Repos/toolbelt/main/pi-todo"
   ]
