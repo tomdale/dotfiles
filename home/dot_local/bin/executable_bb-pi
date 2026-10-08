@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+proto_home="${PROTO_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/proto}"
+proto="$proto_home/bin/proto"
+
+# Resolve only the harness globally; keep cwd and PATH for repository commands.
+node="$(unset PROTO_VERSION PROTO_NODE_VERSION; "$proto" --reporter text bin node --config-mode global)"
+pi="$(unset PROTO_VERSION; "$proto" --reporter text bin npm:@earendil-works/pi-coding-agent --config-mode global)"
+exec "$node" "$pi" "$@"
