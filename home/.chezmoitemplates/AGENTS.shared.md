@@ -10,6 +10,8 @@ Never run `find` or other recursive/whole-tree commands against the user's home 
 
 When asked to interact with or use Notion, use the Notion MCP tools directly. Do not use a Notion CLI or a local Notion skill.
 
+When handing off a task to a new thread, explicitly select the current thread's model unless a different model is explicitly requested or deliberately chosen for the task.
+
 When access to GitHub is needed, use the `gh` CLI.
 
 When creating a branch without a repository-specific naming convention, use
