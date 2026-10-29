@@ -1,10 +1,10 @@
 ---
 name: personal-repo-lifecycle
 description: >
-  Required workflow for changing Tom's personal repositories — toolbelt (Pi
-  packages and extensions, loaders), bb-plugins and bb-plugin-workstreams (BB
-  plugins), skills, dotfiles (chezmoi), and other github.com/tomdale checkouts
-  — from first edit through live install, push, and cleanup. Read before
+  Required workflow for changing Tom's personal repositories — toolbelt (shared
+  programs, scripts, and Pi packages), bb-plugins and bb-plugin-workstreams
+  (BB plugins), skills, dotfiles (chezmoi), and other github.com/tomdale
+  checkouts — from first edit through live install, push, and cleanup. Read before
   editing any of them, and before installing, reloading, or applying anything
   they deploy.
 ---
@@ -19,8 +19,9 @@ report the step, the failure, and the task path.
 
 Canonical checkouts (branch):
 
-- toolbelt `~/Code/Repos/toolbelt/main` (main): Pi packages
-  (`claude-plugin-loader/`, `pi-*/`), small utilities. Pi loads them through
+- toolbelt `~/Code/Repos/toolbelt/main` (main): reusable programs, scripts,
+  and non-BB plugins, one per top-level directory, including Pi packages
+  (`claude-plugin-loader/`, `pi-*/`). Pi loads those through
   `~/.pi/agent/settings.json`, deployed from dotfiles.
 - bb-plugins `~/Code/Repos/bb-plugins/main` (main): BB plugins, one per
   `bb-plugin-*/` directory.
