@@ -2,10 +2,13 @@
 name: stacked-prs
 description: >
   Create, manage, review, rebase, merge, and automate GitHub stacked pull
-  requests with gh stack. Use when the user mentions stacked PRs, PR stacks,
-  gh stack, dependent pull requests, cascading rebase, stack submit/sync/merge,
-  mid-stack review fixes, stacking AI-generated code, or splitting a large
-  change into ordered reviewable layers.
+  requests with gh stack, and write their titles and descriptions. Use when
+  the user mentions stacked PRs, PR stacks, gh stack, dependent pull requests,
+  cascading rebase, stack submit/sync/merge, mid-stack review fixes, stacking
+  AI-generated code, or splitting a large change into ordered reviewable
+  layers. Also use before creating a PR or writing or editing a PR title or
+  description (gh stack, gh pr create, gh pr edit, web UI, or API) when the PR
+  is in a stack or its base is another PR's branch.
 ---
 
 # Stacked pull requests
@@ -27,6 +30,8 @@ Load when the task involves any of:
 - merge-from-bottom / partial stack merge / merge queue + stacks
 - CI, branch protection, CODEOWNERS, or API/webhook behavior for stacks
 - stacking agent/AI-generated code into reviewable layers
+- creating a stacked PR or writing/editing its title or description, by any
+  tool (`gh stack submit`, `gh pr create`, `gh pr edit`, web UI, API)
 
 ## Mental model (read first)
 
@@ -81,6 +86,17 @@ Day-to-day:
 
 Non-interactive submit: `gh stack submit --auto` (drafts by default; add
 `--open` for ready-for-review).
+
+## PR titles and descriptions
+
+These rules apply whenever you write or change a stacked PR's title or
+description, whatever tool opens or edits it. GitHub's stack UI shows each PR's
+stack membership and position, so the title and description cover only this
+layer's diff against the branch below it, and the description opens with what
+this layer changes. Stack placement text, such as "Stacked on #12 (→ #11 →
+`main`)", duplicates that UI; leave it out. Mention another layer only when
+reviewing this one depends on it, and say what the reviewer needs from it, for
+example "Builds on the `Session` type added in #12; review that first."
 
 ## Load references by task
 

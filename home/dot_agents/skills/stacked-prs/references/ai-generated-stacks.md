@@ -58,7 +58,7 @@ gh stack submit                 # when ready for PRs
 
 - New branch per layer; keep diffs self-contained
 - If a layer balloons, split into two layers
-- Titles/descriptions describe **this** layer only
+- Titles/descriptions: follow **PR titles and descriptions** in `SKILL.md`
 
 Prompts:
 

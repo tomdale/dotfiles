@@ -37,7 +37,7 @@ From the AI stacking tutorial and concepts docs:
   before upper-layer review.
 - Parallel review is fine when layers have different owners/concerns (e.g. data
   model vs endpoints).
-- Keep titles/descriptions focused on **this layer’s** purpose.
+- Titles/descriptions: follow **PR titles and descriptions** in `SKILL.md`.
 - Author should self-review each small layer before requesting review.
 
 ## Anti-patterns
