@@ -6,7 +6,7 @@ New reusable programs, scripts, and plugins Tom wants across environments go in 
 
 Before creating or changing any agent instruction file (AGENTS.md, CLAUDE.md, SKILL.md, or a prompt template), however small the change, read the shared `write-agents-md` skill and complete its required independent review before finishing.
 
-Before creating a stacked GitHub PR or writing or editing a stacked PR's title or description (a PR in a `gh stack` stack or whose base is another PR's branch, by any tool including `gh pr create` and `gh pr edit`), read the shared `stacked-prs` skill; name that skill in any handoff of such work.
+Before opening a stacked GitHub PR or writing or editing a stacked PR's title or description (a PR in a `gh stack` stack or whose base is another PR's branch, by any tool including `gh pr create` and `gh pr edit`), read the tdx plugin's `stacked-prs` skill (`tdx-stacked-prs` in Pi, `tdx:stacked-prs` elsewhere); name that skill in any handoff of such work.
 
 Write comments, documentation, help text, and tool descriptions for a reader who sees only the current system: describe current behavior and durable intent, and keep change history in commits and PRs. Comments explain non-obvious invariants rather than restating code.
 

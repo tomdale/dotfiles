@@ -1,3 +1,8 @@
-# Retired shared skills, superseded by .agents/skills/inside-mac. Listed here
-# because chezmoi leaves a destination in place when its source is deleted.
+# Shared skills whose source moved or was deleted. chezmoi leaves a destination
+# in place when its source is deleted, so each is listed here.
+
+# Superseded by .agents/skills/inside-mac.
 .agents/skills/imac-*
+
+# Ships in the tdx plugin (github.com/tomdale/skills) as stacked-prs.
+.agents/skills/stacked-prs
