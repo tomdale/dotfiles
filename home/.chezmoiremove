@@ -1,0 +1,3 @@
+# Retired shared skills, superseded by .agents/skills/inside-mac. Listed here
+# because chezmoi leaves a destination in place when its source is deleted.
+.agents/skills/imac-*
