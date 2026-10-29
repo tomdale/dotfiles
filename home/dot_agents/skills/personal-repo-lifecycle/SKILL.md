@@ -1,39 +1,45 @@
 ---
 name: personal-repo-lifecycle
 description: >
-  Required workflow for changing Tom's personal repositories — toolbelt (BB
-  plugins, Pi packages and extensions, loaders), skills, dotfiles (chezmoi),
-  and other github.com/tomdale checkouts — from first edit through live
-  install, push, and cleanup. Read before editing any of them, and before
-  installing, reloading, or applying anything they deploy.
+  Required workflow for changing Tom's personal repositories — toolbelt (Pi
+  packages and extensions, loaders), bb-plugins and bb-plugin-workstreams (BB
+  plugins), skills, dotfiles (chezmoi), and other github.com/tomdale checkouts
+  — from first edit through live install, push, and cleanup. Read before
+  editing any of them, and before installing, reloading, or applying anything
+  they deploy.
 ---
 
 # Personal repo lifecycle
 
 Each repository has one canonical checkout, and it is live: the daily BB app
-loads toolbelt plugins from it, Pi loads packages and extensions from it, and
+loads Tom's BB plugins from it, Pi loads packages and extensions from it, and
 chezmoi deploys from its source. Every change therefore follows the six steps
 below in order. When a step fails, stop there, keep the work where it is, and
 report the step, the failure, and the task path.
 
 Canonical checkouts (branch):
 
-- toolbelt `~/Code/Repos/toolbelt/main` (main): BB plugins `bb-plugin-*`,
-  Pi packages (`claude-plugin-loader/`, `pi-*/`), small utilities. Pi loads
-  them through `~/.pi/agent/settings.json`, deployed from dotfiles.
+- toolbelt `~/Code/Repos/toolbelt/main` (main): Pi packages
+  (`claude-plugin-loader/`, `pi-*/`), small utilities. Pi loads them through
+  `~/.pi/agent/settings.json`, deployed from dotfiles.
+- bb-plugins `~/Code/Repos/bb-plugins/main` (main): BB plugins, one per
+  `bb-plugin-*/` directory.
+- bb-plugin-workstreams `~/Code/Repos/bb-plugin-workstreams/main` (main): the
+  Workstreams BB plugin, at the repository root.
 - skills `~/Code/Repos/skills/main` (main).
 - dotfiles `~/.local/share/chezmoi` (master), deployed only by `chezmoi apply`.
 - Other checkouts under `~/Code/Repos` whose origin is
   `github.com/tomdale/*`: same steps on their default branch.
 
-toolbelt and dotfiles are public on GitHub. Scan every diff for secrets and
-private material (tokens, credentials, thread transcripts or snapshots,
-employer-internal details) before any push, including archive pushes.
+toolbelt, bb-plugins, and dotfiles are public on GitHub. Scan every diff for
+secrets and private material (tokens, credentials, thread transcripts or
+snapshots, employer-internal details) before any push, including archive
+pushes.
 
 ## 1. Isolate
 
-Work only in a task worktree you created. Workforest repos (toolbelt, skills,
-most of `~/Code/Repos`): `cd <canonical> && wf task new <slug> --json`, then
+Work only in a task worktree you created. Workforest repos (toolbelt,
+bb-plugins, bb-plugin-workstreams, skills, most of `~/Code/Repos`): `cd <canonical> && wf task new <slug> --json`, then
 `git -C <task> branch -m tomdale/<slug>`. dotfiles:
 `git -C ~/.local/share/chezmoi worktree add ~/Code/Repos/dotfiles/<slug> -b tomdale/<slug> master`.
 
@@ -51,8 +57,10 @@ whichever of typecheck, test, and build it defines. `~/.npmrc` sets
 `NPM_CONFIG_MIN_RELEASE_AGE=0 npm ci` for that one install and leave
 `~/.npmrc` unchanged.
 
-BB plugins: after building, run
-`~/Code/Repos/toolbelt/main/scripts/bb-plugin-smoke <task>/bb-plugin-<name>`.
+BB plugins: after building, run the repository's smoke check on the task's
+plugin directory:
+`~/Code/Repos/bb-plugins/main/scripts/bb-plugin-smoke <task>/bb-plugin-<name>`
+or `~/Code/Repos/bb-plugin-workstreams/main/scripts/bb-plugin-smoke <task>`.
 It installs the plugin into a throwaway BB server with its own data directory
 and ports, checks that it activates, and removes the server. The daily BB app
 loads only canonical paths, so `bb plugin install`, `bb plugin dev`, and
@@ -80,8 +88,8 @@ uncommitted file; stop and report when it does.
 Rebuild the changed package in the canonical checkout and rerun its checks
 there.
 
-- BB: `bb plugin reload <id>` (first install:
-  `bb plugin install <canonical>/bb-plugin-<name> --yes`). Confirm
+- BB: `bb plugin reload <id>` (first install: `bb plugin install
+  <canonical plugin directory> --yes`). Confirm
   `bb plugin list` shows the plugin `running` from `path:<canonical>/...`, then
   exercise the change in the app when it has UI.
 - Pi: start a new session or run `/reload`.
