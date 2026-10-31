@@ -120,6 +120,6 @@ export PATH="$HOME/.local/bin:$PATH"
 # Cargo-installed binaries (termtint, termtitle, etc.)
 export PATH="$CARGO_HOME/bin:$PATH"
 
-# Proto shims perform runtime version detection for every invocation. Full
-# shell activation lives in .zshrc, where it can install the interactive chpwd hook.
-export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
+# Proto's npm backend installs global CLI entry points here, separately from
+# runtime shims. Keep both available in every shell, including fresh terminals.
+export PATH="$PROTO_HOME/tools/node/globals/bin:$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
