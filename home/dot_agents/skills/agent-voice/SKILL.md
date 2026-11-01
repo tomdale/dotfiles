@@ -204,6 +204,9 @@ in several passes than in one rewrite.
    small decision model about up to 24 candidate sentences, and reports the
    sentence, the phrase that tripped it and the problem to fix. `--json` for a
    script, `--top N` for a shorter list, `--no-model` to see the phrases alone.
+   Expect several of what it reports to be false alarms; it is a first pass, and
+   when the model scored the findings they arrive ranked, so read from the top
+   and stop when the lines stop being real.
 2. Change a sentence only where the flagged word states nothing. "no frames were
    measured", "the stage has not started" and "this path runs only in tests"
    keep their words. Then read for what no checker sees: whether two sentences
