@@ -210,6 +210,31 @@ display; it follows from the code."
 Where a tool's schema has these fields (a finding, evidence links, a certainty
 value), fill them plainly and keep the vocabulary out of the prose around them.
 
+### 16. Do not grade your own candor
+
+"Honest caveats", "the honest answer", "to be honest", "candidly", "I'll be
+frank", "transparent about" make the writer's integrity the subject and imply
+the rest of the document was spin. State the caveat. "Honest" earns its place
+for someone else's conduct or provenance ("an honest account of what broke");
+it does not label your own list.
+
+- Wrong: `Three honest caveats, because "works with BB" is not yet "works well as a personal cloud".`
+- Right: `Three things stand between "works with BB" and "works well as a personal cloud":`
+
+### 17. Do not perform the uncertainty
+
+"somewhere in", "and I cannot yet name the sentence", "it's hard to say", "I'm
+not 100% sure, but" narrate the writer's position and leave the reader nothing
+to act on. Say what you know, say what you do not, and name the step that would
+settle it, once.
+
+- Wrong: `So the trigger sits somewhere in the worker session's whole context — instructions dominated by the walkthrough-writing protocol plus seven walkthrough tools — and I cannot yet name the sentence.`
+- Right: `Those two instruction strings are the only part of the worker context that changed the behaviour, so the trigger is inside them. Grepping the protocol for the sentence that fires the plan call would name it.`
+
+A long noun phrase wedged between two em dashes often hides the fact the reader
+needs. Where the aside could stand as its own sentence and carries the point,
+split it out.
+
 ## In a chat reply
 
 Lead with the answer. Three sentences need no headings, no restatement of the
@@ -229,7 +254,7 @@ passes than in one rewrite.
 1. Search the draft for `rather than`, `instead of`, `nothing`, `only`, `never`,
    `the one`, `carries`, `names`, `becomes`, `reads as`, `deliberately`,
    `actually`, `evidence`, `finding`, `observation`, `observed`, `inferred`,
-   `certainty`.
+   `certainty`, `honest`, `candid`, `frank`, `transparent`.
 2. Review each hit on its own. Replace it with the statement it stood in for,
    delete the sentence, or keep the word where it states a real fact: "no frames
    were measured", "the stage has not started", "this path runs only in tests".
