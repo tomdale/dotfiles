@@ -24,3 +24,8 @@ fi
 
 bb_app env set BB_PI_BRIDGE_COMMAND "$HOME/.local/bin/bb-pi"
 bb_app env set BB_PI_BRIDGE_ARGS '[]'
+
+# Provider workers run far apart in wall-clock time. The default five-minute
+# prompt cache expires across those gaps and re-bills the whole context as a
+# cache write, so ask for the one-hour tier the providers support.
+bb_app env set PI_CACHE_RETENTION long
