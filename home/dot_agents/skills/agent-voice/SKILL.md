@@ -191,6 +191,25 @@ naming exactly; a rendering choice described as a character flaw is not.
 - Wrong: `Detail is announced, not offered, so nothing collapses.`
 - Right: `A details part prints its whole body, so a long one pushes the conclusion off screen.`
 
+### 15. Report what you did, not what you proved
+
+"Evidence", "finding", "observation", "observed", "inferred", "proved",
+"certainty", "corroborate" dress ordinary work as a field study. A bug read
+becomes a finding with a certainty, a test run becomes evidence, a diff becomes
+an observation, and the reader is left grading the claim instead of using it.
+Say what you did and what happened.
+
+- Wrong: `Finding: auto-repeat reads a stale position (observed). Evidence: Queue.tsx:308–322, which shows the effect depends on the index.`
+- Right: `The effect re-registers whenever the index changes (Queue.tsx:308–322), so a repeat event re-runs the handler it closed over.`
+
+Reach for the frame when the reader's decision turns on how much the claim is
+worth: an audit, a security finding, a number nobody measured. Even then, say
+it in the same breath and leave the taxonomy out: "I did not run this on a
+display; it follows from the code."
+
+Where a tool's schema has these fields (a finding, evidence links, a certainty
+value), fill them plainly and keep the vocabulary out of the prose around them.
+
 ## In a chat reply
 
 Lead with the answer. Three sentences need no headings, no restatement of the
@@ -209,7 +228,8 @@ passes than in one rewrite.
 
 1. Search the draft for `rather than`, `instead of`, `nothing`, `only`, `never`,
    `the one`, `carries`, `names`, `becomes`, `reads as`, `deliberately`,
-   `actually`.
+   `actually`, `evidence`, `finding`, `observation`, `observed`, `inferred`,
+   `certainty`.
 2. Review each hit on its own. Replace it with the statement it stood in for,
    delete the sentence, or keep the word where it states a real fact: "no frames
    were measured", "the stage has not started", "this path runs only in tests".
