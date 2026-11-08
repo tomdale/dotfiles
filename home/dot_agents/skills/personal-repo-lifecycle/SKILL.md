@@ -106,6 +106,14 @@ there.
 
 ## 6. Clean up
 
+Move the thread out of the task before the task stops existing: call
+`update_environment_directory` with the canonical checkout's path
+(`~/Code/Repos/<repo>/main`, `~/.local/share/chezmoi`), then end the turn so bb
+rebinds the thread there. bb moves a thread only from inside a running turn and
+refuses to start one when the thread's directory is gone, so a thread whose
+directory is removed cannot run or move itself again; continue that work in a
+new thread.
+
 Remove your task after its branch is contained in the pushed branch and its
 worktree has no uncommitted files. Check both yourself, then run
 `wf task delete <slug> --force --json` (non-interactive shells require
@@ -115,6 +123,8 @@ and `git -C ~/.local/share/chezmoi branch -d tomdale/<slug>`.
 
 BB deletes a BB-managed thread worktree when its threads are archived, so
 archive a thread only when its worktree has no unmerged or uncommitted work.
+Workforest checkouts are deleted by `wf task delete` and `wf delete`, never by
+archiving.
 
 ## Stopping before the end
 
