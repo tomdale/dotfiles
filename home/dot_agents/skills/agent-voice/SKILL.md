@@ -217,9 +217,8 @@ in several passes than in one rewrite.
    whether the hard part of the subject got the long sentence.
 3. Read the first sentence of every paragraph. If it is a bold fragment, a claim
    about the document, or an "It is …", rewrite it to name the thing that acts.
-4. The sentence that explains a rule carries the highest yield in a document,
-   and the statements below apply to every sentence whether or not a checker
-   flags it.
+4. The sentence that explains a rule pays the most in a document, and the
+   statements below apply to every sentence whether or not a checker flags it.
 
 The standard's phrase list: `rather than`, `instead of`, `nothing`, `only`,
 `never`, `the one`, `carries`, `names`, `becomes`, `reads as`, `deliberately`,
