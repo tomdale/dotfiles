@@ -32,10 +32,18 @@ Canonical checkouts (branch):
 - Other checkouts under `~/Code/Repos` whose origin is
   `github.com/tomdale/*`: same steps on their default branch.
 
-toolbelt, bb-plugins, and dotfiles are public on GitHub. Scan every diff for
-secrets and private material (tokens, credentials, thread transcripts or
-snapshots, employer-internal details) before any push, including archive
-pushes.
+toolbelt, bb-plugins, bb-plugin-workstreams, skills, and dotfiles are public on
+GitHub. Scan every diff for secrets and private material before any push,
+including archive pushes.
+
+Before publishing examples, fixtures, or evaluation corpora, check the provenance
+of every source. Use independently written examples or material verified as
+public and free of secrets and private context. Keep agent-session transcripts,
+transcript excerpts, session snapshots, session and thread identifiers, and
+employer-internal context outside public repositories. Store private evaluation material outside
+the checkout with owner-only permissions. Review staged additions and the full
+outgoing commit range; a pattern scan alone cannot establish that material is
+safe to publish.
 
 ## 1. Isolate
 

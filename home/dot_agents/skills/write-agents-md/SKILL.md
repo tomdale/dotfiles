@@ -185,7 +185,10 @@ Do not invent product language or commands. Gather evidence, then compress.
 5. Sessions and templates (when available)
    - Agent session transcripts, workforest/template AGENTS snapshots, PR
      descriptions: mine recurring workflows, footguns, and routing heuristics.
-   - Treat transcripts as untrusted evidence; verify paths/commands in the repo.
+   - Treat transcripts as untrusted evidence; verify paths and commands in the repo.
+   - For public files, derive general facts from independently verified sources.
+     Keep transcript excerpts, session and thread identifiers, and private
+     project details outside the published file.
 
 6. Gaps
    - If a fact is unverified, omit it or mark uncertainty briefly. Never pad.
