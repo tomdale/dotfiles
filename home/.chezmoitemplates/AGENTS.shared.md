@@ -6,7 +6,7 @@ New reusable programs, scripts, and plugins Tom wants across environments go in 
 
 Before creating or changing any agent instruction file (AGENTS.md, CLAUDE.md, SKILL.md, or a prompt template), however small the change, read the shared `write-agents-md` skill and complete its required independent review before finishing.
 
-Run `voicecheck` on prose before sending or committing it: `voicecheck FILE`, or pipe a reply in with `voicecheck -`. It exits 1 when it reports a candidate, so read each report against the `agent-voice` standard before changing anything; exit 0 means it found nothing.
+Run `voicecheck FILE`, or `voicecheck -` on piped text, before writing generated prose to a file or sending it as an artifact: documents, READMEs, proposals, design docs, review write-ups, PR descriptions, commit messages, and skill or instruction text. Replies written inside a session are exempt. It exits 1 when it reports a candidate, so judge each report against the `agent-voice` standard; 0 means it found nothing.
 
 Before opening a stacked GitHub PR or writing or editing a stacked PR's title or description (a PR in a `gh stack` stack or whose base is another PR's branch, by any tool including `gh pr create` and `gh pr edit`), read the tdx plugin's `stacked-prs` skill (`tdx-stacked-prs` in Pi, `tdx:stacked-prs` elsewhere); name that skill in any handoff of such work.
 

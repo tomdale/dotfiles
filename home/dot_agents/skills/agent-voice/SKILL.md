@@ -200,13 +200,16 @@ in several passes than in one rewrite.
 
 ## Before sending
 
-1. Run `voicecheck` on the draft. It searches for the phrases below, asks a
-   small decision model about up to 24 candidate sentences, and reports the
-   sentence, the phrase that tripped it and the problem to fix. `--json` for a
-   script, `--top N` for a shorter list, `--no-model` to see the phrases alone.
-   Expect several of what it reports to be false alarms; it is a first pass, and
-   when the model scored the findings they arrive ranked, so read from the top
-   and stop when the lines stop being real.
+1. Run `voicecheck` on prose headed for a file or an artifact: a document,
+   README, proposal, design doc, review write-up, PR description, commit
+   message, skill or instruction text. A reply written inside a session needs no
+   check. `voicecheck` searches for the phrases below, asks a small decision
+   model about up to 24 candidate sentences, and reports the sentence, the
+   phrase that tripped it and the problem to fix. `--json` for a script,
+   `--top N` for a shorter list, `--no-model` to see the phrases alone.
+   Expect several of what it reports to be false alarms; when the model scored
+   the findings they arrive ranked, so read from the top and stop when the lines
+   stop being real.
 2. Change a sentence only where the flagged word states nothing. "no frames were
    measured", "the stage has not started" and "this path runs only in tests"
    keep their words. Then read for what no checker sees: whether two sentences
@@ -214,8 +217,9 @@ in several passes than in one rewrite.
    whether the hard part of the subject got the long sentence.
 3. Read the first sentence of every paragraph. If it is a bold fragment, a claim
    about the document, or an "It is …", rewrite it to name the thing that acts.
-4. This pass covers a two-line reply as much as a document, and it matters most
-   in the sentence that explains a rule.
+4. The sentence that explains a rule carries the highest yield in a document,
+   and the statements below apply to every sentence whether or not a checker
+   flags it.
 
 The standard's phrase list: `rather than`, `instead of`, `nothing`, `only`,
 `never`, `the one`, `carries`, `names`, `becomes`, `reads as`, `deliberately`,
