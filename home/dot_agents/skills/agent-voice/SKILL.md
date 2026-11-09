@@ -168,6 +168,14 @@ to use them" and "this section describes" spend words telling the reader about
 the page they are already looking at. Describe structure where a person could
 not find a part without help.
 
+A document opens with its title. A status, date, author, owner or version line,
+and any other line about the draft itself, appears only when a person asks for
+one. A middle dot chaining items (`a · b · c`) makes the reader take the line
+apart, so write the sentence.
+
+- Wrong: `Code Reviews · Security Reviews · Investigations`
+- Right: `Code Reviews, Security Reviews and Investigations`
+
 "the one", "the only", "the most important thing", "the whole point" and "never",
 "always" and "ever" used for emphasis claim a set has one member. Show the set or
 drop the word, and prefer a count: "three parts take colour" beats "only three
@@ -233,5 +241,6 @@ in several passes than in one rewrite.
 
 The standard's phrase list: `rather than`, `instead of`, `nothing`, `only`,
 `never`, `the one`, `carries`, `names`, `becomes`, `gated`, `gate`, `survives`,
-`reads as`, `deliberately`, `actually`, `evidence`, `finding`, `observation`,
-`observed`, `inferred`, `certainty`, `honest`, `candid`, `frank`, `transparent`.
+`first draft`, `reads as`, `deliberately`, `actually`, `evidence`, `finding`,
+`observation`, `observed`, `inferred`, `certainty`, `honest`, `candid`, `frank`,
+`transparent`.
