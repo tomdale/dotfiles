@@ -1,3 +1,7 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "mcp": {
+      "url": "https://mcp.linear.app/mcp"
+    }
+  }
 }
