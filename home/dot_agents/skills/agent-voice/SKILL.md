@@ -49,6 +49,7 @@ saying very little.
 | "X becomes Y" for rendering | the renderer draws X as Y |
 | "surfaces", "exposes", "leverages", "utilises" | shows, prints, returns, uses |
 | "gated on" a check, a review, a flag | the condition it waits for, the person who decides |
+| "X survives" for a fact that still holds | what the code, test or command does |
 
 - Wrong: `What it carries: a subject, an optional file path, and a sentence of background.`
 - Right: `Its fields are a subject, an optional file path, and a sentence of background.`
@@ -127,7 +128,8 @@ value), fill them plainly and keep the vocabulary out of the prose around them.
 ## One claim per sentence
 
 State the claim. A correction of an objection nobody raised is not a fact, and a
-bold noun phrase ending in a period is a heading pretending to be a sentence. Do
+bold noun phrase ending in a period is a heading pretending to be a sentence. A
+clause that announces its verdict and stops at a colon is that same heading. Do
 not open a section by repeating its heading.
 
 - Wrong: `A stage nobody has reached yet says Not started rather than Blocked.`
@@ -136,6 +138,8 @@ not open a section by repeating its heading.
 - Right: `Steps sit on a numbered rail, one circle per step.`
 - Wrong: `**The one question.** Does a reply read as carefully made as the recap card?`
 - Right: `A reply deserves as much care as the recap card that ends a turn.`
+- Wrong: `*The literal sense survives*: the model pass cleared one sentence and flagged the other.`
+- Right: `The model pass cleared one sentence and flagged the other.`
 
 Where a wrong reading would cost the reader something, give the assumption first
 and the fact after it: "Auto-repeat re-runs the handler; it re-registers on every
@@ -221,12 +225,13 @@ in several passes than in one rewrite.
    keep their words. Then read for what no checker sees: whether two sentences
    in a row share a shape, whether a paragraph is about the document, and
    whether the hard part of the subject got the long sentence.
-3. Read the first sentence of every paragraph. If it is a bold fragment, a claim
-   about the document, or an "It is …", rewrite it to name the thing that acts.
+3. Read the first sentence of every paragraph. If it is a bold or italic
+   fragment, a claim about the document, or an "It is …", rewrite it to name the
+   thing that acts.
 4. The sentence that explains a rule pays the most in a document, and the
    statements below apply to every sentence whether or not a checker flags it.
 
 The standard's phrase list: `rather than`, `instead of`, `nothing`, `only`,
-`never`, `the one`, `carries`, `names`, `becomes`, `gated`, `gate`,
+`never`, `the one`, `carries`, `names`, `becomes`, `gated`, `gate`, `survives`,
 `reads as`, `deliberately`, `actually`, `evidence`, `finding`, `observation`,
 `observed`, `inferred`, `certainty`, `honest`, `candid`, `frank`, `transparent`.
