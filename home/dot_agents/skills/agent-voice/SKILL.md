@@ -169,8 +169,9 @@ the page they are already looking at. Describe structure where a person could
 not find a part without help.
 
 A status, date, author, owner or version line, and any other line about the
-draft itself, appears only when a person asks for one. A middle dot chaining
-items (`a · b · c`) makes the reader take the line apart, so write the sentence.
+draft itself, appears only when a person asks for one. A middle dot joins details
+a reader has to take apart, and the chain usually includes ones nobody needs, so
+write the sentence and keep the facts the reader acts on.
 
 - Wrong: `Code Reviews · Security Reviews · Investigations`
 - Right: `Code Reviews, Security Reviews and Investigations`
