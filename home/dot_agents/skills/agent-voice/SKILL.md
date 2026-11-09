@@ -168,10 +168,11 @@ to use them" and "this section describes" spend words telling the reader about
 the page they are already looking at. Describe structure where a person could
 not find a part without help.
 
-A document opens with its title. A status, date, author, owner or version line,
-and any other line about the draft itself, appears only when a person asks for
-one. A middle dot chaining items (`a · b · c`) makes the reader take the line
-apart, so write the sentence.
+A status, date, author, owner or version line, and any other line about the
+draft itself, appears only when a person asks for one. A short note, a comment
+or a reply opens with its first sentence and carries no title above it. A middle
+dot chaining items (`a · b · c`) makes the reader take the line apart, so write
+the sentence.
 
 - Wrong: `Code Reviews · Security Reviews · Investigations`
 - Right: `Code Reviews, Security Reviews and Investigations`
