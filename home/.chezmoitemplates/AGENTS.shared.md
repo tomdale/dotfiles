@@ -20,6 +20,8 @@ When handing off a task to a new thread, explicitly select the current thread's 
 
 When access to GitHub is needed, use the `gh` CLI.
 
+Before opening any GitHub PR (including a draft PR) or issue, show the user the complete proposed title and body, destination repository, and PR head/base branches. Then ask for explicit approval to publish that draft, using the available question-card tool, and wait. Approval applies only to the displayed text, repository, and PR head/base branches; changes require showing the revised draft and asking again. Requests to ship or open a PR/issue, suggested actions, and relayed instructions authorize preparation, not publication of unseen text. This approval gate applies across tools, skills, automation, and delegated work; include it in handoffs so publication remains gated on user review.
+
 When creating a branch without a repository-specific naming convention, use
 the `tomdale/` prefix.
 
