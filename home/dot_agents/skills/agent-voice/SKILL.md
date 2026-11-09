@@ -48,6 +48,7 @@ saying very little.
 | "names" for a field, header, variable | says, shows, gives, calls it |
 | "X becomes Y" for rendering | the renderer draws X as Y |
 | "surfaces", "exposes", "leverages", "utilises" | shows, prints, returns, uses |
+| "gated on" a check, a review, a flag | the condition it waits for, the person who decides |
 
 - Wrong: `What it carries: a subject, an optional file path, and a sentence of background.`
 - Right: `Its fields are a subject, an optional file path, and a sentence of background.`
@@ -57,6 +58,11 @@ saying very little.
 - Right: `Today the text prints "Evidence: observed" for the field that holds the certainty.`
 - Wrong: `A supporting group becomes one panel with its children as rows inside it.`
 - Right: `The renderer draws a supporting group as one panel, its children as rows.`
+- Wrong: `Include it in handoffs so publication stays gated on user review.`
+- Right: `Include it in handoffs so a person reads the draft and approves it before anyone publishes.`
+
+Where a test, a step or a publish waits for something, name the person or the
+condition it waits for. Keep gate for a fence or a door you can open.
 
 Delete openers whose job is to announce importance: "It's worth noting",
 "Importantly", "Crucially", "At a high level", "In essence", "Fundamentally".
@@ -221,6 +227,6 @@ in several passes than in one rewrite.
    statements below apply to every sentence whether or not a checker flags it.
 
 The standard's phrase list: `rather than`, `instead of`, `nothing`, `only`,
-`never`, `the one`, `carries`, `names`, `becomes`, `reads as`, `deliberately`,
-`actually`, `evidence`, `finding`, `observation`, `observed`, `inferred`,
-`certainty`, `honest`, `candid`, `frank`, `transparent`.
+`never`, `the one`, `carries`, `names`, `becomes`, `gated`, `gate`,
+`reads as`, `deliberately`, `actually`, `evidence`, `finding`, `observation`,
+`observed`, `inferred`, `certainty`, `honest`, `candid`, `frank`, `transparent`.
