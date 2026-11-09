@@ -1,6 +1,6 @@
 #!/bin/sh
 set -eu
-{{- $enabled := eq .chezmoi.os "darwin" -}}
+{{- $enabled := eq .chezmoi.os "darwin" }}
 LABEL="com.tomdale.sideshow"
 DOMAIN="gui/$(id -u)"
 PLIST="${HOME}/Library/LaunchAgents/${LABEL}.plist"
