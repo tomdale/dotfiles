@@ -2,87 +2,27 @@
 set -eu
 
 {{- $isWork := get . "isWork" | default false -}}
-{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
 {{- $npmPublishTokenOpRef := get . "npmPublishTokenOpRef" | default "" }}
 
+# Returns the brief authorization header that publishes to npmjs need, so that
+# `pnpm-publish` and `npm-rw` can hand it to a single command.
+#
+# Package reads never call this. They resolve through the Socket Firewall
+# registry in .npmrc, which authenticates with its own credentials, so installing
+# dependencies must not touch 1Password at all.
 usage() {
-  echo "usage: pnpm-npm-token [--publish]" >&2
+  echo "usage: pnpm-npm-token --publish" >&2
   exit 2
 }
 
-case "${PNPM_NPM_TOKEN_MODE-}" in
-  "")
-    ;;
-  publish)
-    if [ "$#" -eq 0 ]; then
-      set -- --publish
-    fi
-    ;;
-  *)
-    echo "unsupported PNPM_NPM_TOKEN_MODE: ${PNPM_NPM_TOKEN_MODE}" >&2
-    usage
-    ;;
-esac
-
-if [ "$#" -gt 1 ]; then
+if [ "$#" -ne 1 ] || [ "$1" != "--publish" ]; then
   usage
 fi
 
-case "${1-}" in
-  "")
-    ;;
-  --publish)
 {{- if and $isWork $npmPublishTokenOpRef }}
-    printf 'Bearer '
-    op read {{ $npmPublishTokenOpRef | quote }}
-    exit 0
-{{- else }}
-    echo "npm publish token 1Password reference is not configured" >&2
-    exit 1
-{{- end }}
-    ;;
-  *)
-    usage
-    ;;
-esac
-
-{{- if and (eq .chezmoi.os "darwin") $isWork $npmTokenOpRef }}
-socket="${HOME}/.local/state/pnpm-npm-token-cache/socket"
-service="gui/$(id -u)/com.tomdale.pnpm-npm-token-cache"
-
-if [ ! -S "$socket" ]; then
-  # Start the agent if it isn't running. No -k: that would force-kill a healthy
-  # daemon and discard the warm cache other concurrent installs are relying on.
-  launchctl kickstart "$service" >/dev/null 2>&1 || true
-  # A #!/usr/bin/swift daemon compiles, binds, and listens on cold start, which
-  # routinely exceeds a fixed 0.2s. Poll for the socket up to ~3s instead.
-  i=0
-  while [ ! -S "$socket" ] && [ "$i" -lt 60 ]; do
-    sleep 0.05
-    i=$((i + 1))
-  done
-fi
-
-if [ ! -S "$socket" ]; then
-  echo "pnpm npm token cache socket is not available" >&2
-  exit 1
-fi
-
-response="$(printf 'token\n' | /usr/bin/nc -w 5 -U "$socket")"
-
-case "$response" in
-  "Bearer "*)
-    printf '%s\n' "$response"
-    ;;
-  *)
-    echo "pnpm npm token cache did not return a bearer token" >&2
-    exit 1
-    ;;
-esac
-{{- else if and $isWork $npmTokenOpRef }}
 printf 'Bearer '
-op read {{ $npmTokenOpRef | quote }}
+op read {{ $npmPublishTokenOpRef | quote }}
 {{- else }}
-echo "npm token 1Password reference is not configured" >&2
+echo "npm publish token 1Password reference is not configured" >&2
 exit 1
 {{- end }}

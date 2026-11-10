@@ -262,8 +262,7 @@
         "results-receiver.actions.githubusercontent.com"
       ],
       "allowUnixSockets": [
-        "/private/tmp/tmux-501/default",
-        "/Users/tomdale/.local/state/pnpm-npm-token-cache/socket"
+        "/private/tmp/tmux-501/default"
       ],
       "allowAllUnixSockets": true,
       "allowLocalBinding": true

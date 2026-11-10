@@ -1,5 +1,33 @@
 #!/bin/sh
 set -eu
 
-export PNPM_NPM_TOKEN_MODE=publish
-exec pnpm publish "$@"
+# Publishes to public npm with a token fetched for this one command.
+#
+# Package reads go through the Socket Firewall registry configured in .npmrc, so
+# this wrapper is the only npm-family path that needs an npmjs token. Fetching it
+# per publish keeps 1Password out of installs entirely.
+if [ "$#" -eq 0 ]; then
+  echo "usage: pnpm-publish <pnpm publish arguments...>" >&2
+  exit 2
+fi
+
+bearer="$("${HOME}/.local/bin/pnpm-npm-token" --publish)"
+case "$bearer" in
+  "Bearer "*)
+    token="${bearer#Bearer }"
+    ;;
+  *)
+    echo "pnpm-npm-token --publish did not return a bearer token" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "$token" ]; then
+  echo "pnpm publish token is empty" >&2
+  exit 1
+fi
+
+# A URL-scoped environment variable keeps the token out of every file on disk.
+# `env` also resolves pnpm from PATH, so this cannot recurse into a shell wrapper.
+exec env "npm_config_//registry.npmjs.org/:_authToken=${token}" \
+  pnpm --registry https://registry.npmjs.org/ publish "$@"

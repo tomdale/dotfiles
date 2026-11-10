@@ -1,5 +1,0 @@
-{{- $isWork := get . "isWork" | default false -}}
-{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
-{{- if and $isWork $npmTokenOpRef }}
-npmrcAuthFile: {{ joinPath .chezmoi.homeDir ".config/pnpm/auth.ini" }}
-{{- end }}

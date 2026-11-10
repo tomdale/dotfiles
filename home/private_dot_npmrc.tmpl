@@ -1,14 +1,28 @@
 {{- $isWork := get . "isWork" | default false -}}
-{{- $npmTokenOpRef := get . "npmTokenOpRef" | default "" -}}
 min-release-age=2
-{{ if and $isWork $npmTokenOpRef -}}
-//registry.npmjs.org/:tokenHelper={{ joinPath .chezmoi.homeDir ".local/bin/pnpm-npm-token" }}
-{{- end }}
 {{- if $isWork }}
 
-# Socket Firewall npm-family registry
+# Socket Firewall npm-family registry. Every npm-family read resolves through the
+# firewall with the credential below, so no other registry token belongs here: a
+# //registry.npmjs.org/:tokenHelper would make pnpm run its helper for every
+# install even though nothing is fetched from npmjs. Publishing is the one path
+# that needs an npmjs token, and `pnpm-publish` / `npm-rw` supply it per command.
 registry=https://registry.k8s.vercel.security/npm/
+{{- /* The firewall credential comes from the Keychain item the Socket Firewall
+       installer maintains. Rendering it at apply time keeps the deployed file
+       usable from shells that export no environment, and keeps the value out of
+       this repository: only the lookup is committed. */}}
+{{- $socketAuth := "" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{- $socketAuth = trim (output "sh" "-c" "/usr/bin/security find-generic-password -a \"$(whoami)\" -s 'socket-firewall:registry.k8s.vercel.security:auth-b64' -w 2>/dev/null || true") -}}
+{{- end }}
+{{- if $socketAuth }}
+//registry.k8s.vercel.security/npm/:_auth={{ $socketAuth }}
+{{- else }}
+# No Keychain item yet: run the Socket Firewall installer, or export
+# SOCKET_PASSWORD_B64 yourself so npm can resolve the fallback below.
 //registry.k8s.vercel.security/npm/:username=client-gate
 //registry.k8s.vercel.security/npm/:_password=${SOCKET_PASSWORD_B64}
+{{- end }}
 omit-lockfile-registry-resolved=true
 {{- end }}
