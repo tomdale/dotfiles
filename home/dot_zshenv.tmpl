@@ -1,3 +1,4 @@
+{{- $isWork := get . "isWork" | default false -}}
 #!/usr/bin/env zsh
 # ╔═══════════════════════════════════════════════════════════════════════════╗
 # ║ ~/.zshenv - Bootstrap ZDOTDIR                                            ║
@@ -20,8 +21,11 @@ export ZDOTDIR="$HOME/.config/zsh"
 # $ZDOTDIR/.zshenv so subshells that inherit ZDOTDIR get the same path).
 source "$ZDOTDIR/env.zsh"
 
+{{- if $isWork }}
+
 # Load the Socket Firewall shell integration when its installer has written it.
 # env.sh defines the npm and pnpm functions that route login, publish, and other
 # credential-bearing subcommands to registry.npmjs.org, where their tokens cannot
 # shadow the firewall credentials in ~/.npmrc; package reads are unaffected.
 [ -f "$HOME/.config/socket-firewall/env.sh" ] && source "$HOME/.config/socket-firewall/env.sh"
+{{- end }}
