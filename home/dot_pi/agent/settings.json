@@ -39,7 +39,27 @@
   "compaction": {
     "enabled": true,
     "reserveTokens": 32768,
-    "keepRecentTokens": 32000
+    "keepRecentTokens": 32000,
+    "modelOverrides": {
+      "vercel-ai-gateway/deepseek/deepseek-v4.1-flash-1017": { "reserveTokens": 648576 },
+      "vercel-ai-gateway/deepseek/deepseek-v4.1-flash-1017-ultrafast": {
+        "reserveTokens": 648576
+      },
+      "vercel-ai-gateway/openai/gpt-6-luna": { "reserveTokens": 650000 },
+      "vercel-ai-gateway/openai/gpt-6.1-terra": { "reserveTokens": 650000 },
+      "vercel-ai-gateway/openai/gpt-6.1-sol": { "reserveTokens": 650000 },
+      "vercel-ai-gateway/openai/gpt-6-astra": { "reserveTokens": 650000 },
+      "vercel-ai-gateway/anthropic/claude-sonnet-5.5": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/anthropic/claude-opus-5.5": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/anthropic/claude-fable-5.2": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/moonshotai/kimi-k3.1-pro": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/moonshotai/kimi-k3": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/google/gemini-3.1-flash-lite": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/google/gemini-3.8-flash": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/google/gemini-4-argon": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/zai/glm-5.3-flash": { "reserveTokens": 600000 },
+      "vercel-ai-gateway/zai/glm-5.3-fast": { "reserveTokens": 648576 }
+    }
   },
   "branchSummary": {
     "reserveTokens": 32768,
