@@ -102,6 +102,12 @@ there.
   `bb plugin list` shows the plugin `running` from `path:<canonical>/...`, then
   exercise the change in the app when it has UI.
 - Pi: start a new session or run `/reload`.
+- skills: run `npx skills add ~/Code/Repos/skills/main -g -a pi -s agent-voice -s naming-code -y`
+  after every merge that changes either skill. It copies them into
+  `~/.agents/skills`, replacing the previous copy; add `-s <name>` for another
+  skill that should load under its plain name. The copy is current when
+  `diff -r ~/Code/Repos/skills/main/skills/<name> ~/.agents/skills/<name>`
+  prints nothing. Edit skills only in the repo; the copies are overwritten.
 - dotfiles: `chezmoi diff <destination>`, then `chezmoi apply <destination>`
   for each destination you changed. Script and link changes need a full
   `chezmoi apply`, which also deploys any unrelated source/live drift; run a
